@@ -1,0 +1,46 @@
+<Project>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+
+    <!-- PLAN.md section 5: CI builds with warnings as errors. Keep local and CI identical
+         so a red build is never a surprise at merge time. -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!--
+      CS1591: public XML doc comments are not mandatory outside the domain.
+      CS1573: documenting only the parameters that need explaining is deliberate. Forcing a
+              tag for every parameter produces "the id" restated as prose, which is noise
+              that makes the comments that do matter harder to find.
+    -->
+    <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
+
+    <IsPackable>false</IsPackable>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+
+    <!-- PLAN.md section 5: the till reports its version so a support call starts
+         with a known build. -->
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <Product>RetailCore POS</Product>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+
+    <!--
+      .NET 10 removed the VSTest bridge for Microsoft.Testing.Platform, which is what
+      xunit.v3 runs on. This opts `dotnet test` into the platform directly.
+    -->
+    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+    <UseVSTest>false</UseVSTest>
+  </PropertyGroup>
+
+</Project>

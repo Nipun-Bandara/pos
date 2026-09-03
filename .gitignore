@@ -1,0 +1,46 @@
+## .NET
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Bb]uild[Ll]og.*
+*.user
+*.suo
+*.userprefs
+project.lock.json
+project.fragment.lock.json
+artifacts/
+TestResults/
+*.trx
+*.coverage
+coverage*.json
+coverage*.xml
+coverage*.info
+
+## Rider / VS / VS Code
+.vs/
+.idea/
+.vscode/
+*.swp
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Local databases and backups (PLAN.md: SQLite lives on the till, never in the repo)
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+backups/
+
+## Secrets (PLAN.md section 5: never in the repository)
+appsettings.*.local.json
+*.pfx
+*.snk
+.env
+.env.*

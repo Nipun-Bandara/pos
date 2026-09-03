@@ -1,0 +1,69 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{json,yml,yaml,md,csproj,props,targets}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.cs]
+dotnet_sort_system_directives_first = true
+csharp_using_directive_placement = outside_namespace:warning
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_prefer_braces = true:suggestion
+dotnet_style_readonly_field = true:warning
+dotnet_style_require_accessibility_modifiers = for_non_interface_members:warning
+
+# Nullability and correctness are errors, not suggestions.
+dotnet_diagnostic.CS8600.severity = error
+dotnet_diagnostic.CS8602.severity = error
+dotnet_diagnostic.CS8603.severity = error
+dotnet_diagnostic.CS8618.severity = error
+
+# CA1062: EF Core materialisation and internal call sites make blanket null checks noise.
+dotnet_diagnostic.CA1062.severity = none
+# CA1848: LoggerMessage source generators are a Phase 1 OPS-02 task, not a build blocker yet.
+dotnet_diagnostic.CA1848.severity = none
+# CA1515: internal-by-default does not suit libraries consumed across projects.
+dotnet_diagnostic.CA1515.severity = none
+
+# Test projects. Specification-style names and nested grouping classes are the point here,
+# so the naming and design rules that fight them are off for tests only.
+[tests/**/*.cs]
+# CA1707: Underscored_test_names read as sentences in the runner output.
+dotnet_diagnostic.CA1707.severity = none
+# CA1034: Nested classes group related specifications.
+dotnet_diagnostic.CA1034.severity = none
+# CA1861: Inline arrays in assertions are clearer than shared static fields.
+dotnet_diagnostic.CA1861.severity = none
+# CA5394: Test data does not need cryptographic randomness.
+dotnet_diagnostic.CA5394.severity = none
+# CA1822: Fixture helpers stay instance members so specifications read as _shop.Something().
+dotnet_diagnostic.CA1822.severity = none
+# CA1711: xUnit's collection-definition types are named by its own convention.
+dotnet_diagnostic.CA1711.severity = none
+# CA2007: xUnit1030 forbids ConfigureAwait(false) inside test methods, so the two rules
+# contradict each other. The xUnit rule wins in a test project.
+dotnet_diagnostic.CA2007.severity = none
+# xUnit1051: these suites have no long-running waits to cancel, and threading a token
+# through every database call would bury the assertions in ceremony.
+dotnet_diagnostic.xUnit1051.severity = none
+
+# EF Core migrations are generated code. PLAN.md section 5 makes them forward only and
+# never edited by hand, so style and design rules have nothing to act on here.
+[**/Migrations/*.cs]
+generated_code = true
+dotnet_analyzer_diagnostic.severity = none
+dotnet_diagnostic.CA1861.severity = none
+dotnet_diagnostic.CA1062.severity = none
+dotnet_diagnostic.IDE0300.severity = none
+dotnet_diagnostic.IDE0301.severity = none

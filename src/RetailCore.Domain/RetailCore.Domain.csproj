@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The domain project deliberately has no PackageReference and no ProjectReference.
+    RetailCore.Architecture.Tests asserts this. If you are about to add one, you are
+    probably putting infrastructure in the wrong layer.
+  -->
+
+</Project>
