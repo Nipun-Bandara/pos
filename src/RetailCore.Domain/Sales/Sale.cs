@@ -237,6 +237,7 @@ public sealed class Sale : AggregateRoot<SaleId>, IBelongsToShop
             quantity,
             taxTreatment);
 
+        line.SnapshotStock(product);
         _lines.Add(line);
         Recalculate();
         return line;
@@ -591,7 +592,7 @@ public sealed class Sale : AggregateRoot<SaleId>, IBelongsToShop
 
     /// <summary>What left the shop, for the stock ledger. INV-03.</summary>
     public IReadOnlyList<SoldItem> ItemsSold() =>
-        [.. ActiveLines.Select(l => new SoldItem(l.ProductId, l.Quantity))];
+        [.. ActiveLines.Select(l => new SoldItem(l.ProductId, l.Quantity, l.StockProductId, l.StockFactorThousandths, l.StockBaseUnit ?? l.Unit, l.UnitCost))];
 
     /// <summary>
     /// Rewrites every derived total from the lines. The only writer of the total properties.

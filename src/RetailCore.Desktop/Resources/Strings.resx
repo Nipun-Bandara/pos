@@ -284,4 +284,68 @@
   <data name="UnitMillilitre" xml:space="preserve"><value>Millilitre</value></data>
   <data name="UnitMetre" xml:space="preserve"><value>Metre</value></data>
   <data name="UnitPack" xml:space="preserve"><value>Pack</value></data>
+  <data name="StockHelp" xml:space="preserve"><value>Select a product to see its shared base-stock balance and full history. Receive in selling units; costs are per entered unit. Counts use base units. Configure packs before their first movement. Changes need an owner; adjustments/counts require PIN approval.</value></data>
+  <data name="RefreshStock" xml:space="preserve"><value>Refresh stock</value></data>
+  <data name="StockSearch" xml:space="preserve"><value>Search stock products</value></data>
+  <data name="LowStockOnly" xml:space="preserve"><value>Low stock only</value></data>
+  <data name="BaseUnit" xml:space="preserve"><value>Base stock unit</value></data>
+  <data name="StockFactor" xml:space="preserve"><value>Base units per selling unit</value></data>
+  <data name="Reorder" xml:space="preserve"><value>Reorder threshold (base units)</value></data>
+  <data name="StockProduct" xml:space="preserve"><value>Product</value></data>
+  <data name="StockHistory" xml:space="preserve"><value>Append-only movement history</value></data>
+  <data name="StockDate" xml:space="preserve"><value>Movement date</value></data>
+  <data name="StockKind" xml:space="preserve"><value>Movement type</value></data>
+  <data name="EnteredQuantity" xml:space="preserve"><value>Entered quantity / counted base quantity</value></data>
+  <data name="BaseQuantity" xml:space="preserve"><value>Signed base quantity</value></data>
+  <data name="BaseCost" xml:space="preserve"><value>Cost per base unit</value></data>
+  <data name="StockInputCost" xml:space="preserve"><value>Cost per entered unit</value></data>
+  <data name="StockReason" xml:space="preserve"><value>Reason (required)</value></data>
+  <data name="StockReference" xml:space="preserve"><value>Supplier / reference (optional)</value></data>
+  <data name="RecordedBy" xml:space="preserve"><value>Recorded by</value></data>
+  <data name="ApprovedBy" xml:space="preserve"><value>Approved by</value></data>
+  <data name="StockSource" xml:space="preserve"><value>Source</value></data>
+  <data name="StockSourceId" xml:space="preserve"><value>Source reference</value></data>
+  <data name="StockConfiguration" xml:space="preserve"><value>Base product, pack conversion and reorder threshold</value></data>
+  <data name="SaveStockConfiguration" xml:space="preserve"><value>Save stock configuration</value></data>
+  <data name="StockEntry" xml:space="preserve"><value>Receive, adjust or count stock</value></data>
+  <data name="AllowNegativeStock" xml:space="preserve"><value>Request owner approval to allow negative stock</value></data>
+  <data name="StockVariance" xml:space="preserve"><value>Variance</value></data>
+  <data name="StockBefore" xml:space="preserve"><value>Before</value></data>
+  <data name="StockAfter" xml:space="preserve"><value>After</value></data>
+  <data name="PostStockEntry" xml:space="preserve"><value>Save stock entry</value></data>
+  <data name="ConsumptionHelp" xml:space="preserve"><value>Consumption preview only: selected product plus a sealed pack; no sale or stock movement is saved.</value></data>
+  <data name="ConsumptionQuantity" xml:space="preserve"><value>Selected product quantity</value></data>
+  <data name="ConsumptionPack" xml:space="preserve"><value>Second product / sealed pack</value></data>
+  <data name="ConsumptionPackQuantity" xml:space="preserve"><value>Second product quantity</value></data>
+  <data name="PreviewConsumption" xml:space="preserve"><value>Preview combined consumption</value></data>
+  <data name="StockConsumed" xml:space="preserve"><value>Consumed</value></data>
+  <data name="InvalidStockQuantity" xml:space="preserve"><value>Enter a valid nonnegative count or positive movement, with at most three decimals. Whole-item units require whole quantities. Check cost precision too.</value></data>
+  <data name="StockPrecision" xml:space="preserve"><value>This conversion is finer than 0.001 base units. Use a compatible quantity or pack factor.</value></data>
+  <data name="InvalidStockConfiguration" xml:space="preserve"><value>Choose an active base product with no parent. Only Pack products can link to another base. Use a positive exact conversion; each/pack base units need whole factors. Set reorder on the base product.</value></data>
+  <data name="StockMappingLocked" xml:space="preserve"><value>Stock history or linked packs already use this mapping. Keep the unit/conversion, or create a new product.</value></data>
+  <data name="StaleStockCount" xml:space="preserve"><value>Stock changed since the preview. Refresh and review the new balance before approval.</value></data>
+  <data name="OpeningAlreadyRecorded" xml:space="preserve"><value>This base product already has stock history. Use receiving or an approved adjustment instead.</value></data>
+  <data name="InsufficientStock" xml:space="preserve"><value>Insufficient stock. A reason and explicit owner approval are required to go negative.</value></data>
+  <data name="InvalidStockEntry" xml:space="preserve"><value>Enter a reason, valid date no later than today, quantity and cost. Check the movement type.</value></data>
+  <data name="StockPostingConflict" xml:space="preserve"><value>This source was already posted with different stock details. No additional stock was written.</value></data>
+  <data name="EntryReceiving" xml:space="preserve"><value>Receiving</value></data>
+  <data name="EntryOpening" xml:space="preserve"><value>Opening balance</value></data>
+  <data name="EntryAdjustmentIn" xml:space="preserve"><value>Adjustment in</value></data>
+  <data name="EntryAdjustmentOut" xml:space="preserve"><value>Adjustment out</value></data>
+  <data name="EntryWastage" xml:space="preserve"><value>Damage / wastage</value></data>
+  <data name="EntryCount" xml:space="preserve"><value>Stock count (base units)</value></data>
+  <data name="StockKindSale" xml:space="preserve"><value>Sale</value></data>
+  <data name="StockKindRefund" xml:space="preserve"><value>Saleable return</value></data>
+  <data name="StockKindSaleVoided" xml:space="preserve"><value>Sale void</value></data>
+  <data name="StockKindGoodsReceived" xml:space="preserve"><value>Received</value></data>
+  <data name="StockKindAdjustment" xml:space="preserve"><value>Adjustment</value></data>
+  <data name="StockKindWastage" xml:space="preserve"><value>Wastage</value></data>
+  <data name="StockKindStockTake" xml:space="preserve"><value>Stock count</value></data>
+  <data name="StockKindTransfer" xml:space="preserve"><value>Legacy transfer</value></data>
+  <data name="StockKindOpeningBalance" xml:space="preserve"><value>Opening balance</value></data>
+  <data name="StockSourceStockEntry" xml:space="preserve"><value>Stock entry</value></data>
+  <data name="StockSourceSale" xml:space="preserve"><value>Sale</value></data>
+  <data name="StockSourceSaleVoid" xml:space="preserve"><value>Sale void</value></data>
+  <data name="StockSourceRefund" xml:space="preserve"><value>Return</value></data>
+  <data name="UnitUnknown" xml:space="preserve"><value>Unknown unit</value></data>
 </root>

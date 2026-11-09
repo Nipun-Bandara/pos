@@ -9,6 +9,15 @@ public sealed class ApprovalDialog : Window
     public ApprovalTicket? Ticket { get; private set; }
 
     public ApprovalDialog(FoundationService service, IReadOnlyList<UserSummary> owners, ShopProfile profile)
+        : this(service, owners, FoundationService.SettingsApproval(profile), Describe(profile)) { }
+
+    private static string Describe(ShopProfile profile) => $"{Texts.Get("ShopName")}: {profile.Name}\n{Texts.Get("LegalName")}: {profile.LegalName}\n"
+                + $"{Texts.Get("Address")}: {profile.Address}\n{Texts.Get("Telephone")}: {profile.Telephone}\n"
+                + $"{Texts.Get("TimeZone")}: {profile.TimeZoneId}\n{Texts.Get("Currency")}: {profile.Currency}\n"
+                + $"{Texts.Get("ReceiptFooter")}: {profile.ReceiptFooter}\n{Texts.Get("PrinterName")}: {profile.PrinterName}\n"
+                + $"{Texts.Get("PaperWidth")}: {profile.PaperWidthMillimeters}\n{Texts.Get("CashIncrement")}: {profile.CashIncrementMinor}";
+
+    public ApprovalDialog(FoundationService service, IReadOnlyList<UserSummary> owners, ApprovalRequest request, string review)
     {
         Title = Texts.Get("OwnerApproval");
         Width = 560;
@@ -22,11 +31,7 @@ public sealed class ApprovalDialog : Window
         // Show the values the owner is actually authorizing, not an opaque token or JSON.
         panel.Children.Add(new TextBlock
         {
-            Text = $"{Texts.Get("ShopName")}: {profile.Name}\n{Texts.Get("LegalName")}: {profile.LegalName}\n"
-                + $"{Texts.Get("Address")}: {profile.Address}\n{Texts.Get("Telephone")}: {profile.Telephone}\n"
-                + $"{Texts.Get("TimeZone")}: {profile.TimeZoneId}\n{Texts.Get("Currency")}: {profile.Currency}\n"
-                + $"{Texts.Get("ReceiptFooter")}: {profile.ReceiptFooter}\n{Texts.Get("PrinterName")}: {profile.PrinterName}\n"
-                + $"{Texts.Get("PaperWidth")}: {profile.PaperWidthMillimeters}\n{Texts.Get("CashIncrement")}: {profile.CashIncrementMinor}",
+            Text = review,
             TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 16, 0, 12),
         });
         MainWindow.Label(panel, "SelectUser");
@@ -45,7 +50,7 @@ public sealed class ApprovalDialog : Window
             try
             {
                 if (owner.SelectedItem is not UserSummary selected) { throw new FoundationException("OwnerRequired"); }
-                Ticket = await service.ApproveAsync(selected.Id, pin.Password, FoundationService.SettingsApproval(profile));
+                Ticket = await service.ApproveAsync(selected.Id, pin.Password, request);
                 if (IsVisible) { DialogResult = true; }
             }
             catch (FoundationException ex) { error.Text = Texts.Get(ex.Key); }

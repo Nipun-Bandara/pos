@@ -73,6 +73,10 @@ of four bands; additional bands are not required for version 1.
 
 ## 3. Stock and receiving
 
+Milestone 03 implements receiving, conversions, counts, history and guarded posting in source.
+Windows runtime acceptance remains pending; see [validation notes](docs/implementation/MILESTONE_03.md).
+Billing completion and actual returns remain milestones 04 and 06.
+
 | ID | Feature | Priority | Status |
 |---|---|---|---|
 | INV-01 | Explain stock through an append-only movement history | Must | Foundation |
@@ -92,7 +96,7 @@ be positive and snapshotted on movements; do not double-count a bag and its cont
 Expiry belongs to a delivery batch, not a single date on the product. If expiry tracking is
 enabled, stock issues/returns must identify the affected batch, allowing a default allocation
 and correction. Full automatic FEFO optimization and recall management are later features.
-The current refund handler restores all returned stock: disposition support is still needed.
+Milestone 03 posting distinguishes saleable/damaged returns; the actual return workflow is milestone 06.
 
 ## 4. Returns and exchanges
 

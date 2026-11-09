@@ -284,4 +284,68 @@
   <data name="UnitMillilitre" xml:space="preserve"><value>මිලිලීටර්</value></data>
   <data name="UnitMetre" xml:space="preserve"><value>මීටර්</value></data>
   <data name="UnitPack" xml:space="preserve"><value>ඇසුරුම</value></data>
+  <data name="StockHelp" xml:space="preserve"><value>භාණ්ඩයක් තෝරා මූලික තොග ශේෂය සහ ඉතිහාසය බලන්න. ලැබීම් විකුණුම් ඒකකයෙන්ද පිරිවැය ඇතුළත් ඒකකයකටද සටහන් කරන්න. ගණන් කිරීම මූලික ඒකකයෙන්ය. පළමු චලනයට පෙර ඇසුරුම් සකසන්න. වෙනස්කම් හිමිකරුට පමණි; සංශෝධන සහ ගණන් කිරීම් සඳහා PIN අනුමැතිය අවශ්‍යයි.</value></data>
+  <data name="RefreshStock" xml:space="preserve"><value>තොග යාවත්කාලීන කරන්න</value></data>
+  <data name="StockSearch" xml:space="preserve"><value>තොග භාණ්ඩ සොයන්න</value></data>
+  <data name="LowStockOnly" xml:space="preserve"><value>අඩු තොග පමණි</value></data>
+  <data name="BaseUnit" xml:space="preserve"><value>මූලික තොග ඒකකය</value></data>
+  <data name="StockFactor" xml:space="preserve"><value>විකුණුම් ඒකකයක මූලික ඒකක ගණන</value></data>
+  <data name="Reorder" xml:space="preserve"><value>නැවත ඇණවුම් සීමාව (මූලික ඒකක)</value></data>
+  <data name="StockProduct" xml:space="preserve"><value>භාණ්ඩය</value></data>
+  <data name="StockHistory" xml:space="preserve"><value>වෙනස් කළ නොහැකි තොග ඉතිහාසය</value></data>
+  <data name="StockDate" xml:space="preserve"><value>තොග චලන දිනය</value></data>
+  <data name="StockKind" xml:space="preserve"><value>තොග චලන වර්ගය</value></data>
+  <data name="EnteredQuantity" xml:space="preserve"><value>ඇතුළත් ප්‍රමාණය / ගණන් කළ මූලික ප්‍රමාණය</value></data>
+  <data name="BaseQuantity" xml:space="preserve"><value>ලකුණ සහිත මූලික ප්‍රමාණය</value></data>
+  <data name="BaseCost" xml:space="preserve"><value>මූලික ඒකකයක පිරිවැය</value></data>
+  <data name="StockInputCost" xml:space="preserve"><value>ඇතුළත් ඒකකයක පිරිවැය</value></data>
+  <data name="StockReason" xml:space="preserve"><value>හේතුව (අවශ්‍යයි)</value></data>
+  <data name="StockReference" xml:space="preserve"><value>සැපයුම්කරු / යොමුව (විකල්ප)</value></data>
+  <data name="RecordedBy" xml:space="preserve"><value>සටහන් කළේ</value></data>
+  <data name="ApprovedBy" xml:space="preserve"><value>අනුමත කළේ</value></data>
+  <data name="StockSource" xml:space="preserve"><value>මූලාශ්‍රය</value></data>
+  <data name="StockSourceId" xml:space="preserve"><value>මූලාශ්‍ර යොමුව</value></data>
+  <data name="StockConfiguration" xml:space="preserve"><value>මූලික භාණ්ඩය, ඇසුරුම් පරිවර්තනය සහ නැවත ඇණවුම් සීමාව</value></data>
+  <data name="SaveStockConfiguration" xml:space="preserve"><value>තොග සැකසුම් සුරකින්න</value></data>
+  <data name="StockEntry" xml:space="preserve"><value>තොග ලැබීම, සංශෝධනය හෝ ගණන් කිරීම</value></data>
+  <data name="AllowNegativeStock" xml:space="preserve"><value>ඍණ තොගයට හිමිකරුගේ අනුමැතිය ඉල්ලන්න</value></data>
+  <data name="StockVariance" xml:space="preserve"><value>වෙනස</value></data>
+  <data name="StockBefore" xml:space="preserve"><value>පෙර</value></data>
+  <data name="StockAfter" xml:space="preserve"><value>පසු</value></data>
+  <data name="PostStockEntry" xml:space="preserve"><value>තොග සටහන සුරකින්න</value></data>
+  <data name="ConsumptionHelp" xml:space="preserve"><value>පරිභෝජන පෙරදසුන පමණි: තෝරාගත් භාණ්ඩය සහ මුද්‍රා තැබූ ඇසුරුම. විකිණීමක් හෝ තොග චලනයක් සුරැකෙන්නේ නැත.</value></data>
+  <data name="ConsumptionQuantity" xml:space="preserve"><value>තෝරාගත් භාණ්ඩ ප්‍රමාණය</value></data>
+  <data name="ConsumptionPack" xml:space="preserve"><value>දෙවන භාණ්ඩය / මුද්‍රා තැබූ ඇසුරුම</value></data>
+  <data name="ConsumptionPackQuantity" xml:space="preserve"><value>දෙවන භාණ්ඩ ප්‍රමාණය</value></data>
+  <data name="PreviewConsumption" xml:space="preserve"><value>එකතු කළ පරිභෝජනය පෙරදසුන් කරන්න</value></data>
+  <data name="StockConsumed" xml:space="preserve"><value>භාවිත වූ ප්‍රමාණය</value></data>
+  <data name="InvalidStockQuantity" xml:space="preserve"><value>ගණන් කිරීම සඳහා ඍණ නොවනද චලනය සඳහා ධනද ප්‍රමාණයක් දශම තුනක් දක්වා ඇතුළත් කරන්න. තනි භාණ්ඩ සඳහා පූර්ණ ප්‍රමාණ අවශ්‍යය. පිරිවැයේ දශමද පරීක්ෂා කරන්න.</value></data>
+  <data name="StockPrecision" xml:space="preserve"><value>මෙම පරිවර්තනය මූලික ඒකක 0.001 ට වඩා සියුම්ය. ගැළපෙන ප්‍රමාණයක් හෝ ඇසුරුම් සාධකයක් යොදන්න.</value></data>
+  <data name="InvalidStockConfiguration" xml:space="preserve"><value>මව් භාණ්ඩයක් නොමැති සක්‍රිය මූලික භාණ්ඩයක් තෝරන්න. වෙනත් මූලික භාණ්ඩයකට සම්බන්ධ කළ හැක්කේ ඇසුරුම් පමණි. ධන නිවැරදි පරිවර්තනයක් යොදන්න. පූර්ණ ඒකක සඳහා පූර්ණ සාධක අවශ්‍යය. නැවත ඇණවුම් සීමාව මූලික භාණ්ඩයේ සකසන්න.</value></data>
+  <data name="StockMappingLocked" xml:space="preserve"><value>තොග ඉතිහාසය හෝ සම්බන්ධ ඇසුරුම් මෙම සැකසුම භාවිත කරයි. ඒකකය සහ පරිවර්තනය එලෙසම තබන්න හෝ නව භාණ්ඩයක් සාදන්න.</value></data>
+  <data name="StaleStockCount" xml:space="preserve"><value>පෙරදසුනෙන් පසු තොගය වෙනස් වී ඇත. යාවත්කාලීන කර අනුමැතියට පෙර නව ශේෂය පරීක්ෂා කරන්න.</value></data>
+  <data name="OpeningAlreadyRecorded" xml:space="preserve"><value>මෙම මූලික භාණ්ඩයට තොග ඉතිහාසයක් ඇත. ලැබීමක් හෝ අනුමත සංශෝධනයක් යොදන්න.</value></data>
+  <data name="InsufficientStock" xml:space="preserve"><value>ප්‍රමාණවත් තොග නොමැත. ඍණ තොගයට හේතුවක් සහ පැහැදිලි හිමිකරු අනුමැතිය අවශ්‍යයි.</value></data>
+  <data name="InvalidStockEntry" xml:space="preserve"><value>හේතුවක්, අදට පසු නොවන වලංගු දිනයක්, ප්‍රමාණය සහ පිරිවැය ඇතුළත් කරන්න. චලන වර්ගය පරීක්ෂා කරන්න.</value></data>
+  <data name="StockPostingConflict" xml:space="preserve"><value>මෙම මූලාශ්‍රය වෙනත් තොග විස්තර සමඟ සටහන් කර ඇත. අමතර තොග සටහන් නොකළේය.</value></data>
+  <data name="EntryReceiving" xml:space="preserve"><value>තොග ලැබීම</value></data>
+  <data name="EntryOpening" xml:space="preserve"><value>ආරම්භක ශේෂය</value></data>
+  <data name="EntryAdjustmentIn" xml:space="preserve"><value>තොග එකතු කිරීම</value></data>
+  <data name="EntryAdjustmentOut" xml:space="preserve"><value>තොග අඩු කිරීම</value></data>
+  <data name="EntryWastage" xml:space="preserve"><value>හානි / නාස්තිය</value></data>
+  <data name="EntryCount" xml:space="preserve"><value>තොග ගණන් කිරීම (මූලික ඒකක)</value></data>
+  <data name="StockKindSale" xml:space="preserve"><value>විකිණීම</value></data>
+  <data name="StockKindRefund" xml:space="preserve"><value>විකිණිය හැකි ආපසු ලැබීම</value></data>
+  <data name="StockKindSaleVoided" xml:space="preserve"><value>විකිණීම අවලංගු කිරීම</value></data>
+  <data name="StockKindGoodsReceived" xml:space="preserve"><value>ලැබීම</value></data>
+  <data name="StockKindAdjustment" xml:space="preserve"><value>සංශෝධනය</value></data>
+  <data name="StockKindWastage" xml:space="preserve"><value>නාස්තිය</value></data>
+  <data name="StockKindStockTake" xml:space="preserve"><value>තොග ගණන් කිරීම</value></data>
+  <data name="StockKindTransfer" xml:space="preserve"><value>පැරණි මාරු කිරීම</value></data>
+  <data name="StockKindOpeningBalance" xml:space="preserve"><value>ආරම්භක ශේෂය</value></data>
+  <data name="StockSourceStockEntry" xml:space="preserve"><value>තොග සටහන</value></data>
+  <data name="StockSourceSale" xml:space="preserve"><value>විකිණීම</value></data>
+  <data name="StockSourceSaleVoid" xml:space="preserve"><value>විකිණීම අවලංගු කිරීම</value></data>
+  <data name="StockSourceRefund" xml:space="preserve"><value>ආපසු ලැබීම</value></data>
+  <data name="UnitUnknown" xml:space="preserve"><value>නොදන්නා ඒකකය</value></data>
 </root>

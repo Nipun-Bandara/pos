@@ -166,6 +166,9 @@ public sealed partial class FoundationSpecs
         var service = Catalogue(f);
         var category = await service.SaveCategoryAsync(null, "පාන", "Drinks", true);
         var id = await service.SaveProductAsync(Tea(category));
+        await f.Provider.GetRequiredService<RetailCore.Application.Inventory.StockService>().PostAsync(
+            new RetailCore.Application.Inventory.StockEntryInput(Guid.NewGuid(), id,
+                RetailCore.Application.Inventory.StockEntryKind.Opening, 10, 50, "Test opening", f.Clock.UtcNow));
         SaleId saleId;
         await using (var scope = f.Provider.CreateAsyncScope())
         {
@@ -200,6 +203,7 @@ public sealed partial class FoundationSpecs
     {
         await using var f = new LocalFixture();
         var shop = Guid.NewGuid(); var category = Guid.NewGuid(); var product = Guid.NewGuid();
+        var movementId = Guid.NewGuid();
         await using (var scope = f.Provider.CreateAsyncScope())
         {
             var context = scope.ServiceProvider.GetRequiredService<TillDbContext>();
@@ -208,6 +212,7 @@ public sealed partial class FoundationSpecs
             await context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO Categories (Id,ShopId,Name,DisplayOrder,IsActive) VALUES ({category},{shop},{"Tea"},0,1)");
             var tax = Guid.NewGuid();
             await context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO Products (Id,ShopId,Sku,Name,CategoryId,Unit,TaxRateId,IsOpenPrice,IsActive,UnitPriceMinor,UnitPriceCurrency,UnitCostMinor,UnitCostCurrency,ReorderLevelThousandths) VALUES ({product},{shop},{"LEGACY"},{"Original tea"},{category},{"Each"},{tax},0,1,10000,{"LKR"},5000,{"LKR"},0)");
+            await context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO StockMovements (Id,ShopId,ProductId,Direction,Kind,OccurredAt,QuantityThousandths,UnitCostCurrency,UnitCostMinor) VALUES ({movementId},{shop},{product},{"In"},{"OpeningBalance"},{f.Clock.UtcNow},7000,{"LKR"},5000)");
         }
         await f.Transactions.InitializeAsync();
         await using var read = f.Provider.CreateAsyncScope();
@@ -220,6 +225,14 @@ public sealed partial class FoundationSpecs
         p.ReceiptName.ShouldBe("");
         p.SinhalaName.ShouldBe("");
         p.PrimaryBarcode.ShouldBeNull();
+        p.StockFactorThousandths.ShouldBe(1000);
         p.PriceBands.ShouldBeEmpty();
+        var movement = await db.StockMovements.IgnoreQueryFilters().SingleAsync();
+        movement.Id.Value.ShouldBe(movementId);
+        movement.Quantity.Thousandths.ShouldBe(7000);
+        movement.UnitCost!.Value.MinorUnits.ShouldBe(5000);
+        movement.ConversionFactorThousandths.ShouldBe(1000);
+        movement.PostingKey.ShouldBeNull();
+        await Should.ThrowAsync<Microsoft.Data.Sqlite.SqliteException>(() => db.Database.ExecuteSqlRawAsync("UPDATE StockMovements SET QuantityThousandths = 1"));
     }
 }

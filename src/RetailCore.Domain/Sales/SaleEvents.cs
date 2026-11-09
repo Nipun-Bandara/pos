@@ -4,7 +4,9 @@ using RetailCore.Domain.Monetary;
 namespace RetailCore.Domain.Sales;
 
 /// <summary>A product and how much of it moved, used to drive the stock ledger.</summary>
-public sealed record SoldItem(ProductId ProductId, Quantity Quantity);
+public sealed record SoldItem(ProductId ProductId, Quantity Quantity, ProductId? StockProductId = null,
+    long FactorThousandths = 1000, RetailCore.Domain.Catalogue.UnitOfMeasure BaseUnit = RetailCore.Domain.Catalogue.UnitOfMeasure.Each,
+    Money? UnitCost = null, bool Saleable = true);
 
 /// <summary>
 /// A sale was paid for and finished.

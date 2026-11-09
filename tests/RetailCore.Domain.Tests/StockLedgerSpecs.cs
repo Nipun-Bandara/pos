@@ -57,10 +57,10 @@ public class StockLedgerSpecs
     }
 
     [Fact]
-    public void Stock_is_allowed_to_go_negative()
+    public void Ledger_representation_preserves_negative_balances()
     {
-        // INV-09. An offline till cannot know what another till has just sold, and a cashier
-        // holding the item is not helped by the software insisting it does not exist.
+        // Signed history represents an approved negative balance. Application posting
+        // separately requires a reason and owner authorization before creating one.
         var ledger = new List<StockMovement> { Received(1), Sold(3) };
 
         ledger.Sum(m => m.SignedQuantity).ShouldBe(-2m);

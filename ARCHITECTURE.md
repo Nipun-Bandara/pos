@@ -85,8 +85,8 @@ The current handlers and repository summaries must be checked against the revise
 Require an original bill. Load previously returned quantities and prevent excess returns.
 Use original charged prices, including discounts; do not reprice the items the customer kept.
 Track actual prior refund amounts so repeated partial refunds cannot accumulate rounding
-errors or exceed what was collected. Record saleable vs damaged disposition; the current
-handler's unconditional restocking must be changed for this workflow.
+errors or exceed what was collected. Record saleable vs damaged disposition; milestone 03 posting now respects that disposition.
+The actual return/exchange application workflow remains milestone 06.
 
 An exchange links the original bill, a return, a replacement sale and the net settlement:
 replacement total minus return credit. Positive means collect, negative means refund, zero

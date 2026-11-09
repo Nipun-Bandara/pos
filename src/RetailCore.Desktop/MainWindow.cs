@@ -187,6 +187,10 @@ public sealed partial class MainWindow : Window
         {
             dock.Children.Add(SettingsView());
         }
+        else if (_vm.Section == "Stock")
+        {
+            dock.Children.Add(StockView());
+        }
         else if (_vm.Section == "Products")
         {
             dock.Children.Add(ProductsView());

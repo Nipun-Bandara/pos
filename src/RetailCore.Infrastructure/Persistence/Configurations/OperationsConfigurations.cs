@@ -22,6 +22,13 @@ internal sealed class StockMovementConfiguration : IEntityTypeConfiguration<Stoc
         builder.Property(m => m.RecordedBy).HasConversion<ValueConverters.UserIdConverter>();
 
         builder.MapQuantity(m => m.Quantity, "Quantity");
+        builder.Property(m => m.EnteredProductId).HasConversion<ValueConverters.ProductIdConverter>();
+        builder.Property(m => m.ApprovedBy).HasConversion<ValueConverters.UserIdConverter>();
+        builder.Property(m => m.PostingKey).HasMaxLength(200);
+        builder.HasIndex(m => m.PostingKey).IsUnique();
+        builder.Property(m => m.BaseUnit).HasMaxLength(20);
+        builder.Property(m => m.InputCostCurrency).HasMaxLength(3);
+        builder.Property(m => m.Reference).HasMaxLength(200);
 
         // Absent for movements the system posts from a sale, where the cost already lives on
         // the sale line (CAT-05). Present for goods received, where it is what stock is

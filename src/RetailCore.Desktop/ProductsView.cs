@@ -28,8 +28,8 @@ public sealed partial class MainWindow
             CanUserAddRows = false, CanUserSortColumns = true, Height = 280, SelectionMode = DataGridSelectionMode.Single };
         foreach (var (key, property) in new[] { ("Sku", "Sku"), ("SinhalaName", "SinhalaName"),
             ("EnglishName", "EnglishName"), ("Barcode", "Barcode"), ("Category", "Category"),
-            ("Cost", "Cost"), ("NormalPrice", "NormalPrice"), ("PriceBands", "Bands"), ("StockBalance", "Stock") })
-            table.Columns.Add(new DataGridTextColumn { Header = Texts.Get(key), Binding = new Binding(property), SortMemberPath = property });
+            ("Cost", "Cost"), ("NormalPrice", "NormalPrice"), ("PriceBands", "Bands"), ("StockBalance", "Stock"), ("BaseUnit", "StockUnit") })
+            table.Columns.Add(new DataGridTextColumn { Header = Texts.Get(key), Binding = new Binding(property) { Converter = property == "StockUnit" ? new EnumTextConverter("Unit") : null }, SortMemberPath = property });
         table.Columns.Add(new DataGridCheckBoxColumn { Header = Texts.Get("Active"), Binding = new Binding("Active"), SortMemberPath = "Active" });
         System.Windows.Automation.AutomationProperties.SetAutomationId(table, "ProductsTable");
         panel.Children.Add(table);

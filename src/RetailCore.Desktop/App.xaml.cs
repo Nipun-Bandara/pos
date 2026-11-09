@@ -28,7 +28,8 @@ public partial class App : System.Windows.Application, IDisposable
             _services = collection.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true, ValidateOnBuild = true });
             var vm = new MainViewModel(_services.GetRequiredService<RetailCore.Application.Foundation.FoundationService>(),
                 _services.GetRequiredService<RetailCore.Application.Foundation.LocalSession>(),
-                _services.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>());
+                _services.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(),
+                _services.GetRequiredService<RetailCore.Application.Inventory.StockService>());
             MainWindow = new MainWindow(vm);
             MainWindow.Show();
         }

@@ -7,6 +7,8 @@ namespace RetailCore.Domain.Sales;
 /// <summary>
 /// One line being given back, tied to the line of the original sale it reverses.
 /// </summary>
+public enum ReturnDisposition { Saleable = 0, Damaged = 1 }
+
 public sealed class RefundLine : Entity<RefundLineId>, IBelongsToShop
 {
     private RefundLine(
@@ -40,6 +42,12 @@ public sealed class RefundLine : Entity<RefundLineId>, IBelongsToShop
         TaxTreatment = null!;
     }
 
+    public ProductId? StockProductId { get; private set; }
+    public long StockFactorThousandths { get; private set; } = 1000;
+    public RetailCore.Domain.Catalogue.UnitOfMeasure? StockBaseUnit { get; private set; }
+    public long UnitCostMinor { get; private set; }
+    public string? CostCurrency { get; private set; }
+    public ReturnDisposition Disposition { get; private set; }
     public RefundId RefundId { get; private set; }
 
     /// <summary>TEN-01. Carried on the line so row level security can cover this table too.</summary>
@@ -79,10 +87,11 @@ public sealed class RefundLine : Entity<RefundLineId>, IBelongsToShop
         SaleLine originalLine,
         Quantity quantity,
         Money amount,
-        RefundLineId? id = null)
+        RefundLineId? id = null, ReturnDisposition disposition = ReturnDisposition.Saleable)
     {
         ArgumentNullException.ThrowIfNull(originalLine);
 
+        if (!Enum.IsDefined(disposition)) throw new DomainException("InvalidDisposition");
         return new RefundLine(
             id ?? RefundLineId.New(),
             refundId,
@@ -93,6 +102,14 @@ public sealed class RefundLine : Entity<RefundLineId>, IBelongsToShop
             originalLine.Description,
             quantity,
             amount,
-            originalLine.TaxTreatment);
+            originalLine.TaxTreatment)
+        {
+            StockProductId = originalLine.StockProductId ?? originalLine.ProductId,
+            StockFactorThousandths = originalLine.StockFactorThousandths,
+            StockBaseUnit = originalLine.StockBaseUnit ?? originalLine.Unit,
+            UnitCostMinor = originalLine.UnitCost.MinorUnits,
+            CostCurrency = originalLine.UnitCost.CurrencyCode,
+            Disposition = disposition,
+        };
     }
 }

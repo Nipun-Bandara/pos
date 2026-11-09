@@ -270,6 +270,18 @@ public sealed class FoundationService(ILocalTransactions transactions, IPinHashe
         if (session.UserId == id) { session.SignOut(); }
     }
 
+    internal Func<ILocalStore, User, CancellationToken, Task<UserId>> ApprovalValidator(ApprovalTicket? ticket, ApprovalRequest request)
+    {
+        Grant? grant = null;
+        return async (store, actor, ct) =>
+        {
+            if (ticket is null) throw new FoundationException("ApprovalRequired");
+            grant ??= TakeGrant(ticket, request);
+            await CheckGrantOwnerAsync(store, actor, grant, ct).ConfigureAwait(false);
+            return grant.Owner;
+        };
+    }
+
     private Grant TakeGrant(ApprovalTicket ticket, ApprovalRequest request)
     {
         ArgumentNullException.ThrowIfNull(ticket);

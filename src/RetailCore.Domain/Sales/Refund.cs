@@ -151,7 +151,7 @@ public sealed class Refund : AggregateRoot<RefundId>, IBelongsToShop
     /// <exception cref="DomainException">
     /// RET-03: the quantity would take the refunded total past what was sold.
     /// </exception>
-    public RefundLine AddLine(SaleLineId originalLineId, Quantity quantity)
+    public RefundLine AddLine(SaleLineId originalLineId, Quantity quantity, ReturnDisposition disposition = ReturnDisposition.Saleable)
     {
         RequireOpen();
 
@@ -188,7 +188,7 @@ public sealed class Refund : AggregateRoot<RefundId>, IBelongsToShop
         }
 
         var amount = AmountFor(originalLine, quantity, remaining, previouslyRefunded);
-        var line = RefundLine.Create(Id, ShopId, originalLine, quantity, amount);
+        var line = RefundLine.Create(Id, ShopId, originalLine, quantity, amount, disposition: disposition);
 
         _lines.Add(line);
         Recalculate();
@@ -231,7 +231,10 @@ public sealed class Refund : AggregateRoot<RefundId>, IBelongsToShop
             Total,
             Reason,
             AuthorisedBy,
-            [.. _lines.Select(l => new SoldItem(l.ProductId, l.Quantity))],
+            [.. _lines.Select(l => new SoldItem(l.ProductId, l.Quantity, l.StockProductId, l.StockFactorThousandths,
+                l.StockBaseUnit ?? RetailCore.Domain.Catalogue.UnitOfMeasure.Each,
+                l.CostCurrency is null ? null : Money.FromMinor(l.UnitCostMinor, Monetary.Currency.FromCode(l.CostCurrency)),
+                l.Disposition == ReturnDisposition.Saleable))],
             at));
     }
 

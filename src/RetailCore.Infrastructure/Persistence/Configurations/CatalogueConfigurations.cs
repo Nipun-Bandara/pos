@@ -44,6 +44,8 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.Name).HasMaxLength(200).IsRequired();
         builder.Property(p => p.SinhalaName).HasMaxLength(200).IsRequired();
         builder.Property(p => p.ReceiptName).HasMaxLength(200).IsRequired();
+        builder.Property(p => p.StockBaseProductId).HasConversion<ValueConverters.ProductIdConverter>();
+        builder.Property(p => p.StockBaseUnit).HasConversion<string>().HasMaxLength(20);
         builder.Property(p => p.PrimaryBarcode).HasMaxLength(64);
         builder.HasIndex(p => p.PrimaryBarcode).IsUnique();
         builder.OwnsMany(p => p.PriceBands, band =>

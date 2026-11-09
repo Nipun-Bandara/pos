@@ -70,6 +70,9 @@ internal sealed class RefundLineConfiguration : IEntityTypeConfiguration<RefundL
 
         builder.Property(l => l.RefundId).HasConversion<ValueConverters.RefundIdConverter>().IsRequired();
         builder.Property(l => l.ProductId).HasConversion<ValueConverters.ProductIdConverter>().IsRequired();
+        builder.Property(l => l.StockProductId).HasConversion<ValueConverters.ProductIdConverter>();
+        builder.Property(l => l.StockBaseUnit).HasConversion<string>().HasMaxLength(20);
+        builder.Property(l => l.Disposition).HasConversion<string>().HasMaxLength(20);
 
         // RET-03: the line this reverses, so what is left to refund can be worked out.
         builder.Property(l => l.OriginalSaleLineId)

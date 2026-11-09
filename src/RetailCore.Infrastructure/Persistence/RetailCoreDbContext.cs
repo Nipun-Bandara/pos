@@ -114,6 +114,14 @@ public class RetailCoreDbContext(
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(RetailCoreDbContext).Assembly);
 
+        modelBuilder.Entity<StockPostingReceipt>(b =>
+        {
+            b.ToTable("StockPostingReceipts");
+            b.HasKey(p => new { p.ShopId, p.SourceType, p.SourceId });
+            b.Property(p => p.ShopId).HasConversion<ValueConverters.ShopIdConverter>();
+            b.Property(p => p.SourceType).HasMaxLength(30);
+            b.Property(p => p.Fingerprint).HasMaxLength(64);
+        });
         ApplyTenantFilters(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
