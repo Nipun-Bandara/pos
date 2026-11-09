@@ -34,6 +34,20 @@ public sealed class Product : Entity<ProductId>, IBelongsToShop
     public string SinhalaName { get; private set; } = "";
     public string ReceiptName { get; private set; } = "";
     public string? PrimaryBarcode { get; private set; }
+    public ProductId? StockBaseProductId { get; private set; }
+    public long StockFactorThousandths { get; private set; } = 1000;
+    public UnitOfMeasure? StockBaseUnit { get; private set; }
+    public void ConfigureStock(ProductId baseProduct, UnitOfMeasure baseUnit, long factorThousandths, Quantity reorder)
+    {
+        if (factorThousandths <= 0 || !Enum.IsDefined(baseUnit)
+            || (!baseUnit.AllowsFractionalQuantity() && factorThousandths % 1000 != 0)
+            || (baseProduct == Id && (factorThousandths != 1000 || baseUnit != Unit)))
+            throw new DomainException("InvalidStockConfiguration");
+        StockBaseProductId = baseProduct == Id ? null : baseProduct;
+        StockBaseUnit = baseUnit;
+        StockFactorThousandths = factorThousandths;
+        ReorderLevel = reorder;
+    }
 
     public void ConfigureCatalogue(string sku, string sinhala, string english, string receipt,
         CategoryId category, UnitOfMeasure unit, Money cost, Money normal,
@@ -48,6 +62,7 @@ public sealed class Product : Entity<ProductId>, IBelongsToShop
             || cost.IsNegative || cost.Currency != normal.Currency)
             throw new DomainException("InvalidProduct");
         QuantityPricing.Validate(normal, unit, bands);
+        if (StockBaseUnit is not null && unit != Unit) throw new DomainException("StockMappingLocked");
         Sku = sku.Trim().ToUpperInvariant();
         SinhalaName = sinhala.Trim();
         Name = english.Trim();

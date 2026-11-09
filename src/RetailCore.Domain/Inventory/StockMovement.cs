@@ -97,6 +97,38 @@ public sealed class StockMovement : Entity<StockMovementId>, IBelongsToShop
     {
     }
 
+    public string? PostingKey { get; private set; }
+    public ProductId? EnteredProductId { get; private set; }
+    public long InputQuantityThousandths { get; private set; }
+    public long ConversionFactorThousandths { get; private set; } = 1000;
+    public string? BaseUnit { get; private set; }
+    public long? InputUnitCostMinor { get; private set; }
+    public string? InputCostCurrency { get; private set; }
+    public UserId? ApprovedBy { get; private set; }
+    public string? Reference { get; private set; }
+
+    public static StockMovement Posted(ShopId shop, ProductId enteredProduct, ProductId baseProduct,
+        Quantity inputQuantity, long factorThousandths, string baseUnit, StockDirection direction,
+        StockMovementKind kind, string sourceType, Guid sourceId, DateTimeOffset occurredAt,
+        UserId actor, string reason, Money inputUnitCost, UserId? approvedBy = null, string? reference = null)
+    {
+        if (!Enum.IsDefined(direction) || !Enum.IsDefined(kind) || inputUnitCost.IsNegative
+            || string.IsNullOrWhiteSpace(reason) || reason.Length > 500 || reference?.Length > 200
+            || string.IsNullOrWhiteSpace(baseUnit) || sourceId == Guid.Empty)
+            throw new DomainException("InvalidStockEntry");
+        var quantity = StockConversion.ToBase(inputQuantity, factorThousandths);
+        var baseCost = Money.FromMajorRounded(inputUnitCost.ToDecimal() * 1000m / factorThousandths, inputUnitCost.Currency);
+        return new StockMovement(StockMovementId.New(), shop, baseProduct, quantity, direction, kind,
+            occurredAt, reason.Trim(), actor, sourceType, sourceId, baseCost)
+        {
+            PostingKey = $"{sourceType}:{sourceId:N}:{kind}:{enteredProduct.Value:N}:{baseProduct.Value:N}:{factorThousandths}",
+            EnteredProductId = enteredProduct, InputQuantityThousandths = inputQuantity.Thousandths,
+            ConversionFactorThousandths = factorThousandths, BaseUnit = baseUnit,
+            InputUnitCostMinor = inputUnitCost.MinorUnits, InputCostCurrency = inputUnitCost.CurrencyCode,
+            ApprovedBy = approvedBy, Reference = reference,
+        };
+    }
+
     public ShopId ShopId { get; private set; }
 
     public ProductId ProductId { get; private set; }

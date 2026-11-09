@@ -44,6 +44,10 @@ public enum AuditAction
     LanguageChanged = 18,
     ProductChanged = 19,
     CategoryChanged = 20,
+    StockReceived = 21,
+    StockConfigurationChanged = 22,
+    StockCounted = 23,
+    NegativeStockApproved = 24,
 }
 
 /// <summary>
