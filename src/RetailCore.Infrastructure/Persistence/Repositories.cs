@@ -174,14 +174,8 @@ public sealed class ShiftRepository(RetailCoreDbContext context) : IShiftReposit
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        // Change handed back reduces the cash in the drawer, so it comes off the cash taken.
-        var changeGiven = await completedSales
-            .SelectMany(s => s.Payments)
-            .Where(p => p.Method == PaymentMethod.Cash)
-            .SumAsync(p => p.Tendered.MinorUnits - p.Amount.MinorUnits, cancellationToken)
-            .ConfigureAwait(false);
-
-        var cashSales = tenders.Where(t => t.Method == PaymentMethod.Cash).Sum(t => t.Minor) - changeGiven;
+        // Payment.Amount already excludes change. Tendered minus change equals Amount.
+        var cashSales = tenders.Where(t => t.Method == PaymentMethod.Cash).Sum(t => t.Minor);
         var nonCashSales = tenders.Where(t => t.Method != PaymentMethod.Cash).Sum(t => t.Minor);
 
         var refunds = await context.Refunds

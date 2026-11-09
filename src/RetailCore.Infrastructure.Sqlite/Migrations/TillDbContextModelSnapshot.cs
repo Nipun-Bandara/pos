@@ -722,8 +722,24 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                     b.Property<int>("LineNumber")
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid?>("ManualPriceApprovedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ManualPriceReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long?>("NormalUnitPriceMinor")
+                        .HasColumnType("INTEGER");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("TEXT");
+
+                    b.Property<int?>("QualifiedPriceBand")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long?>("QualifiedTierUnitPriceMinor")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("ReceiptNameSnapshot")
                         .HasColumnType("TEXT");
@@ -1343,6 +1359,26 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                     b.HasKey("ShopId", "SourceType", "SourceId");
 
                     b.ToTable("StockPostingReceipts", (string)null);
+                });
+
+            modelBuilder.Entity("RetailCore.Infrastructure.Sqlite.Foundation.BillingBasketRecord", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DocumentJson")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ShopId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TerminalId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("BillingBaskets", (string)null);
                 });
 
             modelBuilder.Entity("RetailCore.Infrastructure.Sqlite.Foundation.CommandRecord", b =>
