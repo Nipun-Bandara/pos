@@ -112,15 +112,20 @@ public readonly record struct Money : IComparable<Money>, IComparable, IFormatta
     /// </remarks>
     public Money RoundToCashIncrement(MidpointRounding rounding = RetailRounding)
     {
-        var increment = Currency.CashRoundingIncrementMinor;
-        if (increment <= 1)
+        return RoundToIncrement(Currency.CashRoundingIncrementMinor, rounding);
+    }
+
+    public Money RoundToIncrement(long increment, MidpointRounding rounding = RetailRounding)
+    {
+        if (increment <= 0) throw new DomainException("InvalidCashIncrement");
+        if (increment == 1)
         {
             return this;
         }
 
         var quotient = (decimal)MinorUnits / increment;
         var rounded = (long)Math.Round(quotient, 0, rounding);
-        return new Money(rounded * increment, CurrencyCode);
+        return new Money(checked(rounded * increment), CurrencyCode);
     }
 
     /// <summary>Multiplies by a whole number. Exact, no rounding possible.</summary>

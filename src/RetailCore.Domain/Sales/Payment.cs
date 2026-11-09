@@ -90,9 +90,9 @@ public sealed class Payment : Entity<PaymentId>, IBelongsToShop
         Money tendered,
         string? reference,
         DateTimeOffset takenAt,
-        PaymentId? id = null)
+        PaymentId? id = null, bool allowZeroCash = false)
     {
-        if (!amount.IsPositive)
+        if (!amount.IsPositive && !(allowZeroCash && method == PaymentMethod.Cash && amount.IsZero))
         {
             throw new DomainException("A payment must be greater than zero.");
         }
@@ -109,6 +109,8 @@ public sealed class Payment : Entity<PaymentId>, IBelongsToShop
                 $"{method} payments cannot give change, so tendered must equal the amount applied.");
         }
 
+        if (method == PaymentMethod.Card && !ExternalCardReference.IsValid(reference))
+            throw new DomainException("InvalidCardReference");
         return new Payment(
             id ?? PaymentId.New(),
             saleId,

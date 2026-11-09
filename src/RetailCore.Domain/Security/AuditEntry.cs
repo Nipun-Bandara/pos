@@ -48,6 +48,7 @@ public enum AuditAction
     StockConfigurationChanged = 22,
     StockCounted = 23,
     NegativeStockApproved = 24,
+    SaleCompleted = 25,
 }
 
 /// <summary>
