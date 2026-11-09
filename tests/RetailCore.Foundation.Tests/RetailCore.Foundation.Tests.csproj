@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/RetailCore.Infrastructure.Sqlite/RetailCore.Infrastructure.Sqlite.csproj" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="Shouldly" />
+  </ItemGroup>
+</Project>

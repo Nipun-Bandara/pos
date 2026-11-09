@@ -805,6 +805,11 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTimeOffset?>("LockedUntil")
                         .HasColumnType("TEXT");
 
@@ -1039,6 +1044,9 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
+                    b.Property<long>("CashIncrementMinor")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
@@ -1050,6 +1058,17 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("PaperWidthMillimeters")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("PrinterName")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReceiptFooter")
+                        .HasMaxLength(1000)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("TaxRegistrationNumber")
@@ -1190,6 +1209,30 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                     b.HasKey("TerminalId");
 
                     b.ToTable("ReceiptCounters", (string)null);
+                });
+
+            modelBuilder.Entity("RetailCore.Infrastructure.Sqlite.Foundation.CommandRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Fingerprint")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ResultJson")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LocalCommands", (string)null);
                 });
 
             modelBuilder.Entity("RetailCore.Domain.Catalogue.Product", b =>

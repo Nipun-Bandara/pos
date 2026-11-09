@@ -144,6 +144,8 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<Domain.Securi
             .ValueGeneratedNever();
 
         builder.Property(u => u.ShopId).HasConversion<ValueConverters.ShopIdConverter>().IsRequired();
+        builder.Property(u => u.Language).HasMaxLength(2).IsRequired();
+
         builder.Property(u => u.DisplayName).HasMaxLength(100).IsRequired();
         builder.Property(u => u.Role).HasConversion<string>().HasMaxLength(20).IsRequired();
 

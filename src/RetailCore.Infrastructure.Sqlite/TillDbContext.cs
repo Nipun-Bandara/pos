@@ -25,6 +25,20 @@ public sealed class TillDbContext(
     IDomainEventDispatcher? eventDispatcher = null)
     : RetailCoreDbContext(options, tenantContext, eventDispatcher)
 {
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<Foundation.CommandRecord>(builder =>
+        {
+            builder.ToTable("LocalCommands");
+            builder.HasKey(r => r.Id);
+            builder.Property(r => r.Id).ValueGeneratedNever();
+            builder.Property(r => r.Kind).HasMaxLength(100).IsRequired();
+            builder.Property(r => r.Fingerprint).HasMaxLength(256).IsRequired();
+            builder.Property(r => r.ResultJson).IsRequired();
+        });
+    }
+
     /// <summary>
     /// Applies the durability settings a till needs. Run once after opening the connection.
     /// </summary>

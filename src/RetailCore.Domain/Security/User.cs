@@ -43,6 +43,18 @@ public sealed class User : AggregateRoot<UserId>, IBelongsToShop
     /// <summary>Argon2id hash of the PIN, including its salt and parameters. Never the PIN.</summary>
     public string PinHash { get; private set; }
 
+    public string Language { get; private set; } = "en";
+
+    public void SetLanguage(string language)
+    {
+        if (language is not ("en" or "si"))
+        {
+            throw new DomainException("Unsupported interface language.");
+        }
+
+        Language = language;
+    }
+
     public int FailedPinAttempts { get; private set; }
 
     /// <summary>Set when the account is locked. Null once the lock has been cleared.</summary>

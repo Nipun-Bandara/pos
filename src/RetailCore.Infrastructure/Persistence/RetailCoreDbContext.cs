@@ -170,34 +170,48 @@ public class RetailCoreDbContext(
     /// pair of handlers raising each other's events fails loudly rather than hanging a till.
     /// </para>
     /// </remarks>
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    private bool _writeFailed;
+
+    public override int SaveChanges(bool acceptAllChangesOnSuccess) =>
+        SaveChangesAsync(acceptAllChangesOnSuccess).GetAwaiter().GetResult();
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
+        SaveChangesAsync(true, cancellationToken);
+
+    public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
+        CancellationToken cancellationToken = default)
     {
-        const int maxCascades = 8;
-
-        for (var round = 0; round < maxCascades; round++)
+        if (_writeFailed)
         {
-            var events = DrainDomainEvents();
-            if (events.Count == 0)
-            {
-                return await base.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-            }
-
-            if (eventDispatcher is null)
-            {
-                break;
-            }
-
-            await eventDispatcher.DispatchAsync(events, cancellationToken).ConfigureAwait(false);
+            throw new InvalidOperationException("Discard the failed unit of work and retry using a fresh context.");
         }
 
-        if (DrainDomainEvents().Count > 0)
+        try
         {
-            throw new InvalidOperationException(
-                "Domain events are still being raised after several rounds of dispatch. " +
-                "Two handlers are probably raising each other's events.");
-        }
+            for (var round = 0; round < 8; round++)
+            {
+                var pending = ChangeTracker.Entries().Select(e => e.Entity).OfType<IHasDomainEvents>()
+                    .Any(root => root.DomainEvents.Count > 0);
+                if (!pending)
+                {
+                    return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken).ConfigureAwait(false);
+                }
 
-        return await base.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                if (eventDispatcher is null)
+                {
+                    throw new InvalidOperationException("Pending domain events require a configured dispatcher.");
+                }
+
+                await eventDispatcher.DispatchAsync(DrainDomainEvents(), cancellationToken).ConfigureAwait(false);
+            }
+
+            throw new InvalidOperationException("Domain event cascade limit exceeded.");
+        }
+        catch
+        {
+            _writeFailed = true;
+            throw;
+        }
     }
 
     private List<IDomainEvent> DrainDomainEvents()

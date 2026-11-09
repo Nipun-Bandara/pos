@@ -5,7 +5,7 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <InvariantGlobalization>true</InvariantGlobalization>
+    <InvariantGlobalization>false</InvariantGlobalization>
 
     <!-- PLAN.md section 5: CI builds with warnings as errors. Keep local and CI identical
          so a red build is never a surprise at merge time. -->
