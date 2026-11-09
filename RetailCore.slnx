@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/RetailCore.Desktop/RetailCore.Desktop.csproj" />
     <Project Path="src/RetailCore.Application/RetailCore.Application.csproj" />
     <Project Path="src/RetailCore.Domain/RetailCore.Domain.csproj" />
     <Project Path="src/RetailCore.Infrastructure.Postgres/RetailCore.Infrastructure.Postgres.csproj" />
@@ -7,6 +8,8 @@
     <Project Path="src/RetailCore.Infrastructure/RetailCore.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/RetailCore.Desktop.Tests/RetailCore.Desktop.Tests.csproj" />
+    <Project Path="tests/RetailCore.Foundation.Tests/RetailCore.Foundation.Tests.csproj" />
     <Project Path="tests/RetailCore.Architecture.Tests/RetailCore.Architecture.Tests.csproj" />
     <Project Path="tests/RetailCore.Domain.Tests/RetailCore.Domain.Tests.csproj" />
     <Project Path="tests/RetailCore.Integration.Tests/RetailCore.Integration.Tests.csproj" />
