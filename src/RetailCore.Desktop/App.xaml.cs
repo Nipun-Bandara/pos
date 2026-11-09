@@ -29,7 +29,8 @@ public partial class App : System.Windows.Application, IDisposable
             var vm = new MainViewModel(_services.GetRequiredService<RetailCore.Application.Foundation.FoundationService>(),
                 _services.GetRequiredService<RetailCore.Application.Foundation.LocalSession>(),
                 _services.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(),
-                _services.GetRequiredService<RetailCore.Application.Inventory.StockService>());
+                _services.GetRequiredService<RetailCore.Application.Inventory.StockService>(),
+                _services.GetRequiredService<RetailCore.Application.Checkout.BillingService>());
             MainWindow = new MainWindow(vm);
             MainWindow.Show();
         }

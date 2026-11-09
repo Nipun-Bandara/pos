@@ -35,7 +35,7 @@ jobs:
         run: dotnet tests/RetailCore.Architecture.Tests/bin/Release/net10.0/RetailCore.Architecture.Tests.dll
       - name: SQLite integration
         run: dotnet tests/RetailCore.Integration.Tests/bin/Release/net10.0/RetailCore.Integration.Tests.dll
-      - name: Setup, authentication, transactions and migrations
+      - name: Setup, catalogue, stock, checkout and migrations
         run: dotnet tests/RetailCore.Foundation.Tests/bin/Release/net10.0/RetailCore.Foundation.Tests.dll
       - name: SQLite model and migrations agree
         run: |
@@ -55,7 +55,7 @@ jobs:
       - run: dotnet build --no-restore --configuration Release
       - name: File-backed foundation on Windows
         run: dotnet tests/RetailCore.Foundation.Tests/bin/Release/net10.0/RetailCore.Foundation.Tests.dll
-      - name: Real WPF setup, catalogue, pricing, stock, approvals and reopen workflow
+      - name: Real WPF setup, catalogue, stock, cash/card billing, approvals and reopen workflow
         run: dotnet tests/RetailCore.Desktop.Tests/bin/Release/net10.0-windows/RetailCore.Desktop.Tests.dll
       - uses: actions/upload-artifact@v4
         if: always()

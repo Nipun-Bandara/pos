@@ -40,7 +40,8 @@ public sealed partial class MainWindow : Window
         {
             if (e.PropertyName == nameof(MainViewModel.Screen)) { Render(); }
             _status.Text = _vm.Busy ? Texts.Get("Loading") : _vm.Message;
-            _body.IsEnabled = !_vm.Busy;
+            _body.IsEnabled = !_vm.Busy || (_vm.Screen == "Shell" && _vm.Section == "Billing");
+            if (_billingActions is not null) _billingActions.IsEnabled = !_vm.Busy;
             _header.IsEnabled = !_vm.Busy;
         };
         Loaded += async (_, _) => { Render(); await _vm.RunAsync(_vm.StartAsync); };
@@ -51,6 +52,7 @@ public sealed partial class MainWindow : Window
             if (DateTimeOffset.UtcNow - _lastInput >= TimeSpan.FromMinutes(5)) { LockNow(); }
         };
         _idleTimer.Start();
+        PreviewKeyDown += HandleBillingShortcut;
         Closed += (_, _) =>
         {
             _idleTimer.Stop();
@@ -76,6 +78,11 @@ public sealed partial class MainWindow : Window
 
     private void Render()
     {
+        if (_billingUiSession != _vm.Session.Version)
+        {
+            _billingUiSession = _vm.Session.Version;
+            _billingTenderText = "0"; _billingSearch = ""; _billingCategory = null; _billingSelectedLine = null;
+        }
         Title = Texts.Get("AppTitle");
         Language = System.Windows.Markup.XmlLanguage.GetLanguage(CultureInfo.CurrentUICulture.IetfLanguageTag);
         var header = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 20) };
@@ -183,7 +190,11 @@ public sealed partial class MainWindow : Window
         }
 
         dock.Children.Add(nav);
-        if (_vm.Section == "Settings" && _vm.IsOwner)
+        if (_vm.Section == "Billing")
+        {
+            dock.Children.Add(BillingView());
+        }
+        else if (_vm.Section == "Settings" && _vm.IsOwner)
         {
             dock.Children.Add(SettingsView());
         }
