@@ -9,7 +9,7 @@ in PLAN.md. ADR 0005 supersedes the earlier deployment assumptions.
 
 ```text
 Windows PC
-  RetailCore.Desktop (planned WPF application)
+  RetailCore.Desktop (WPF application)
     Application services and domain rules
       EF Core / SQLite local database
   USB barcode scanner + Windows receipt printer
@@ -17,7 +17,9 @@ Windows PC
 ```
 
 Use the existing .NET 10/C# code and EF Core SQLite mapping. WPF is the selected Windows UI
-for the revised plan; there is no desktop project yet. No server process, remote API,
+for the revised plan; milestone 01 implements setup/login/settings and a navigation shell.
+See [milestone 01 validation notes](docs/implementation/MILESTONE_01.md) for the current
+Windows validation boundary. No server process, remote API,
 PostgreSQL service, containers or internet connection are required for the shop installation.
 A second computer sharing live data is a separate future design decision. Never share the
 SQLite file over a network drive as a shortcut to multiple tills.
@@ -30,14 +32,15 @@ Retain the useful separation:
 - `RetailCore.Application`: use-case orchestration, authorization and persistence interfaces.
 - `RetailCore.Infrastructure`: shared EF mappings, repositories and event dispatch.
 - `RetailCore.Infrastructure.Sqlite`: local provider, migrations and connection setup.
-- `RetailCore.Desktop` (planned): WPF views/view models, translations and composition root.
+- `RetailCore.Desktop`: WPF views/view models, translations and composition root.
 
 The repository still contains PostgreSQL, tenant filters, shop IDs, terminal IDs and an outbox
 schema from the former plan. They are legacy implementation, not requirements for version 1.
-Do not delete applied migrations or silently remove columns. A separate implementation task
-will simplify runtime setup, replace tenant-only architecture assertions and move PostgreSQL
-checks out of the required single-shop delivery gate. Until that transition, existing code and
-CI remain unchanged. Use one configured shop/terminal internally where existing APIs require
+Do not delete applied migrations or silently remove columns. Milestone 01 adds a single-shop
+runtime and required SQLite/Windows CI checks; PostgreSQL
+compatibility checks are retained as optional explicit runs. Existing tenant fields/filters
+and historical assertions remain useful compatibility checks, without tenant onboarding in
+the UI. Use one configured shop/terminal internally where existing APIs require
 IDs; do not expose tenant provisioning to the cashier.
 
 Retain historical ADRs to explain the code. ADRs 0001 (integer money) and 0002 (stock ledger)
@@ -103,9 +106,8 @@ Remember language per user. Receipt language is always Sinhala regardless of int
 Store Unicode product names in Sinhala and English; require a Sinhala receipt name before a
 product is activated. Snapshot printed names for consistent historical reprints.
 
-The current `InvariantGlobalization=true` build setting must be reviewed/changed when adding
-the desktop application: culture-aware Sinhala/English formatting must work in the installed
-build. Keep persistence serialization and numeric parsing explicit; do not localize stored
+Milestone 01 disables invariant globalization to support Sinhala/English formatting. Validate
+that formatting on the installed Windows build. Keep persistence serialization and numeric parsing explicit; do not localize stored
 identifiers or turn barcodes into numbers.
 
 Provide six sections: Billing, Products, Stock, Returns, Reports, Settings. Default to a clear
@@ -138,8 +140,8 @@ injection in text cells. PDF reports are for printing/sharing and include select
 filters. Report dates use the configured shop timezone (initially Asia/Colombo).
 
 Expose owner/cashier access. Owner approval protects refunds, price changes, stock corrections
-and restore. Reuse secure local PIN/lockout rules; the existing domain stores hashes but does
-not yet provide the complete hashing/login service. Log privileged changes without secrets.
+and restore. Milestone 01 supplies secure local hashing/login, persisted lockout and owner-checked settings
+commands on top of the existing domain. Log privileged changes without secrets.
 
 ## 9. Durability, backup and installation
 

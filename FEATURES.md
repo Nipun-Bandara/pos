@@ -4,6 +4,10 @@
 **Languages:** Sinhala and English interface; Sinhala receipts using the owner's custom template.
 This replaces the previous cloud, multi-tenant and synchronization feature scope.
 
+Milestone 01 implements setup/login/settings and the desktop shell in source. Windows runtime
+acceptance remains pending; see [validation notes](docs/implementation/MILESTONE_01.md).
+Foundation status still does not mean production acceptance or completion of later screens.
+
 Priority: **Must** ships in version 1; **Should** is useful but can follow initial checkout;
 **Later** is outside version 1. See PLAN.md for delivery order.
 Status: **Foundation** means relevant domain/persistence code exists, but the complete usable

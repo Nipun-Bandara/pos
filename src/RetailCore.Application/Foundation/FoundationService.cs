@@ -357,6 +357,6 @@ public sealed class FoundationService(ILocalTransactions transactions, IPinHashe
     {
         shop.UpdateProfile(profile.Name, profile.LegalName, profile.TimeZoneId, profile.ReceiptFooter,
             profile.PrinterName, profile.PaperWidthMillimeters, profile.CashIncrementMinor);
-        shop.SetContactDetails(profile.Address, null, profile.Telephone);
+        shop.SetContactDetails(profile.Address, shop.AddressLine2, profile.Telephone);
     }
 }

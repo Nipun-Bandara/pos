@@ -223,7 +223,7 @@ public sealed class FoundationSpecs
         {
             var context = scope.ServiceProvider.GetRequiredService<TillDbContext>();
             await context.GetService<IMigrator>().MigrateAsync("20260825044656_InitialTillSchema");
-            await context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO Shops (Id,Name,LegalName,TimeZoneId,IsActive,CurrencyCode) VALUES ({shopId},{"Existing"},{"Existing"},{"Asia/Colombo"},1,{"LKR"});");
+            await context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO Shops (Id,Name,LegalName,AddressLine2,TimeZoneId,IsActive,CurrencyCode) VALUES ({shopId},{"Existing"},{"Existing"},{"Existing second line"},{"Asia/Colombo"},1,{"LKR"});");
             var terminalId = Guid.NewGuid();
             await context.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO Terminals (Id,ShopId,Code,Name,IsEnrolled,IsActive) VALUES ({terminalId},{shopId},{"T1"},{"T1"},0,1);");
             var hash = new Argon2PinHasher().Hash(Pin);
@@ -238,6 +238,10 @@ public sealed class FoundationSpecs
         profile.Name.ShouldBe("Existing");
         profile.PaperWidthMillimeters.ShouldBe(80);
         profile.CashIncrementMinor.ShouldBe(100);
+        var ticket = await fixture.App.ApproveAsync(new UserId(userId), Pin, FoundationService.SettingsApproval(profile));
+        await fixture.App.SaveProfileAsync(profile, ticket);
+        (await fixture.Transactions.ReadAsync(async (store, ct) => (await store.ShopsAsync(ct)).Single().AddressLine2))
+            .ShouldBe("Existing second line");
     }
 
     [Fact]
