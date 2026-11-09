@@ -29,6 +29,40 @@ public sealed class ProductBarcode
 public sealed class Product : Entity<ProductId>, IBelongsToShop
 {
     private readonly List<ProductBarcode> _barcodes = [];
+    private readonly List<QuantityPriceBand> _priceBands = [];
+    public IReadOnlyList<QuantityPriceBand> PriceBands => _priceBands.OrderBy(b => b.MinimumThousandths).ToList().AsReadOnly();
+    public string SinhalaName { get; private set; } = "";
+    public string ReceiptName { get; private set; } = "";
+    public string? PrimaryBarcode { get; private set; }
+
+    public void ConfigureCatalogue(string sku, string sinhala, string english, string receipt,
+        CategoryId category, UnitOfMeasure unit, Money cost, Money normal,
+        string barcode, IReadOnlyList<QuantityPriceBand> bands, bool active)
+    {
+        ArgumentNullException.ThrowIfNull(bands);
+        if (string.IsNullOrWhiteSpace(sku) || sku.Trim().Length > 50
+            || string.IsNullOrWhiteSpace(sinhala) || sinhala.Trim().Length > 200
+            || string.IsNullOrWhiteSpace(english) || english.Trim().Length > 200
+            || string.IsNullOrWhiteSpace(receipt) || receipt.Trim().Length > 200
+            || string.IsNullOrWhiteSpace(barcode) || barcode.Trim().Length > 64
+            || cost.IsNegative || cost.Currency != normal.Currency)
+            throw new DomainException("InvalidProduct");
+        QuantityPricing.Validate(normal, unit, bands);
+        Sku = sku.Trim().ToUpperInvariant();
+        SinhalaName = sinhala.Trim();
+        Name = english.Trim();
+        ReceiptName = receipt.Trim();
+        CategoryId = category;
+        Unit = unit;
+        UnitCost = cost;
+        UnitPrice = normal;
+        if (PrimaryBarcode is not null && PrimaryBarcode != barcode.Trim()) RemoveBarcode(PrimaryBarcode);
+        PrimaryBarcode = barcode.Trim();
+        AddBarcode(PrimaryBarcode);
+        _priceBands.Clear();
+        _priceBands.AddRange(bands);
+        IsActive = active;
+    }
 
     private Product(
         ProductId id,

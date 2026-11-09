@@ -42,6 +42,8 @@ public enum AuditAction
     SessionLocked = 17,
 
     LanguageChanged = 18,
+    ProductChanged = 19,
+    CategoryChanged = 20,
 }
 
 /// <summary>

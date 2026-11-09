@@ -21,6 +21,16 @@ public sealed class Category : Entity<CategoryId>, IBelongsToShop
     public ShopId ShopId { get; private set; }
 
     public string Name { get; private set; }
+    public string SinhalaName { get; private set; } = "";
+    public void ConfigureNames(string sinhala, string english, bool active)
+    {
+        if (string.IsNullOrWhiteSpace(sinhala) || sinhala.Trim().Length > 100
+            || string.IsNullOrWhiteSpace(english) || english.Trim().Length > 100)
+            throw new DomainException("InvalidCategory");
+        SinhalaName = sinhala.Trim();
+        Name = english.Trim();
+        IsActive = active;
+    }
 
     /// <summary>Null for a top level category.</summary>
     public CategoryId? ParentId { get; private set; }
