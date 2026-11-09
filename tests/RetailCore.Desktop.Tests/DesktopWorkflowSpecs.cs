@@ -46,7 +46,7 @@ public sealed class DesktopWorkflowSpecs
         Texts.Use("en");
         var services = new ServiceCollection().AddLocalFoundation(Path.Combine(path, "till.db"));
         await using var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
-        var vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>());
+        var vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>());
         var window = new MainWindow(vm);
         try
         {
@@ -64,6 +64,7 @@ public sealed class DesktopWorkflowSpecs
             Click(window, "SignIn");
             await UntilAsync(() => vm.Screen == "Shell" && !vm.Busy);
             await ExerciseProductsAsync(window, vm);
+            await ExerciseStockAsync(window, vm);
             var language = Descendants(window).OfType<ComboBox>()
                 .Single(c => AutomationProperties.GetName(c) == Texts.Get("Language"));
             language.SelectedIndex = 1;
@@ -100,7 +101,7 @@ public sealed class DesktopWorkflowSpecs
             var ownerId = vm.Current!.Id;
             window.Close();
             // Reopen the actual window and sign in against the same database with a new session.
-            vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>());
+            vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>());
             window = new MainWindow(vm);
             window.Show();
             await UntilAsync(() => vm.Screen == "Login" && !vm.Busy);
@@ -114,10 +115,13 @@ public sealed class DesktopWorkflowSpecs
             (await vm.Service.ProfileAsync()).Telephone.ShouldBe("0771234567");
             Click(window, "Products");
             await UntilAsync(() => vm.Section == "Products" && !vm.Busy);
-            var restored = (await vm.Catalogue.LoadAsync()).Products.Single();
+            var restored = (await vm.Catalogue.LoadAsync()).Products.Single(p => p.Sku == "TEA-01");
             restored.SinhalaName.ShouldBe("තේ");
             restored.Barcode.ShouldBe("001234567890");
             Capture(window, "products-si.png");
+            Click(window, "Stock"); await UntilAsync(() => vm.Section == "Stock" && !vm.Busy);
+            (await vm.Stock.LoadAsync()).Products.Single(p => p.Sku == "RICE").Balance.ShouldBe(49.75m);
+            Capture(window, "stock-si.png");
             Click(window, "SignOut");
             await UntilAsync(() => vm.Screen == "Login" && !vm.Busy);
             users = Find<ComboBox>(window, "LoginUser");
@@ -132,9 +136,13 @@ public sealed class DesktopWorkflowSpecs
             Click(window, "Products");
             await UntilAsync(() => vm.Section == "Products" && !vm.Busy);
             Find<Button>(window, "SaveProduct").IsEnabled.ShouldBeFalse();
-            Find<DataGrid>(window, "ProductsTable").SelectedIndex = 0;
+            var productTable = Find<DataGrid>(window, "ProductsTable");
+            productTable.SelectedItem = productTable.Items.Cast<RetailCore.Application.Catalogue.ProductRow>().Single(p => p.Sku == "TEA-01");
             Find<TextBox>(window, "PreviewQuantity").Text = "2";
             Find<TextBlock>(window, "PricePreview").Text.ShouldContain("180.00");
+            Click(window, "Stock"); await UntilAsync(() => vm.Section == "Stock" && !vm.Busy);
+            Find<Button>(window, "PostStockEntry").IsEnabled.ShouldBeFalse();
+            Find<Button>(window, "SaveStockConfiguration").IsEnabled.ShouldBeFalse();
         }
         finally
         {
@@ -143,6 +151,64 @@ public sealed class DesktopWorkflowSpecs
             Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
             Directory.Delete(path, true);
         }
+    }
+
+    private static async Task ExerciseStockAsync(Window window, MainViewModel vm)
+    {
+        var category = await vm.Catalogue.SaveCategoryAsync(null, "සහල්", "Rice", true);
+        var root = await vm.Catalogue.SaveProductAsync(new RetailCore.Application.Catalogue.ProductInput(null,
+            "RICE", "සහල්", "Loose rice", "සහල්", category, RetailCore.Domain.Catalogue.UnitOfMeasure.Kilogram,
+            100, 150, "00001", []));
+        var pack = await vm.Catalogue.SaveProductAsync(new RetailCore.Application.Catalogue.ProductInput(null,
+            "RICE-25", "සහල් බෑගය", "Rice bag", "සහල් බෑගය", category, RetailCore.Domain.Catalogue.UnitOfMeasure.Pack,
+            2500, 3000, "00002", []));
+        Click(window, "Stock");
+        await UntilAsync(() => vm.Section == "Stock" && !vm.Busy);
+        void Select(RetailCore.Domain.Common.ProductId id)
+        {
+            var product = Find<ComboBox>(window, "StockProduct");
+            product.SelectedItem = product.Items.Cast<RetailCore.Application.Inventory.StockRow>().Single(p => p.Id == id);
+        }
+        Select(root);
+        Find<TextBox>(window, "Reorder").Text = "10";
+        Click(window, "SaveStockConfiguration"); await UntilAsync(() => !vm.Busy);
+        Select(pack);
+        var baseProduct = Find<ComboBox>(window, "StockBaseProduct");
+        baseProduct.SelectedItem = baseProduct.Items.Cast<RetailCore.Application.Inventory.StockRow>().Single(p => p.Id == root);
+        Find<TextBox>(window, "StockFactor").Text = "25";
+        Click(window, "SaveStockConfiguration"); await UntilAsync(() => !vm.Busy);
+        vm.Message.ShouldBe(Texts.Get("Saved"));
+        Select(pack);
+        Find<TextBox>(window, "EnteredQuantity").Text = "2";
+        Find<TextBox>(window, "StockInputCost").Text = "2500";
+        Find<TextBox>(window, "StockReason").Text = "Delivery / ලැබීම";
+        Click(window, "PostStockEntry"); await UntilAsync(() => !vm.Busy);
+        vm.Message.ShouldBe(Texts.Get("Saved"));
+        Select(root);
+        Find<TextBlock>(window, "SelectedStockBalance").Text.ShouldContain("50");
+        var packChoice = Find<ComboBox>(window, "ConsumptionPack");
+        packChoice.SelectedItem = packChoice.Items.Cast<RetailCore.Application.Inventory.StockRow>().Single(p => p.Id == pack);
+        Find<TextBox>(window, "ConsumptionQuantity").Text = "1.250";
+        Find<TextBox>(window, "ConsumptionPackQuantity").Text = "1";
+        Click(window, "PreviewConsumption"); await UntilAsync(() => !vm.Busy);
+        Find<TextBlock>(window, "ConsumptionResult").Text.ShouldContain("23.75");
+        Find<DataGrid>(window, "StockHistory").Items.Count.ShouldBe(1);
+        Find<ComboBox>(window, "StockEntryKind").SelectedIndex = 4;
+        Find<TextBox>(window, "EnteredQuantity").Text = "0.250";
+        Find<TextBox>(window, "StockInputCost").Text = "100";
+        Find<TextBox>(window, "StockReason").Text = "Damaged rice";
+        var approvalInteraction = window.Dispatcher.InvokeAsync(async () =>
+        {
+            await UntilAsync(() => window.OwnedWindows.OfType<ApprovalDialog>().Any());
+            var dialog = window.OwnedWindows.OfType<ApprovalDialog>().Single();
+            Find<PasswordBox>(dialog, "Pin").Password = "638194";
+            Click(dialog, "Approve");
+        }).Task.Unwrap();
+        Click(window, "PostStockEntry"); await approvalInteraction; await UntilAsync(() => !vm.Busy);
+        vm.Message.ShouldBe(Texts.Get("Saved")); Select(root);
+        Find<TextBlock>(window, "SelectedStockBalance").Text.ShouldContain("49.75");
+        Find<DataGrid>(window, "StockHistory").Items.Count.ShouldBe(2);
+        Capture(window, "stock-en.png");
     }
 
     private static async Task ExerciseProductsAsync(Window window, MainViewModel vm)

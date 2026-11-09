@@ -6,8 +6,10 @@ using RetailCore.Domain.Security;
 
 namespace RetailCore.Desktop;
 
-public sealed class MainViewModel(FoundationService service, LocalSession session, RetailCore.Application.Catalogue.CatalogueService catalogue) : INotifyPropertyChanged
+public sealed class MainViewModel(FoundationService service, LocalSession session, RetailCore.Application.Catalogue.CatalogueService catalogue, RetailCore.Application.Inventory.StockService stock) : INotifyPropertyChanged
 {
+    public RetailCore.Application.Inventory.StockService Stock { get; } = stock;
+    public RetailCore.Application.Inventory.StockData? StockData { get; private set; }
     public event PropertyChangedEventHandler? PropertyChanged;
     public RetailCore.Application.Catalogue.CatalogueService Catalogue { get; } = catalogue;
     public RetailCore.Application.Catalogue.CatalogueData? CatalogueData { get; private set; }
@@ -56,13 +58,14 @@ public sealed class MainViewModel(FoundationService service, LocalSession sessio
     public async Task NavigateAsync(string section)
     {
         Current = await Service.CurrentAsync();
-        if (section == "Settings" && IsOwner)
+        if (section is "Settings" or "Stock" && IsOwner)
         {
             Profile = await Service.ProfileAsync();
             Users = await Service.UsersAsync();
         }
 
         if (section == "Products") CatalogueData = await Catalogue.LoadAsync();
+        if (section == "Stock") StockData = await Stock.LoadAsync();
         Section = section;
         Notify(nameof(Screen));
     }
@@ -89,6 +92,8 @@ public sealed class MainViewModel(FoundationService service, LocalSession sessio
     {
         if (Current is null || Session.IsLocked) { return; }
         Service.Lock();
+        StockData = null;
+        CatalogueData = null;
         Profile = null;
         Users = [];
         Unlocking = true;
@@ -101,6 +106,8 @@ public sealed class MainViewModel(FoundationService service, LocalSession sessio
     {
         Service.SignOut();
         Current = null;
+        StockData = null;
+        CatalogueData = null;
         Profile = null;
         Users = [];
         Unlocking = false;
