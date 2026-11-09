@@ -293,7 +293,7 @@ public sealed class FoundationService(ILocalTransactions transactions, IPinHashe
         }
     }
 
-    private async Task<User> RequireUserAsync(ILocalStore store, bool ownerOnly, CancellationToken ct)
+    internal async Task<User> RequireUserAsync(ILocalStore store, bool ownerOnly, CancellationToken ct)
     {
         if (session.UserId is not { } id || session.IsLocked) { throw new FoundationException("SignInRequired"); }
         var shop = SingleShop(await store.ShopsAsync(ct).ConfigureAwait(false));

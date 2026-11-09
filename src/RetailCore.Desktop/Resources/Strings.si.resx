@@ -237,4 +237,51 @@
   <data xml:space="preserve" name="Confirm">
     <value>තහවුරු කරන්න</value>
   </data>
+  <data name="ProductSearch" xml:space="preserve"><value>නම, SKU, තීරු කේතය හෝ වර්ගය සොයන්න</value></data>
+  <data name="Sku" xml:space="preserve"><value>SKU</value></data>
+  <data name="SinhalaName" xml:space="preserve"><value>සිංහල නම</value></data>
+  <data name="EnglishName" xml:space="preserve"><value>ඉංග්‍රීසි නම</value></data>
+  <data name="ReceiptName" xml:space="preserve"><value>රිසිට්පත සඳහා සිංහල නම (අවශ්‍යයි)</value></data>
+  <data name="Barcode" xml:space="preserve"><value>ප්‍රධාන තීරු කේතය</value></data>
+  <data name="Category" xml:space="preserve"><value>වර්ගය</value></data>
+  <data name="Cost" xml:space="preserve"><value>ඒකක පිරිවැය</value></data>
+  <data name="NormalPrice" xml:space="preserve"><value>සාමාන්‍ය ඒකක මිල</value></data>
+  <data name="PriceBands" xml:space="preserve"><value>ප්‍රමාණ මිල</value></data>
+  <data name="StockBalance" xml:space="preserve"><value>තොග ශේෂය</value></data>
+  <data name="Unit" xml:space="preserve"><value>විකුණුම් ඒකකය</value></data>
+  <data name="QuantityBreak" xml:space="preserve"><value>ප්‍රමාණ සීමාව</value></data>
+  <data name="SaveProduct" xml:space="preserve"><value>භාණ්ඩය සුරකින්න</value></data>
+  <data name="NewProduct" xml:space="preserve"><value>නව භාණ්ඩයක්</value></data>
+  <data name="PreviewQuantity" xml:space="preserve"><value>පෙරදසුන් ප්‍රමාණය</value></data>
+  <data name="AppliedUnitPrice" xml:space="preserve"><value>ඒකක මිල</value></data>
+  <data name="AppliedBand" xml:space="preserve"><value>මිල කාණ්ඩය</value></data>
+  <data name="PreviewTotal" xml:space="preserve"><value>එකතුව</value></data>
+  <data name="Savings" xml:space="preserve"><value>ඉතිරිය</value></data>
+  <data name="SelectProduct" xml:space="preserve"><value>භාණ්ඩයක් තෝරන්න</value></data>
+  <data name="CategoryManagement" xml:space="preserve"><value>වර්ගයක් සාදන්න හෝ වෙනස් කරන්න</value></data>
+  <data name="CategorySinhala" xml:space="preserve"><value>වර්ගයේ සිංහල නම</value></data>
+  <data name="CategoryEnglish" xml:space="preserve"><value>වර්ගයේ ඉංග්‍රීසි නම</value></data>
+  <data name="NewCategory" xml:space="preserve"><value>නව වර්ගයක්</value></data>
+  <data name="SaveCategory" xml:space="preserve"><value>වර්ගය සුරකින්න</value></data>
+  <data name="InvalidNumber" xml:space="preserve"><value>වත්මන් භාෂා ආකෘතියෙන් වලංගු අංකයක් ඇතුළත් කරන්න.</value></data>
+  <data name="InvalidProduct" xml:space="preserve"><value>SKU, නම් දෙක, සිංහල රිසිට් නම, තීරු කේතය, වර්ගය, ඒකකය, ඍණ නොවන පිරිවැය සහ ධන මිලක් ඇතුළත් කරන්න.</value></data>
+  <data name="InvalidCategory" xml:space="preserve"><value>වර්ගයේ සිංහල සහ ඉංග්‍රීසි නම් ඇතුළත් කර වලංගු වර්ගයක් තෝරන්න.</value></data>
+  <data name="InvalidPricing" xml:space="preserve"><value>වැඩි වන ධන ප්‍රමාණ සීමා තුනක් දක්වා යොදන්න. මිල ධන සහ වැඩි නොවන අගයන් විය යුතුය. තනි භාණ්ඩ සඳහා පූර්ණ සීමා අවශ්‍යය.</value></data>
+  <data name="InvalidQuantity" xml:space="preserve"><value>දශම ස්ථාන තුනක් දක්වා ධන ප්‍රමාණයක් ඇතුළත් කරන්න. තනි භාණ්ඩ සඳහා පූර්ණ ප්‍රමාණ අවශ්‍යය.</value></data>
+  <data name="DuplicateSku" xml:space="preserve"><value>මෙම SKU දැනටමත් භාවිත වේ. වෙනත් SKU එකක් තෝරන්න.</value></data>
+  <data name="DuplicateBarcode" xml:space="preserve"><value>මෙම තීරු කේතය දැනටමත් භාවිත වේ. වෙනත් කේතයක් තෝරන්න.</value></data>
+  <data name="CatalogueHelp" xml:space="preserve"><value>වෙනස් කිරීමට හෝ පෙරදසුනට පේළියක් තෝරන්න. වර්ග කිරීමට තීරු මාතෘකාව ක්ලික් කරන්න. අක්‍රිය කිරීමට සක්‍රිය සලකුණ ඉවත් කර සුරකින්න. මිල කඩයේ මුදල් ඒකකයෙන්ය. හිස් සීමා භාවිත නොවේ. තොග ශේෂය ලෙජරයෙන් ගණනය වේ.</value></data>
+  <data name="Minimum1" xml:space="preserve"><value>අවම ප්‍රමාණය 1</value></data>
+  <data name="BandPrice1" xml:space="preserve"><value>අවසාන ඒකක මිල 1</value></data>
+  <data name="Minimum2" xml:space="preserve"><value>අවම ප්‍රමාණය 2</value></data>
+  <data name="BandPrice2" xml:space="preserve"><value>අවසාන ඒකක මිල 2</value></data>
+  <data name="Minimum3" xml:space="preserve"><value>අවම ප්‍රමාණය 3</value></data>
+  <data name="BandPrice3" xml:space="preserve"><value>අවසාන ඒකක මිල 3</value></data>
+  <data name="UnitEach" xml:space="preserve"><value>එකක්</value></data>
+  <data name="UnitKilogram" xml:space="preserve"><value>කිලෝග්‍රෑම්</value></data>
+  <data name="UnitGram" xml:space="preserve"><value>ග්‍රෑම්</value></data>
+  <data name="UnitLitre" xml:space="preserve"><value>ලීටර්</value></data>
+  <data name="UnitMillilitre" xml:space="preserve"><value>මිලිලීටර්</value></data>
+  <data name="UnitMetre" xml:space="preserve"><value>මීටර්</value></data>
+  <data name="UnitPack" xml:space="preserve"><value>ඇසුරුම</value></data>
 </root>

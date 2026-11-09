@@ -29,6 +29,7 @@ public static class LocalRuntime
         services.AddSingleton<IPinHasher, Argon2PinHasher>();
         services.AddSingleton<LocalSession>();
         services.AddSingleton<FoundationService>();
+        services.AddSingleton<RetailCore.Application.Catalogue.CatalogueService>();
         return services;
     }
 }

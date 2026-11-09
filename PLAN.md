@@ -29,7 +29,8 @@ quantities, sales, refunds, shifts, stock movements and audit entries can be reu
 
 Milestone 01 now adds desktop setup/login/settings, local authentication, language preferences
 and transaction/audit primitives; Windows acceptance is still pending. See
-[implementation and validation notes](docs/implementation/MILESTONE_01.md). Printing, tier pricing,
+[implementation and validation notes](docs/implementation/MILESTONE_01.md). Milestone 02 adds catalogue/tier pricing in source with Windows acceptance pending; see
+[validation notes](docs/implementation/MILESTONE_02.md). Printing,
 exchange workflows and backup/export remain unimplemented. Tenant/outbox infrastructure is legacy
 scope. Earlier documents reported passing tests; current build/test status must be verified
 in the implementation environment rather than carried forward as a guarantee.

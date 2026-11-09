@@ -67,6 +67,19 @@ public sealed class SaleLine : Entity<SaleLineId>, IBelongsToShop
     /// <summary>The product name as printed. Snapshotted.</summary>
     public string Description { get; private set; }
 
+    public string? SinhalaNameSnapshot { get; private set; }
+    public string? EnglishNameSnapshot { get; private set; }
+    public string? ReceiptNameSnapshot { get; private set; }
+    public int? AppliedPriceBand { get; private set; }
+    public long? AppliedMinimumThousandths { get; private set; }
+    internal void SnapshotQuote(PriceQuote quote)
+    {
+        SinhalaNameSnapshot = quote.SinhalaName;
+        EnglishNameSnapshot = quote.EnglishName;
+        ReceiptNameSnapshot = quote.ReceiptName;
+        AppliedPriceBand = quote.Band;
+        AppliedMinimumThousandths = quote.MinimumThousandths;
+    }
     public UnitOfMeasure Unit { get; private set; }
 
     /// <summary>Tax-inclusive shelf price at the time of sale.</summary>

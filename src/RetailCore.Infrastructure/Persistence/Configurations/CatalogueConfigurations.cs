@@ -19,6 +19,7 @@ internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.Property(c => c.ShopId).HasConversion<ValueConverters.ShopIdConverter>().IsRequired();
         builder.Property(c => c.ParentId).HasConversion<ValueConverters.CategoryIdConverter>();
         builder.Property(c => c.Name).HasMaxLength(100).IsRequired();
+        builder.Property(c => c.SinhalaName).HasMaxLength(100).IsRequired();
 
         builder.HasIndex(c => c.ShopId);
     }
@@ -41,6 +42,20 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.Property(p => p.Sku).HasMaxLength(50).IsRequired();
         builder.Property(p => p.Name).HasMaxLength(200).IsRequired();
+        builder.Property(p => p.SinhalaName).HasMaxLength(200).IsRequired();
+        builder.Property(p => p.ReceiptName).HasMaxLength(200).IsRequired();
+        builder.Property(p => p.PrimaryBarcode).HasMaxLength(64);
+        builder.HasIndex(p => p.PrimaryBarcode).IsUnique();
+        builder.OwnsMany(p => p.PriceBands, band =>
+        {
+            band.ToTable("ProductPriceBands");
+            band.WithOwner().HasForeignKey("ProductId");
+            band.Property<int>("Id").ValueGeneratedOnAdd();
+            band.HasKey("Id");
+            band.Property(b => b.CurrencyCode).HasMaxLength(3);
+            band.HasIndex("ProductId", nameof(QuantityPriceBand.MinimumThousandths)).IsUnique();
+        });
+        builder.Navigation(p => p.PriceBands).HasField("_priceBands").UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.Property(p => p.Unit).HasConversion<string>().HasMaxLength(20).IsRequired();
 
         builder.MapMoney(p => p.UnitPrice, "UnitPrice");

@@ -242,6 +242,17 @@ public sealed class Sale : AggregateRoot<SaleId>, IBelongsToShop
         return line;
     }
 
+    /// <summary>Reusable tier operation; checkout aggregation is wired in milestone 04.</summary>
+    public SaleLine AddPricedLine(Product product, Quantity quantity, TaxTreatment taxTreatment)
+    {
+        if (!product.IsActive || string.IsNullOrWhiteSpace(product.ReceiptName))
+            throw new DomainException("InvalidProduct");
+        var quote = QuantityPricing.Preview(product, quantity);
+        var line = AddLine(product, quantity, taxTreatment, quote.UnitPrice);
+        line.SnapshotQuote(quote);
+        return line;
+    }
+
     /// <summary>SAL-04.</summary>
     public void ChangeLineQuantity(SaleLineId lineId, Quantity quantity)
     {

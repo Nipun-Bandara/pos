@@ -10,7 +10,7 @@ using RetailCore.Domain.Security;
 namespace RetailCore.Desktop;
 
 /// <summary>WPF view composition; all state transitions and business calls go through the view model.</summary>
-public sealed class MainWindow : Window
+public sealed partial class MainWindow : Window
 {
     private readonly MainViewModel _vm;
     private readonly DockPanel _root = new() { Margin = new Thickness(24) };
@@ -186,6 +186,10 @@ public sealed class MainWindow : Window
         if (_vm.Section == "Settings" && _vm.IsOwner)
         {
             dock.Children.Add(SettingsView());
+        }
+        else if (_vm.Section == "Products")
+        {
+            dock.Children.Add(ProductsView());
         }
         else
         {

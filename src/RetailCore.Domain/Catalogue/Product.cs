@@ -29,6 +29,40 @@ public sealed class ProductBarcode
 public sealed class Product : Entity<ProductId>, IBelongsToShop
 {
     private readonly List<ProductBarcode> _barcodes = [];
+    private readonly List<QuantityPriceBand> _priceBands = [];
+    public IReadOnlyList<QuantityPriceBand> PriceBands => _priceBands.OrderBy(b => b.MinimumThousandths).ToList().AsReadOnly();
+    public string SinhalaName { get; private set; } = "";
+    public string ReceiptName { get; private set; } = "";
+    public string? PrimaryBarcode { get; private set; }
+
+    public void ConfigureCatalogue(string sku, string sinhala, string english, string receipt,
+        CategoryId category, UnitOfMeasure unit, Money cost, Money normal,
+        string barcode, IReadOnlyList<QuantityPriceBand> bands, bool active)
+    {
+        ArgumentNullException.ThrowIfNull(bands);
+        if (string.IsNullOrWhiteSpace(sku) || sku.Trim().Length > 50
+            || string.IsNullOrWhiteSpace(sinhala) || sinhala.Trim().Length > 200
+            || string.IsNullOrWhiteSpace(english) || english.Trim().Length > 200
+            || string.IsNullOrWhiteSpace(receipt) || receipt.Trim().Length > 200
+            || string.IsNullOrWhiteSpace(barcode) || barcode.Trim().Length > 64
+            || cost.IsNegative || cost.Currency != normal.Currency)
+            throw new DomainException("InvalidProduct");
+        QuantityPricing.Validate(normal, unit, bands);
+        Sku = sku.Trim().ToUpperInvariant();
+        SinhalaName = sinhala.Trim();
+        Name = english.Trim();
+        ReceiptName = receipt.Trim();
+        CategoryId = category;
+        Unit = unit;
+        UnitCost = cost;
+        UnitPrice = normal;
+        if (PrimaryBarcode is not null && PrimaryBarcode != barcode.Trim()) RemoveBarcode(PrimaryBarcode);
+        PrimaryBarcode = barcode.Trim();
+        AddBarcode(PrimaryBarcode);
+        _priceBands.Clear();
+        _priceBands.AddRange(bands);
+        IsActive = active;
+    }
 
     private Product(
         ProductId id,
@@ -153,7 +187,11 @@ public sealed class Product : Entity<ProductId>, IBelongsToShop
     public bool HasBarcode(string barcode) =>
         _barcodes.Exists(b => string.Equals(b.Code, barcode, StringComparison.Ordinal));
 
-    public void RemoveBarcode(string barcode) => _barcodes.RemoveAll(b => b.Code == barcode);
+    public void RemoveBarcode(string barcode)
+    {
+        _barcodes.RemoveAll(b => b.Code == barcode);
+        if (PrimaryBarcode == barcode) PrimaryBarcode = null;
+    }
 
     public void Reprice(Money unitPrice)
     {
@@ -162,6 +200,8 @@ public sealed class Product : Entity<ProductId>, IBelongsToShop
             throw new DomainException($"Product '{Name}' cannot have a negative price.");
         }
 
+        if (unitPrice.Currency != UnitCost.Currency) throw new DomainException("InvalidProduct");
+        if (!string.IsNullOrWhiteSpace(ReceiptName)) QuantityPricing.Validate(unitPrice, Unit, PriceBands);
         UnitPrice = unitPrice;
     }
 
@@ -172,6 +212,7 @@ public sealed class Product : Entity<ProductId>, IBelongsToShop
             throw new DomainException($"Product '{Name}' cannot have a negative cost.");
         }
 
+        if (unitCost.Currency != UnitPrice.Currency) throw new DomainException("InvalidProduct");
         UnitCost = unitCost;
     }
 
@@ -191,5 +232,11 @@ public sealed class Product : Entity<ProductId>, IBelongsToShop
 
     public void Deactivate() => IsActive = false;
 
-    public void Reactivate() => IsActive = true;
+    public void Reactivate()
+    {
+        if (string.IsNullOrWhiteSpace(SinhalaName) || string.IsNullOrWhiteSpace(ReceiptName)
+            || string.IsNullOrWhiteSpace(PrimaryBarcode)) throw new DomainException("InvalidProduct");
+        QuantityPricing.Validate(UnitPrice, Unit, PriceBands);
+        IsActive = true;
+    }
 }

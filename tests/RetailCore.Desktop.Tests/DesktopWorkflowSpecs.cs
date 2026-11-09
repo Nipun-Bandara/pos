@@ -46,7 +46,7 @@ public sealed class DesktopWorkflowSpecs
         Texts.Use("en");
         var services = new ServiceCollection().AddLocalFoundation(Path.Combine(path, "till.db"));
         await using var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
-        var vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>());
+        var vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>());
         var window = new MainWindow(vm);
         try
         {
@@ -63,6 +63,7 @@ public sealed class DesktopWorkflowSpecs
             Find<PasswordBox>(window, "Pin").Password = "638194";
             Click(window, "SignIn");
             await UntilAsync(() => vm.Screen == "Shell" && !vm.Busy);
+            await ExerciseProductsAsync(window, vm);
             var language = Descendants(window).OfType<ComboBox>()
                 .Single(c => AutomationProperties.GetName(c) == Texts.Get("Language"));
             language.SelectedIndex = 1;
@@ -99,7 +100,7 @@ public sealed class DesktopWorkflowSpecs
             var ownerId = vm.Current!.Id;
             window.Close();
             // Reopen the actual window and sign in against the same database with a new session.
-            vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>());
+            vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>());
             window = new MainWindow(vm);
             window.Show();
             await UntilAsync(() => vm.Screen == "Login" && !vm.Busy);
@@ -111,6 +112,12 @@ public sealed class DesktopWorkflowSpecs
             Texts.Language.ShouldBe("si");
             vm.Current!.Language.ShouldBe("si");
             (await vm.Service.ProfileAsync()).Telephone.ShouldBe("0771234567");
+            Click(window, "Products");
+            await UntilAsync(() => vm.Section == "Products" && !vm.Busy);
+            var restored = (await vm.Catalogue.LoadAsync()).Products.Single();
+            restored.SinhalaName.ShouldBe("තේ");
+            restored.Barcode.ShouldBe("001234567890");
+            Capture(window, "products-si.png");
             Click(window, "SignOut");
             await UntilAsync(() => vm.Screen == "Login" && !vm.Busy);
             users = Find<ComboBox>(window, "LoginUser");
@@ -122,6 +129,12 @@ public sealed class DesktopWorkflowSpecs
             await UntilAsync(() => vm.Section == "Settings" && !vm.Busy);
             Descendants(window).OfType<Button>().Any(b => AutomationProperties.GetAutomationId(b) == "SaveSettings").ShouldBeFalse();
             Capture(window, "cashier-settings-si.png");
+            Click(window, "Products");
+            await UntilAsync(() => vm.Section == "Products" && !vm.Busy);
+            Find<Button>(window, "SaveProduct").IsEnabled.ShouldBeFalse();
+            Find<DataGrid>(window, "ProductsTable").SelectedIndex = 0;
+            Find<TextBox>(window, "PreviewQuantity").Text = "2";
+            Find<TextBlock>(window, "PricePreview").Text.ShouldContain("180.00");
         }
         finally
         {
@@ -130,6 +143,51 @@ public sealed class DesktopWorkflowSpecs
             Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
             Directory.Delete(path, true);
         }
+    }
+
+    private static async Task ExerciseProductsAsync(Window window, MainViewModel vm)
+    {
+        Click(window, "Products");
+        await UntilAsync(() => vm.Section == "Products" && !vm.Busy);
+        Find<TextBox>(window, "CategorySinhala").Text = "පාන";
+        Find<TextBox>(window, "CategoryEnglish").Text = "Drinks";
+        Click(window, "SaveCategory");
+        await UntilAsync(() => !vm.Busy);
+        Find<TextBox>(window, "Sku").Text = "TEA-01";
+        Find<TextBox>(window, "SinhalaName").Text = "තේ";
+        Find<TextBox>(window, "EnglishName").Text = "Tea";
+        Find<TextBox>(window, "ReceiptName").Text = "තේ පැකට්";
+        Find<TextBox>(window, "Barcode").Text = "001234567890";
+        Find<TextBox>(window, "Cost").Text = "50";
+        Find<TextBox>(window, "NormalPrice").Text = "100";
+        for (var i = 1; i <= 3; i++)
+        {
+            Find<TextBox>(window, "Minimum" + i).Text = (i + 1).ToString(System.Globalization.CultureInfo.InvariantCulture);
+            Find<TextBox>(window, "BandPrice" + i).Text = new[] { "90", "85", "80" }[i - 1];
+        }
+        foreach (var (quantity, total) in new[] { ("1", "100.00"), ("2", "180.00"), ("3", "255.00"),
+            ("4", "320.00"), ("5", "400.00"), ("2", "180.00") })
+        {
+            Find<TextBox>(window, "PreviewQuantity").Text = quantity;
+            Find<TextBlock>(window, "PricePreview").Text.ShouldContain(total);
+        }
+        Find<TextBox>(window, "Minimum2").Text = "1";
+        Click(window, "SaveProduct");
+        await UntilAsync(() => !vm.Busy);
+        vm.Message.ShouldBe(Texts.Get("InvalidPricing"));
+        Find<TextBox>(window, "Minimum2").Text = "3";
+        Click(window, "SaveProduct");
+        await UntilAsync(() => !vm.Busy);
+        vm.Message.ShouldBe(Texts.Get("Saved"));
+        var table = Find<DataGrid>(window, "ProductsTable");
+        table.Items.Count.ShouldBe(1);
+        Find<TextBox>(window, "ProductSearch").Text = "missing";
+        table.Items.Count.ShouldBe(0);
+        Find<TextBox>(window, "ProductSearch").Text = "තේ";
+        table.Items.Count.ShouldBe(1);
+        table.SelectedIndex = 0;
+        Find<TextBox>(window, "Sku").Text.ShouldBe("TEA-01");
+        Capture(window, "products-en.png");
     }
 
     private static void Click(DependencyObject root, string id) =>

@@ -35,6 +35,10 @@ counts are not a statement that the current checkout passes tests.
 
 ## 2. Products and quantity pricing
 
+Milestone 02 implements product/category editing, quantity prices and preview in source.
+Windows runtime acceptance remains pending; see [validation notes](docs/implementation/MILESTONE_02.md).
+Billing tier integration remains milestone 04; receipt rendering remains milestone 05.
+
 | ID | Feature | Priority | Status |
 |---|---|---|---|
 | CAT-01 | Add/edit/deactivate products: unique SKU, barcode, category, unit, cost, normal price | Must | Foundation |
