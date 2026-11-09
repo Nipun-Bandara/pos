@@ -10,6 +10,10 @@ multi-tenancy, offline sync or multi-computer database sharing.
 FEATURES.md defines the scope; ARCHITECTURE.md defines the intended implementation. These
 are a revised plan, not a claim that the planned application is implemented.
 
+**Execution guide:** use [the 8-milestone delivery plan](docs/implementation/DELIVERY_PLAN.md)
+for branch names, grouped implementation prompts and demonstrations. The phases below describe
+the overall scope; individual feature IDs are acceptance checks, not separate required branches.
+
 ## 1. Success criterion
 
 A shop can add/import products, receive stock, scan and bill packaged/weighed goods, apply
