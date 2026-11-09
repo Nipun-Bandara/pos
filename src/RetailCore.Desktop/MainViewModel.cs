@@ -6,9 +6,11 @@ using RetailCore.Domain.Security;
 
 namespace RetailCore.Desktop;
 
-public sealed class MainViewModel(FoundationService service, LocalSession session) : INotifyPropertyChanged
+public sealed class MainViewModel(FoundationService service, LocalSession session, RetailCore.Application.Catalogue.CatalogueService catalogue) : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
+    public RetailCore.Application.Catalogue.CatalogueService Catalogue { get; } = catalogue;
+    public RetailCore.Application.Catalogue.CatalogueData? CatalogueData { get; private set; }
     public FoundationService Service { get; } = service;
     public LocalSession Session { get; } = session;
     public StartupInfo? Startup { get; private set; }
@@ -60,6 +62,7 @@ public sealed class MainViewModel(FoundationService service, LocalSession sessio
             Users = await Service.UsersAsync();
         }
 
+        if (section == "Products") CatalogueData = await Catalogue.LoadAsync();
         Section = section;
         Notify(nameof(Screen));
     }

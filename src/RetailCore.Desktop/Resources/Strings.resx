@@ -237,4 +237,51 @@
   <data xml:space="preserve" name="Confirm">
     <value>Confirm</value>
   </data>
+  <data name="ProductSearch" xml:space="preserve"><value>Search name, SKU, barcode or category</value></data>
+  <data name="Sku" xml:space="preserve"><value>SKU</value></data>
+  <data name="SinhalaName" xml:space="preserve"><value>Sinhala name</value></data>
+  <data name="EnglishName" xml:space="preserve"><value>English name</value></data>
+  <data name="ReceiptName" xml:space="preserve"><value>Sinhala receipt name (required)</value></data>
+  <data name="Barcode" xml:space="preserve"><value>Primary barcode</value></data>
+  <data name="Category" xml:space="preserve"><value>Category</value></data>
+  <data name="Cost" xml:space="preserve"><value>Unit cost</value></data>
+  <data name="NormalPrice" xml:space="preserve"><value>Normal unit price</value></data>
+  <data name="PriceBands" xml:space="preserve"><value>Quantity prices</value></data>
+  <data name="StockBalance" xml:space="preserve"><value>Stock balance</value></data>
+  <data name="Unit" xml:space="preserve"><value>Selling unit</value></data>
+  <data name="QuantityBreak" xml:space="preserve"><value>Quantity break</value></data>
+  <data name="SaveProduct" xml:space="preserve"><value>Save product</value></data>
+  <data name="NewProduct" xml:space="preserve"><value>New product</value></data>
+  <data name="PreviewQuantity" xml:space="preserve"><value>Preview quantity</value></data>
+  <data name="AppliedUnitPrice" xml:space="preserve"><value>Unit price</value></data>
+  <data name="AppliedBand" xml:space="preserve"><value>Price band</value></data>
+  <data name="PreviewTotal" xml:space="preserve"><value>Total</value></data>
+  <data name="Savings" xml:space="preserve"><value>Savings</value></data>
+  <data name="SelectProduct" xml:space="preserve"><value>Select a product</value></data>
+  <data name="CategoryManagement" xml:space="preserve"><value>Create or edit category</value></data>
+  <data name="CategorySinhala" xml:space="preserve"><value>Category Sinhala name</value></data>
+  <data name="CategoryEnglish" xml:space="preserve"><value>Category English name</value></data>
+  <data name="NewCategory" xml:space="preserve"><value>New category</value></data>
+  <data name="SaveCategory" xml:space="preserve"><value>Save category</value></data>
+  <data name="InvalidNumber" xml:space="preserve"><value>Enter a valid number using the current language format.</value></data>
+  <data name="InvalidProduct" xml:space="preserve"><value>Enter SKU, both names, Sinhala receipt name, barcode, category, valid unit, nonnegative cost and positive price.</value></data>
+  <data name="InvalidCategory" xml:space="preserve"><value>Enter Sinhala and English category names and select a valid category.</value></data>
+  <data name="InvalidPricing" xml:space="preserve"><value>Use up to three ascending positive quantity breaks with positive prices that never increase. Whole-item units need whole thresholds.</value></data>
+  <data name="InvalidQuantity" xml:space="preserve"><value>Enter a positive quantity with up to three decimals; whole-item units require whole quantities.</value></data>
+  <data name="DuplicateSku" xml:space="preserve"><value>This SKU is already used, including inactive products. Choose another SKU.</value></data>
+  <data name="DuplicateBarcode" xml:space="preserve"><value>This barcode is already used, including inactive products. Choose another barcode.</value></data>
+  <data name="CatalogueHelp" xml:space="preserve"><value>Select a row to edit or preview. Click a column heading to sort. Clear Active to deactivate; save to confirm. Prices use the shop currency. Blank breaks are unused. Stock comes from the signed ledger.</value></data>
+  <data name="Minimum1" xml:space="preserve"><value>Minimum quantity 1</value></data>
+  <data name="BandPrice1" xml:space="preserve"><value>Final unit price 1</value></data>
+  <data name="Minimum2" xml:space="preserve"><value>Minimum quantity 2</value></data>
+  <data name="BandPrice2" xml:space="preserve"><value>Final unit price 2</value></data>
+  <data name="Minimum3" xml:space="preserve"><value>Minimum quantity 3</value></data>
+  <data name="BandPrice3" xml:space="preserve"><value>Final unit price 3</value></data>
+  <data name="UnitEach" xml:space="preserve"><value>Each</value></data>
+  <data name="UnitKilogram" xml:space="preserve"><value>Kilogram</value></data>
+  <data name="UnitGram" xml:space="preserve"><value>Gram</value></data>
+  <data name="UnitLitre" xml:space="preserve"><value>Litre</value></data>
+  <data name="UnitMillilitre" xml:space="preserve"><value>Millilitre</value></data>
+  <data name="UnitMetre" xml:space="preserve"><value>Metre</value></data>
+  <data name="UnitPack" xml:space="preserve"><value>Pack</value></data>
 </root>

@@ -27,7 +27,8 @@ public partial class App : System.Windows.Application, IDisposable
             collection.AddLocalFoundation(LocalRuntime.DefaultDatabasePath);
             _services = collection.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true, ValidateOnBuild = true });
             var vm = new MainViewModel(_services.GetRequiredService<RetailCore.Application.Foundation.FoundationService>(),
-                _services.GetRequiredService<RetailCore.Application.Foundation.LocalSession>());
+                _services.GetRequiredService<RetailCore.Application.Foundation.LocalSession>(),
+                _services.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>());
             MainWindow = new MainWindow(vm);
             MainWindow.Show();
         }
