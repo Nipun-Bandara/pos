@@ -16,7 +16,7 @@ using RetailCore.Infrastructure.Sqlite.Foundation;
 
 namespace RetailCore.Foundation.Tests;
 
-public sealed class FoundationSpecs
+public sealed partial class FoundationSpecs
 {
     private const string Pin = "638194";
     private static ShopProfile Profile => new("අපේ කඩේ", "Shop", "LKR", "Asia/Colombo", "කොළඹ", "0112345678", "ස්තූතියි", null, 80, 100);

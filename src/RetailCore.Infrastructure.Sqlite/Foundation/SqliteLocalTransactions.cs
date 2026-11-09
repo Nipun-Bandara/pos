@@ -102,6 +102,23 @@ public sealed class SqliteLocalTransactions(IServiceScopeFactory scopes) : ILoca
         public async Task<IReadOnlyList<User>> UsersAsync(ShopId shopId, CancellationToken cancellationToken) =>
             await context.Users.IgnoreQueryFilters().Where(u => u.ShopId == shopId).OrderBy(u => u.DisplayName)
                 .ToListAsync(cancellationToken).ConfigureAwait(false);
+        public async Task<IReadOnlyList<RetailCore.Domain.Catalogue.Product>> ProductsAsync(ShopId shop, CancellationToken ct) =>
+            await context.Products.IgnoreQueryFilters().Where(p => p.ShopId == shop).ToListAsync(ct).ConfigureAwait(false);
+        public async Task<IReadOnlyList<RetailCore.Domain.Catalogue.Category>> CategoriesAsync(ShopId shop, CancellationToken ct) =>
+            await context.Categories.IgnoreQueryFilters().Where(p => p.ShopId == shop).ToListAsync(ct).ConfigureAwait(false);
+        public async Task<IReadOnlyList<RetailCore.Domain.Tax.TaxRate>> TaxRatesAsync(ShopId shop, CancellationToken ct) =>
+            await context.TaxRates.IgnoreQueryFilters().Where(p => p.ShopId == shop).ToListAsync(ct).ConfigureAwait(false);
+        public async Task<IReadOnlyDictionary<ProductId, long>> StockAsync(ShopId shop, CancellationToken ct)
+        {
+            return await context.StockMovements.IgnoreQueryFilters().Where(p => p.ShopId == shop)
+                .GroupBy(p => p.ProductId).Select(g => new { Product = g.Key,
+                    Balance = g.Sum(p => p.Direction == RetailCore.Domain.Inventory.StockDirection.In
+                        ? p.Quantity.Thousandths : -p.Quantity.Thousandths) })
+                .ToDictionaryAsync(p => p.Product, p => p.Balance, ct).ConfigureAwait(false);
+        }
+        public void Add(RetailCore.Domain.Catalogue.Product product) => context.Products.Add(product);
+        public void Add(RetailCore.Domain.Catalogue.Category category) => context.Categories.Add(category);
+        public void Add(RetailCore.Domain.Tax.TaxRate rate) => context.TaxRates.Add(rate);
         public void Add(Shop shop) => context.Shops.Add(shop);
         public void Add(Terminal terminal) => context.Terminals.Add(terminal);
         public void Add(User user) => context.Users.Add(user);

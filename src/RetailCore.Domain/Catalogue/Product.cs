@@ -187,7 +187,11 @@ public sealed class Product : Entity<ProductId>, IBelongsToShop
     public bool HasBarcode(string barcode) =>
         _barcodes.Exists(b => string.Equals(b.Code, barcode, StringComparison.Ordinal));
 
-    public void RemoveBarcode(string barcode) => _barcodes.RemoveAll(b => b.Code == barcode);
+    public void RemoveBarcode(string barcode)
+    {
+        _barcodes.RemoveAll(b => b.Code == barcode);
+        if (PrimaryBarcode == barcode) PrimaryBarcode = null;
+    }
 
     public void Reprice(Money unitPrice)
     {
@@ -196,6 +200,8 @@ public sealed class Product : Entity<ProductId>, IBelongsToShop
             throw new DomainException($"Product '{Name}' cannot have a negative price.");
         }
 
+        if (unitPrice.Currency != UnitCost.Currency) throw new DomainException("InvalidProduct");
+        if (!string.IsNullOrWhiteSpace(ReceiptName)) QuantityPricing.Validate(unitPrice, Unit, PriceBands);
         UnitPrice = unitPrice;
     }
 
@@ -206,6 +212,7 @@ public sealed class Product : Entity<ProductId>, IBelongsToShop
             throw new DomainException($"Product '{Name}' cannot have a negative cost.");
         }
 
+        if (unitCost.Currency != UnitPrice.Currency) throw new DomainException("InvalidProduct");
         UnitCost = unitCost;
     }
 
@@ -225,5 +232,11 @@ public sealed class Product : Entity<ProductId>, IBelongsToShop
 
     public void Deactivate() => IsActive = false;
 
-    public void Reactivate() => IsActive = true;
+    public void Reactivate()
+    {
+        if (string.IsNullOrWhiteSpace(SinhalaName) || string.IsNullOrWhiteSpace(ReceiptName)
+            || string.IsNullOrWhiteSpace(PrimaryBarcode)) throw new DomainException("InvalidProduct");
+        QuantityPricing.Validate(UnitPrice, Unit, PriceBands);
+        IsActive = true;
+    }
 }

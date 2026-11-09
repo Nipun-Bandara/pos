@@ -45,6 +45,11 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
                     b.Property<Guid>("ShopId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("SinhalaName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ShopId");
@@ -71,8 +76,22 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<string>("PrimaryBarcode")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("ReceiptName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
                     b.Property<Guid>("ShopId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("SinhalaName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<string>("Sku")
                         .IsRequired()
@@ -129,6 +148,9 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
                         });
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PrimaryBarcode")
+                        .IsUnique();
 
                     b.HasIndex("ShopId", "Name");
 
@@ -620,10 +642,19 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<long?>("AppliedMinimumThousandths")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("AppliedPriceBand")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<string>("EnglishNameSnapshot")
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsVoided")
                         .HasColumnType("boolean");
@@ -634,11 +665,17 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("ReceiptNameSnapshot")
+                        .HasColumnType("text");
+
                     b.Property<Guid>("SaleId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("ShopId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("SinhalaNameSnapshot")
+                        .HasColumnType("text");
 
                     b.Property<string>("Sku")
                         .IsRequired()
@@ -1247,7 +1284,42 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
                                 .HasForeignKey("ProductId");
                         });
 
+                    b.OwnsMany("RetailCore.Domain.Catalogue.QuantityPriceBand", "PriceBands", b1 =>
+                        {
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
+                            b1.Property<string>("CurrencyCode")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)");
+
+                            b1.Property<long>("MinimumThousandths")
+                                .HasColumnType("bigint");
+
+                            b1.Property<long>("PriceMinor")
+                                .HasColumnType("bigint");
+
+                            b1.Property<Guid>("ProductId")
+                                .HasColumnType("uuid");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("ProductId", "MinimumThousandths")
+                                .IsUnique();
+
+                            b1.ToTable("ProductPriceBands", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProductId");
+                        });
+
                     b.Navigation("Barcodes");
+
+                    b.Navigation("PriceBands");
                 });
 
             modelBuilder.Entity("RetailCore.Domain.Sales.Payment", b =>

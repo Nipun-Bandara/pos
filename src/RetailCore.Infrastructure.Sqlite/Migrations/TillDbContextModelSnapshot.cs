@@ -40,6 +40,11 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                     b.Property<Guid>("ShopId")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("SinhalaName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ShopId");
@@ -66,7 +71,21 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("PrimaryBarcode")
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReceiptName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("ShopId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SinhalaName")
+                        .IsRequired()
+                        .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Sku")
@@ -124,6 +143,9 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                         });
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PrimaryBarcode")
+                        .IsUnique();
 
                     b.HasIndex("ShopId", "Name");
 
@@ -615,9 +637,18 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("TEXT");
 
+                    b.Property<long?>("AppliedMinimumThousandths")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("AppliedPriceBand")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EnglishNameSnapshot")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsVoided")
@@ -629,10 +660,16 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ReceiptNameSnapshot")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("SaleId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("ShopId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SinhalaNameSnapshot")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Sku")
@@ -1264,7 +1301,40 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                                 .HasForeignKey("ProductId");
                         });
 
+                    b.OwnsMany("RetailCore.Domain.Catalogue.QuantityPriceBand", "PriceBands", b1 =>
+                        {
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<string>("CurrencyCode")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("TEXT");
+
+                            b1.Property<long>("MinimumThousandths")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<long>("PriceMinor")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<Guid>("ProductId")
+                                .HasColumnType("TEXT");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("ProductId", "MinimumThousandths")
+                                .IsUnique();
+
+                            b1.ToTable("ProductPriceBands", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProductId");
+                        });
+
                     b.Navigation("Barcodes");
+
+                    b.Navigation("PriceBands");
                 });
 
             modelBuilder.Entity("RetailCore.Domain.Sales.Payment", b =>

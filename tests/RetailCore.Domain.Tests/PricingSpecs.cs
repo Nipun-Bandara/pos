@@ -62,6 +62,22 @@ public sealed class PricingSpecs
     }
 
     [Fact]
+    public void Existing_mutators_cannot_invalidate_configured_prices_or_currency()
+    {
+        var p = Product(UnitOfMeasure.Each, Band(2, 90));
+        Should.Throw<DomainException>(() => p.Reprice(Price(80)));
+        Should.Throw<DomainException>(() => p.Reprice(Price(0)));
+        Should.Throw<DomainException>(() => p.RecordCost(Money.FromMajor(50, Currency.FromCode("USD"))));
+        Should.Throw<DomainException>(() => p.Reprice(Money.FromMajor(100, Currency.FromCode("USD"))));
+        p.UnitPrice.ShouldBe(Price(100));
+        p.UnitCost.ShouldBe(Price(50));
+        p.Deactivate();
+        p.RemoveBarcode("001234");
+        Should.Throw<DomainException>(p.Reactivate);
+        p.IsActive.ShouldBeFalse();
+    }
+
+    [Fact]
     public void Quote_and_sale_snapshot_names_tier_and_price_do_not_follow_catalogue_edits()
     {
         var p = Product(UnitOfMeasure.Each, Band(2, 90));
