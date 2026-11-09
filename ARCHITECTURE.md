@@ -1,230 +1,159 @@
 # RetailCore POS: Architecture
 
-**Scope:** why the system is shaped the way it is. Sequencing lives in `PLAN.md`; the feature
-list lives in `FEATURES.md`. Individual decisions with a date and a status are in `docs/adr/`.
+**Current product decision: 2026-11-09.** A single-shop Windows desktop POS, initially installed
+on one checkout computer. Sinhala/English interface and Sinhala receipts. No cloud service,
+multi-tenancy or synchronization requirement. Feature scope is in FEATURES.md; sequencing is
+in PLAN.md. ADR 0005 supersedes the earlier deployment assumptions.
 
----
+## 1. Deployment
 
-## 1. The central bet
-
-**A till must keep trading when the network does not.**
-
-Every other decision here follows from that. A minimart in a power cut with a flaky connection
-still has customers holding baskets. Software that stops selling under those conditions is
-worse than a cash box and a notebook, and will be replaced by one.
-
-Concretely, that bet forces:
-
-| Consequence | Why it follows |
-|---|---|
-| The till owns a local database | It cannot ask a server whether a sale may proceed |
-| Identifiers are generated on the client | Primary keys must be mintable with no coordination |
-| Receipt numbers are per terminal | A shop-wide sequence needs agreement between tills |
-| Stock is a ledger, not a counter | Two offline tills will both sell the last unit |
-| Sync is one-way append, not merge | Merge conflicts on money have no correct resolution |
-| Negative stock is legal | The alternative is refusing to sell goods that are in the customer's hand |
-
----
-
-## 2. Layers
-
-```
-RetailCore.Domain            no dependencies at all
-        ↑
-RetailCore.Application       abstractions, use cases, event handlers
-        ↑
-RetailCore.Infrastructure    EF Core model, repositories, tenancy
-        ↑
-   ┌────┴─────┐
-Sqlite     Postgres          providers and migrations
-(till)     (central)
+```text
+Windows PC
+  RetailCore.Desktop (planned WPF application)
+    Application services and domain rules
+      EF Core / SQLite local database
+  USB barcode scanner + Windows receipt printer
+  Backup destination (prefer an additional removable/external copy)
 ```
 
-The domain project has no `PackageReference` and no `ProjectReference`. That is asserted by
-`RetailCore.Architecture.Tests`, not merely intended. The rules a shop runs on should be
-readable and testable without a database, a container or a UI framework in the way.
+Use the existing .NET 10/C# code and EF Core SQLite mapping. WPF is the selected Windows UI
+for the revised plan; there is no desktop project yet. No server process, remote API,
+PostgreSQL service, containers or internet connection are required for the shop installation.
+A second computer sharing live data is a separate future design decision. Never share the
+SQLite file over a network drive as a shortcut to multiple tills.
 
-Provider-specific code is confined to the two leaf projects. The EF model is shared, because
-Phase 1's exit criterion is that a sale round-trips through both databases with identical
-totals — a claim that means nothing if the two sides have separate models.
+## 2. Code boundaries and transition
 
----
+Retain the useful separation:
 
-## 3. The money model
+- `RetailCore.Domain`: money, quantity, products, sales, refunds, stock and shifts.
+- `RetailCore.Application`: use-case orchestration, authorization and persistence interfaces.
+- `RetailCore.Infrastructure`: shared EF mappings, repositories and event dispatch.
+- `RetailCore.Infrastructure.Sqlite`: local provider, migrations and connection setup.
+- `RetailCore.Desktop` (planned): WPF views/view models, translations and composition root.
 
-### Money is an integer count of minor units
+The repository still contains PostgreSQL, tenant filters, shop IDs, terminal IDs and an outbox
+schema from the former plan. They are legacy implementation, not requirements for version 1.
+Do not delete applied migrations or silently remove columns. A separate implementation task
+will simplify runtime setup, replace tenant-only architecture assertions and move PostgreSQL
+checks out of the required single-shop delivery gate. Until that transition, existing code and
+CI remain unchanged. Use one configured shop/terminal internally where existing APIs require
+IDs; do not expose tenant provisioning to the cashier.
 
-`Money` holds a `long` of minor units and an ISO currency code. Addition and subtraction are
-exact. The only operation that can round is multiplication, and every multiplication forces
-the caller to choose a rounding mode.
+Retain historical ADRs to explain the code. ADRs 0001 (integer money) and 0002 (stock ledger)
+still supply useful domain rules. ADR 0003's tenancy decision is superseded for this product;
+ADR 0004's receipt sequencing is retained locally without a sync requirement.
 
-Two failures are being designed out:
+## 3. Money, quantities and pricing
 
-- **Mixing currencies.** `Money` refuses to add LKR to USD rather than producing a number.
-- **Fractional minor units.** A half-cent that survives into a total is a variance against the
-  physical drawer that nobody can explain a day later.
+Keep integer minor-unit Money and integer thousandths Quantity. Calculate and round line
+amounts before summing, retain currency validation, and record cash rounding separately.
+Reuse tax support where the shop needs it; setup should remain simple.
 
-An architecture test fails the build if a `decimal` named like money appears on a domain type.
+Product pricing needs a new model: normal price plus up to three quantity breaks, four bands
+in total. Each break contains a minimum quantity and unit price in the selling unit. Select
+the greatest qualifying threshold after aggregating the product's basket quantity; apply its
+price to all units. Example: 1 at 100, 2 at 90, 3 at 85, 4+ at 80. Three cost 255.
+Validate ascending thresholds and non-increasing positive prices. Snapshot the charged price,
+applied tier and product names on the sale. Changes to tiers must not rewrite old receipts.
+Manual price/discount overrides require owner approval; no invisible discount stacking.
 
-### Rounding happens once, at the line
+Define one base stock unit per product. Pack conversion records the factor used, e.g. two
+25 kg bags become 50.000 kg. Sealed pack sales and loose sales must consume the same underlying
+stock correctly without double-counting. Retain cost and conversion snapshots for reporting.
 
-A line's extended amount is `round(unit price × quantity)`. Every total downstream is a sum of
-already-rounded lines. Rounding at the end instead would produce a total that does not equal
-the sum of the printed line amounts, which customers notice and cannot be argued with.
+## 4. Atomic transactions and stock
 
-### Allocation never loses a unit
+A completed sale, receipt counter increment, payments, stock movements and audit entries must
+commit together through the application unit of work. No outbox is required. Inventory remains
+an append-only movement ledger for explainability, even with only one computer.
 
-A whole-sale discount is apportioned across lines by the largest remainder method: floor each
-share, then hand the leftover units to the shares with the largest discarded fraction. Ten
-rupees across three equal lines becomes 3.34, 3.33, 3.33 — and the printed line totals still
-sum to the printed sale total.
+Receiving, opening balances, wastage and counted-stock corrections need application screens
+and authorization. Show insufficient-stock warnings and require an explicit owner override to
+allow a negative balance. Optional expiry tracking is per received batch; tracked issues and
+returns need a batch allocation so expiry balances stay meaningful.
 
-### Tax is extracted, not added
+Do not treat existing comments as proof of complete protections. Verify async save paths,
+rollback/retry behavior, SQLite immutability triggers and database constraints during delivery.
+The current handlers and repository summaries must be checked against the revised workflows.
 
-Shelf prices include tax (CMP-01), so the tax in a line is `gross × rate ÷ (1 + rate)`, not
-`gross × rate`. The second formula overstates tax by the rate squared — at 18% that is a 3%
-error on every line, in the shop's favour, and it is the kind of thing found during an
-assessment.
+## 5. Returns and exchanges
 
-### Cash rounds to the smallest coin, card does not
+Require an original bill. Load previously returned quantities and prevent excess returns.
+Use original charged prices, including discounts; do not reprice the items the customer kept.
+Track actual prior refund amounts so repeated partial refunds cannot accumulate rounding
+errors or exceed what was collected. Record saleable vs damaged disposition; the current
+handler's unconditional restocking must be changed for this workflow.
 
-`Currency` carries both the minor-unit precision and the smallest coin in circulation, which
-are not the same number. Sri Lanka quotes cents but the smallest coin is one rupee, so a cash
-total of 249.60 is collected as 250.00 and the 0.40 is recorded as its own rounding
-adjustment. Card and QR settle exactly, because rounding them would put the shop permanently
-out of step with the acquirer.
+An exchange links the original bill, a return, a replacement sale and the net settlement:
+replacement total minus return credit. Positive means collect, negative means refund, zero
+means no money changes hands. Replacement items use current prices. Cash rounding is a
+separate settlement adjustment and must be accounted for once. Card refunds are performed
+externally and recorded; version 1 has no acquirer integration or stored customer credit.
 
-The adjustment is held separately from the total. It is neither income nor a discount, and
-burying it in either makes the Z report unexplainable.
+Add an exchange application service and settlement/link records rather than disguising return
+credit as an external card/cash payment. Commit the return, new sale, stock movements, receipt
+numbers, audit and settlement in one transaction. A failure rolls back the whole exchange.
+Print only after commit and allow reprinting without reposting stock or payments.
 
----
+## 6. Languages and UI
 
-## 4. Aggregates
+All interface text, validation, dialogs and report headings use Sinhala/English resources.
+Remember language per user. Receipt language is always Sinhala regardless of interface choice.
+Store Unicode product names in Sinhala and English; require a Sinhala receipt name before a
+product is activated. Snapshot printed names for consistent historical reprints.
 
-| Aggregate | Boundary and reason |
-|---|---|
-| `Sale` | Lines and payments are reachable only through it, so "a short payment cannot complete a sale" is an invariant rather than a UI check |
-| `Refund` | Separate from `Sale`, because financial records are immutable and one sale may be refunded over several visits |
-| `Shift` | Owns cash movements; sales are counted by query, so a shift's transaction does not span the day's trading |
-| `Product`, `Category`, `TaxRate` | Reference data, edited centrally, snapshotted onto sale lines |
-| `StockMovement` | Not an aggregate root by itself — an append-only ledger entry |
+The current `InvariantGlobalization=true` build setting must be reviewed/changed when adding
+the desktop application: culture-aware Sinhala/English formatting must work in the installed
+build. Keep persistence serialization and numeric parsing explicit; do not localize stored
+identifiers or turn barcodes into numbers.
 
-### Totals are derived, never assigned
+Provide six sections: Billing, Products, Stock, Returns, Reports, Settings. Default to a clear
+scan-ready billing screen, visible basket, large total and keyboard-accessible settlement.
+Use searchable tables and filters rather than deep menus. Product export operates on all
+products or the current filtered selection.
 
-`Sale`'s totals have private setters and one writer, `Recalculate()`. They are *stored* so
-reporting can aggregate them in SQL, but nothing outside the aggregate can write one. An
-architecture test asserts there is no public setter.
+## 7. Printing and external devices
 
-### Snapshots, not references
+Use the owner's supplied receipt template as a fixed, versioned layout; no editor is needed.
+Template file, actual printer model/driver and paper width are implementation inputs still to
+be supplied. Render Sinhala using a suitable redistributable font and Windows printing or a
+validated graphics adapter; do not depend on built-in printer character tables. Test long
+names, wrapping, quantities, tier prices, totals, bill barcode and reprint on physical paper.
 
-A sale line copies the product's description, price, cost and tax treatment. A receipt
-reprinted next year has to show what was charged then, and the margin report has to use the
-cost that applied on the day. A foreign key to live reference data would silently rewrite
-history every time a price changed.
+Wrap printing and barcode input behind small interfaces. Begin with one supported printer
+and keyboard-mode scanner. Manual weight entry ships first; direct scale support can follow.
+Printer failure leaves the committed bill accessible for retry; never repeat the sale commit
+to retry printing. Cash drawer support is optional and hardware-dependent.
 
----
+## 8. Reports, exports and access
 
-## 5. Events and the unit of work
+Calculate sales, discounts, returns and net sales separately. Exchanges contribute their
+return and replacement once each; settlement totals describe actual cash/card movement.
+Validate expected drawer cash against applied cash payments; do not subtract change twice.
+Estimated gross profit uses historical costs and return reversals, not today's catalogue cost.
 
-Domain events are raised by aggregates and dispatched **inside** `SaveChanges`, before the
-write. Handlers add their own entities, so everything lands in one transaction:
+Excel/CSV exports retain Unicode, barcode text and numeric/date values. Neutralize formula
+injection in text cells. PDF reports are for printing/sharing and include selected dates and
+filters. Report dates use the configured shop timezone (initially Asia/Colombo).
 
-```
-Sale.Complete()
-  → SaleCompleted
-      → stock movements   (INV-03)
-      → audit entries     (SEC-06)
-      → outbox row        (SYN-04)
-  → one commit, or none of it
-```
+Expose owner/cashier access. Owner approval protects refunds, price changes, stock corrections
+and restore. Reuse secure local PIN/lockout rules; the existing domain stores hashes but does
+not yet provide the complete hashing/login service. Log privileged changes without secrets.
 
-A handler that fails takes the sale down with it. That is correct: a sale whose stock
-movements did not post is worse than no sale at all. There is no window in which the shop has
-sold something the ledger does not know about.
+## 9. Durability, backup and installation
 
-Nothing decrements stock directly. There is exactly one path from "goods left the shop" to
-"the ledger says so", which is what makes the ledger a complete account.
+Configure SQLite WAL, synchronous FULL and foreign keys consistently on runtime connections.
+Keep the writable database in an appropriate Windows application-data folder, outside the
+installation directory. Save transactions before success is shown; handle full-disk and
+write failures with clear messages. No local database can protect against physical disk loss
+without a separate backup.
 
----
+Use SQLite's supported live backup API, not an uncoordinated copy of a WAL database file.
+Provide automatic daily and manual backups, a visible last-success status, a second backup
+destination and retention. Restore requires owner approval, validation, exclusive database
+access and a safety backup. Test restoring onto another clean installation.
 
-## 6. Multi-tenancy
-
-Three layers, in order of how much they are trusted:
-
-1. **PostgreSQL row level security.** The control. Policies compare `ShopId` against
-   `app.shop_id`, which an interceptor sets with `SET LOCAL` inside each transaction and on
-   each connection open. `current_setting(..., true)` returns NULL when unset, and NULL never
-   compares true, so a connection that has not identified a shop sees nothing. It fails closed.
-
-2. **EF Core query filters.** Defence in depth, applied by walking the model rather than being
-   written per entity, so a new table cannot be added unfiltered.
-
-3. **`IBelongsToShop` on every entity.** Including child tables like `SaleLines`. Row level
-   security is a per-table policy, and a table with no shop column cannot have one.
-
-**The application must not connect as a superuser or as the table owner.** PostgreSQL exempts
-both from row level security *silently*. The RLS migration therefore creates an unprivileged
-`retailcore_app` role, and the integration tests connect as it — a test that connected as the
-container's `postgres` user would pass while proving nothing. This was not hypothetical: the
-first run of the tenancy suite passed against a superuser connection and failed the moment it
-was pointed at a real application role.
-
----
-
-## 7. Immutability
-
-Financial records are append-only, enforced by database triggers rather than convention
-(CMP-04). The application is not the only thing that will ever hold a connection.
-
-| Table | Rule |
-|---|---|
-| `StockMovements`, `AuditEntries`, `Payments`, `CashMovements` | No update, no delete, ever |
-| `Sales` | Mutable while open; frozen on completion. The only permitted change to a completed sale is the void, which touches no financial column |
-| `Refunds` | Frozen once completed |
-
-A mistake is corrected by a compensating record, so the history of what was believed and when
-stays intact.
-
----
-
-## 8. Offline and sync
-
-- **Identifiers** are UUIDv7 (SYN-02): unique without coordination, and sortable, so index
-  inserts stay sequential instead of scattering the B-tree.
-- **Receipt numbers** are per terminal and gapless (SYN-03). The counter is incremented in the
-  same transaction that writes the sale, so a crash cannot burn a number, and an abandoned
-  basket never consumes one. A gap has to be explainable to an auditor.
-- **The outbox** is written in the same transaction as the change it describes. If the sale
-  committed, the outbox row committed. Delivery is at least once and rows survive until the
-  server acknowledges them, so server ingest must be idempotent. Duplicate delivery is cheap
-  to handle; lost delivery is not recoverable.
-- **Durability on the till:** WAL journalling with `synchronous=FULL`. A few milliseconds per
-  commit buys the guarantee that a sale the cashier saw complete is on the disk, which in a
-  shop with unreliable power is not a close trade.
-
----
-
-## 9. What is deliberately not here
-
-| Not doing | Why |
-|---|---|
-| Merge-based sync | Append-only removes conflicts by construction; there is no correct automatic resolution for two tills disagreeing about money |
-| A mutable stock-on-hand column | It would be wrong the first time two offline tills sold the last unit, with no way to find out how |
-| Storing card data | Staying out of PCI scope entirely is worth more than any feature it would enable |
-| A permissions matrix | Three roles cover what a minimart needs; SEC-09 is a Phase 7 "could" |
-| Rounding card payments | Permanent discrepancy against the acquirer |
-
----
-
-## 10. Known gaps
-
-Recorded here rather than discovered later:
-
-- **The outbox is schema only.** Rows are not yet written or pumped; that is Phase 4.
-- **`ReceiptCounter` uses an application-incremented concurrency token**, not a provider
-  rowversion, because SQLite has no equivalent and PostgreSQL's `xmin` would behave
-  differently. Uniform behaviour across providers was worth more than provider-native tokens.
-- **No FsCheck property tests yet.** PLAN.md places the conflict-free replay proof in Phase 4,
-  which is where they belong.
-- **`SearchAsync` uses `LIKE '%term%'`**, which will not meet the 150ms-over-10,000-items
-  target without a proper index. Revisit in Phase 2 when the till actually queries it.
+Ship a Windows installer and controlled upgrades with a pre-upgrade backup and forward-only
+migrations. Local logs and a small support export are enough initially; distributed tracing,
+cloud health endpoints and remote device management are outside scope.

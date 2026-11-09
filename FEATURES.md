@@ -1,243 +1,197 @@
 # RetailCore POS: Feature Catalogue
 
-Every feature carries an ID, a priority, the phase that delivers it, and its current state.
+**Scope updated:** 2026-11-09. One retail shop, initially one Windows checkout computer.
+**Languages:** Sinhala and English interface; Sinhala receipts using the owner's custom template.
+This replaces the previous cloud, multi-tenant and synchronization feature scope.
 
-**Priority uses MoSCoW.** *Must* means the product is not shippable without it. *Should* means a pilot shop will notice it missing. *Could* means it is desirable and safe to drop. *Won't* means it is out of scope for version 1 and is recorded so the decision is not relitigated every month.
+Priority: **Must** ships in version 1; **Should** is useful but can follow initial checkout;
+**Later** is outside version 1. See PLAN.md for delivery order.
+Status: **Foundation** means relevant domain/persistence code exists, but the complete usable
+feature is not delivered; **Planned** means implementation is still required. Historical test
+counts are not a statement that the current checkout passes tests.
 
-**Status:** `Done`, `Done (domain)`, `Done (schema)`, `Building`, `Planned`.
+## 1. Checkout and payments
 
-`Done (domain)` means the rule is implemented, tested and persisted, but the cashier cannot
-yet reach it because there is no till UI. Those become `Done` in Phase 2. `Done (schema)`
-means the tables exist and are exercised by tests, but the behaviour that uses them is a
-later phase.
+| ID | Feature | Priority | Status |
+|---|---|---|---|
+| SAL-01 | Scan barcode to add an item; repeated scans combine its quantity | Must | Planned |
+| SAL-02 | Search by product name, SKU or barcode; quick category selection | Must | Planned |
+| SAL-04 | Edit quantities and remove items before payment | Must | Foundation |
+| SAL-05 | Sell weighed goods to three decimal places, e.g. 1.250 kg | Must | Foundation |
+| SAL-07 | Owner-authorized manual discount with reason; no silent stacking with tier prices | Must | Foundation |
+| SAL-10 | Calculate totals from items; preserve actual prices, costs and tax on the bill | Must | Foundation |
+| SAL-11 | Hold a basket and recall it | Should | Foundation |
+| SAL-12 | Price check without adding to the basket | Should | Planned |
+| PAY-01 | Cash tender, amount due and change | Must | Foundation |
+| PAY-02 | Cash rounding shown separately using the configured cash increment | Must | Foundation |
+| PAY-03 | Record externally approved card payments and an optional reference | Must | Foundation |
+| PAY-05 | Split cash/card payment | Should | Foundation |
+| PAY-06 | Prevent completion with an unpaid balance; prevent duplicate completion | Must | Foundation |
+| PAY-08 | Do not collect or store card numbers, security codes or PINs | Must | Foundation |
 
-*Last reconciled against the code on 2026-08-25, after Phases 0 and 1.*
+## 2. Products and quantity pricing
 
----
+| ID | Feature | Priority | Status |
+|---|---|---|---|
+| CAT-01 | Add/edit/deactivate products: unique SKU, barcode, category, unit, cost, normal price | Must | Foundation |
+| CAT-02 | Simple category management | Must | Foundation |
+| CAT-03 | Preserve cost at sale time for estimated gross profit | Must | Foundation |
+| CAT-04 | Reuse existing tax support where applicable; do not require tax setup for every product | Must | Foundation |
+| CAT-06 | CSV/Excel product import with preview, validation and duplicate handling | Should | Planned |
+| CAT-07 | Multiple barcodes for a product; preserve leading zeroes | Should | Foundation |
+| CAT-10 | Searchable/sortable product table showing prices, tiers and current stock | Must | Planned |
+| CAT-11 | Export all products or filtered results to Excel/CSV; printable PDF price list | Must | Planned |
+| CAT-12 | Sinhala and English product names; Sinhala receipt name required for active products | Must | Planned |
+| PRC-01 | Four total quantity-price bands: normal price plus up to three quantity breaks | Must | Planned |
+| PRC-02 | Automatically apply the highest qualifying band to every unit of that product | Must | Planned |
+| PRC-03 | Recalculate tiers when basket quantity changes; show applied unit price and savings | Must | Planned |
+| PRC-04 | Validate ascending positive thresholds and positive non-increasing prices | Must | Planned |
+| PRC-05 | Snapshot charged price and applied tier; later price edits never alter old bills | Must | Planned |
 
-## 1. Sales and checkout
+Default pricing example (four bands in total):
 
-| ID | Feature | Priority | Phase | Status |
-|---|---|---|---|---|
-| SAL-01 | Add item by barcode scan | Must | 2 | Planned |
-| SAL-02 | Add item by SKU or name search | Must | 2 | Planned |
-| SAL-03 | Category grid for items without barcodes | Must | 2 | Planned |
-| SAL-04 | Edit line quantity | Must | 2 | Planned |
-| SAL-05 | Weighed items to three decimal places | Must | 1 | Done |
-| SAL-06 | Void a line before completion | Must | 1 | Done (domain) |
-| SAL-07 | Line discount, amount or percent | Must | 1 | Done |
-| SAL-08 | Whole-sale discount | Should | 1 | Done (domain) |
-| SAL-09 | Manager override required above a discount threshold | Must | 1 | Done (domain) |
-| SAL-10 | Totals computed from lines, never assignable | Must | 1 | Done |
-| SAL-11 | Hold a sale and recall it later | Should | 1 | Done (domain) |
-| SAL-12 | Price check without adding to cart | Should | 2 | Planned |
-| SAL-13 | Open-price item for goods without a fixed price | Could | 1 | Done (domain) |
-| SAL-14 | Customer name and phone on the sale | Could | 1 | Done (domain) |
+| Minimum quantity | Price per unit |
+|---|---:|
+| 1 | Rs. 100 |
+| 2 | Rs. 90 |
+| 3 | Rs. 85 |
+| 4 | Rs. 80 |
 
-## 2. Payments
+Three units cost Rs. 255; five cost Rs. 400. Aggregate repeated scans before selecting a band.
+Weighted-product thresholds use its selling unit, e.g. kg. Tier prices are final unit prices,
+not successive percentage discounts. Manual discounts require explicit owner approval and
+must show the resulting price. The initial tier example assumes normal price is the first
+of four bands; additional bands are not required for version 1.
 
-| ID | Feature | Priority | Phase | Status |
-|---|---|---|---|---|
-| PAY-01 | Cash tender with change calculation | Must | 1 | Done |
-| PAY-02 | Cash rounding to the smallest circulating coin | Must | 1 | Done |
-| PAY-03 | Card payment, approval reference only | Must | 1 | Done (domain) |
-| PAY-04 | QR payment, approval reference only | Should | 1 | Done (domain) |
-| PAY-05 | Split tender across multiple methods | Should | 1 | Done |
-| PAY-06 | Short payment blocks completion | Must | 1 | Done |
-| PAY-07 | Shop credit for known customers | Could | 6 | Planned |
-| PAY-08 | Card data never stored anywhere | Must | All | Done (by design) |
+## 3. Stock and receiving
 
-## 3. Returns, voids and corrections
+| ID | Feature | Priority | Status |
+|---|---|---|---|
+| INV-01 | Explain stock through an append-only movement history | Must | Foundation |
+| INV-02 | Display stock balance and movement history per product | Must | Foundation |
+| INV-03 | Sales deduct stock; accepted saleable returns restore stock | Must | Foundation |
+| INV-04 | Opening stock and stock receiving with quantity, cost, date and optional supplier/reference | Must | Foundation |
+| INV-05 | Owner-authorized stock adjustment with mandatory reason | Must | Foundation |
+| INV-06 | Damage, wastage and expired-stock recording | Must | Foundation |
+| INV-07 | Stock count with counted quantity, variance preview and confirmed adjustment | Must | Planned |
+| INV-08 | Product reorder threshold and low-stock list | Must | Planned |
+| INV-09 | Warn about insufficient/negative stock; explicit owner override records a reason | Must | Planned |
+| INV-11 | Optional batch/expiry on stock receipts; near-expiry list with configurable days | Should | Planned |
+| INV-12 | Base stock unit and explicit pack conversion, e.g. two 25 kg bags add 50 kg | Must | Planned |
 
-| ID | Feature | Priority | Phase | Status |
-|---|---|---|---|---|
-| RET-01 | Refund against an original receipt | Must | 1 | Done |
-| RET-02 | Partial refund of selected lines | Must | 1 | Done (domain) |
-| RET-03 | Refund cannot exceed the original sale | Must | 1 | Done |
-| RET-04 | Void a completed sale with a mandatory reason | Must | 1 | Done |
-| RET-05 | Void and refund require manager authorisation | Must | 2 | Planned |
-| RET-06 | Refunds restore stock automatically | Must | 1 | Done |
-| RET-07 | No-receipt refund with manager override | Could | 6 | Planned |
+Keep sealed packs explicit when sold under their own barcode/price. Conversion factors must
+be positive and snapshotted on movements; do not double-count a bag and its contents.
+Expiry belongs to a delivery batch, not a single date on the product. If expiry tracking is
+enabled, stock issues/returns must identify the affected batch, allowing a default allocation
+and correction. Full automatic FEFO optimization and recall management are later features.
+The current refund handler restores all returned stock: disposition support is still needed.
 
-## 4. Catalogue
+## 4. Returns and exchanges
 
-| ID | Feature | Priority | Phase | Status |
-|---|---|---|---|---|
-| CAT-01 | Products with SKU, barcode, name, unit | Must | 1 | Done |
-| CAT-02 | Categories | Must | 1 | Done |
-| CAT-03 | Cost price captured for margin reporting | Must | 1 | Done |
-| CAT-04 | Tax rate per product | Must | 1 | Done |
-| CAT-05 | Price and cost snapshotted onto each sale line | Must | 1 | Done |
-| CAT-06 | Bulk import from CSV or Excel | Should | 5 | Planned |
-| CAT-07 | Multiple barcodes for one product | Should | 1 | Done (schema) |
-| CAT-08 | Product images for the category grid | Could | 5 | Planned |
-| CAT-09 | Effective-dated price changes | Could | 7 | Planned |
+| ID | Feature | Priority | Status |
+|---|---|---|---|
+| RET-01 | Original bill required; find by bill number or scan printed bill barcode | Must | Foundation |
+| RET-02 | Return selected items/quantities from a completed bill | Must | Foundation |
+| RET-03 | Block quantities beyond the unreturned quantity; use original paid prices | Must | Foundation |
+| RET-04 | Owner-authorized void with reason; preserve original financial records | Must | Foundation |
+| RET-05 | Owner approval and reason for returns/exchanges | Must | Planned |
+| RET-06 | Choose saleable restock or damaged/non-saleable disposition | Must | Planned |
+| RET-08 | Exchange returned items for new products in one linked workflow | Must | Planned |
+| RET-09 | Collect positive difference, refund negative difference, or settle zero | Must | Planned |
+| RET-10 | Print Sinhala return/exchange receipt linked to original bill and replacement sale | Must | Planned |
 
-## 5. Inventory
+Return credit is the amount actually paid for returned goods, including original discounts.
+A partial return does not reprice the remaining original purchase. Replacement goods use
+current pricing. Preserve original rounding adjustments and record settlement rounding
+separately; cumulative refunds must not exceed the amount originally collected. Example:
+Rs. 100 return against a Rs. 150 replacement collects Rs. 50; against Rs. 80 refunds Rs. 20.
+For a pure return, refund the applicable amount. Do not create outstanding customer/store
+credit in version 1. Refunds default to the original tender, subject to owner authorization
+and externally handled card refunds. Store return, replacement, settlement and stock effects
+atomically. An interrupted exchange must not leave only half the operation committed.
 
-| ID | Feature | Priority | Phase | Status |
-|---|---|---|---|---|
-| INV-01 | Stock as an append-only movement ledger | Must | 1 | Done |
-| INV-02 | Stock on hand derived, never a mutable column | Must | 1 | Done |
-| INV-03 | Sales and refunds post movements automatically | Must | 1 | Done |
-| INV-04 | Goods received notes | Must | 6 | Planned |
-| INV-05 | Manual adjustment with a reason code | Must | 6 | Planned |
-| INV-06 | Wastage and damage recording | Should | 6 | Planned |
-| INV-07 | Stock take with variance report | Should | 6 | Planned |
-| INV-08 | Reorder level alerts | Should | 6 | Planned |
-| INV-09 | Negative stock permitted offline | Must | 1 | Done |
-| INV-10 | Supplier records and purchase history | Could | 6 | Planned |
-| INV-11 | Batch and expiry tracking | Won't | - | Out of scope, see PLAN.md |
+## 5. Receipts and hardware
 
-## 6. Cash control and shifts
+| ID | Feature | Priority | Status |
+|---|---|---|---|
+| HW-01 | Print Sinhala bill using supplied custom template and one validated Windows printer | Must | Planned |
+| HW-02 | Open compatible cash drawer through printer | Should | Planned |
+| HW-03 | USB keyboard-mode barcode scanner; manual barcode entry remains available | Must | Planned |
+| HW-04 | Save bill before printing; visible failure and retry without duplicate sale | Must | Planned |
+| HW-05 | Bill preview, sales-history reprint and printed bill barcode | Must | Planned |
+| HW-06 | Direct integration with one weighing-scale model | Later | Planned |
+| HW-07 | Match actual printer width; first layout depends on supplied template and printer | Must | Planned |
+| HW-09 | Generate internal barcode labels and shelf price tags | Should | Planned |
 
-| ID | Feature | Priority | Phase | Status |
-|---|---|---|---|---|
-| CSH-01 | Open a shift with a counted float | Must | 1 | Done |
-| CSH-02 | One open shift per terminal, enforced by the database | Must | 1 | Done |
-| CSH-03 | X report, mid-shift, non-closing | Must | 1 | Done (domain) |
-| CSH-04 | Z report on close with expected versus counted variance | Must | 1 | Done (domain) |
-| CSH-05 | Cash pay-in and pay-out with a reason | Must | 1 | Done (domain) |
-| CSH-06 | Cash drop to safe | Should | 1 | Done (domain) |
-| CSH-07 | Blind close, cashier cannot see expected cash first | Should | 2 | Planned |
-| CSH-08 | Variance alert to the owner above a threshold | Could | 5 | Planned |
+Manual weight entry is sufficient for version 1. Internal barcodes must be unique and not
+pretend to be externally assigned GS1 identifiers. Use Sinhala font rendering through the
+Windows print path or validated graphics printing; do not assume printer code-page support.
 
-## 7. Users and security
+## 6. Reports and exports
 
-| ID | Feature | Priority | Phase | Status |
-|---|---|---|---|---|
-| SEC-01 | Roles: owner, manager, cashier | Must | 1 | Done |
-| SEC-02 | PIN login with Argon2id hashing | Must | 2 | Planned |
-| SEC-03 | Lockout after repeated failed PIN entry | Must | 1 | Done (domain) |
-| SEC-04 | Session lock between customers | Should | 2 | Planned |
-| SEC-05 | Manager override prompt for privileged actions | Must | 1 | Done (domain) |
-| SEC-06 | Immutable audit log of voids, discounts, price and drawer events | Must | 1 | Done |
-| SEC-07 | Device enrolment with revocable tokens | Must | 4 | Planned |
-| SEC-08 | TLS 1.3 with certificate pinning on the till | Must | 4 | Planned |
-| SEC-09 | Granular permissions beyond the three roles | Could | 7 | Planned |
+| ID | Feature | Priority | Status |
+|---|---|---|---|
+| BO-04 | Sales history, bill lookup, item/payment detail and linked returns | Must | Planned |
+| BO-05 | Simple history of privileged changes | Must | Foundation |
+| BO-06 | Daily/date-range sales: gross, discounts, returns and net sales | Must | Planned |
+| BO-07 | Product/category sales, quantities and top sellers | Must | Planned |
+| BO-08 | Estimated gross profit from historical sale cost, adjusted for returns | Must | Planned |
+| BO-10 | Excel/CSV data export and PDF printable reports | Must | Planned |
+| BO-12 | Stock balance/value at recorded cost, low stock and stock movement reports | Must | Planned |
+| BO-13 | Cash/card totals, refunds and daily drawer reconciliation | Must | Planned |
+| BO-14 | Near-expiry report for tracked deliveries | Should | Planned |
 
-## 8. Hardware
+Reports use selected dates and the shop's local time, clearly distinguish sales from cash
+collected, and count exchanges once as a return plus replacement sale. Gross profit is not
+net business profit. Exports preserve Sinhala Unicode, numeric/date types and barcode text;
+neutralize spreadsheet formula injection from text values. Export the chosen filters and
+label the reporting period. CSV should open correctly in Windows Excel.
 
-| ID | Feature | Priority | Phase | Status |
-|---|---|---|---|---|
-| HW-01 | ESC/POS receipt printing, USB and network | Must | 3 | Planned |
-| HW-02 | Cash drawer opened through the printer | Must | 3 | Planned |
-| HW-03 | Barcode scanner input, distinguished from typing | Must | 3 | Planned |
-| HW-04 | Printer failure does not block the sale | Must | 3 | Planned |
-| HW-05 | Reprint any receipt from history | Must | 3 | Planned |
-| HW-06 | Weighing scale over serial | Should | 3 | Planned |
-| HW-07 | 58mm and 80mm receipt layouts | Should | 3 | Planned |
-| HW-08 | Customer-facing display | Could | 7 | Planned |
-| HW-09 | Label and shelf-tag printing | Could | 7 | Planned |
+## 7. Interface, access and maintenance
 
-## 9. Offline and sync
+| ID | Feature | Priority | Status |
+|---|---|---|---|
+| CFG-01 | One shop profile: name/address/phone, currency, receipt details and printer | Must | Foundation |
+| CFG-06 | Sinhala/English interface switch, remembered per user | Must | Planned |
+| UX-01 | Six sections: Billing, Products, Stock, Returns, Reports, Settings | Must | Planned |
+| UX-02 | Clear scan focus, large total, keyboard shortcuts, readable tables and actionable errors | Must | Planned |
+| UX-03 | Translate labels, dialogs, validation and report headings; receipts always Sinhala | Must | Planned |
+| SEC-01 | Simple owner/cashier roles; existing manager model need not be exposed | Must | Foundation |
+| SEC-02 | Local PIN login with secure hashing and lockout | Must | Foundation |
+| SEC-04 | Lock screen and owner approval for prices, adjustments, returns and restore | Must | Planned |
+| SEC-06 | Audit sensitive actions without logging credentials or card data | Must | Foundation |
+| CSH-01 | Daily/shift opening float | Must | Foundation |
+| CSH-04 | Close day/shift with counted cash and variance | Must | Foundation |
+| CSH-05 | Cash pay-in/out with reason | Must | Foundation |
+| OPS-01 | Windows installer, controlled upgrades and pre-upgrade backup | Must | Planned |
+| OPS-02 | Local error logs and a simple support export | Should | Planned |
+| OPS-07 | Automatic daily backup, manual backup and verified restore | Must | Planned |
 
-| ID | Feature | Priority | Phase | Status |
-|---|---|---|---|---|
-| SYN-01 | Complete sales with zero connectivity | Must | 2 | Done (by design) |
-| SYN-02 | Client-generated UUIDv7 identifiers | Must | 1 | Done |
-| SYN-03 | Gapless per-terminal receipt numbering, offline safe | Must | 1 | Done |
-| SYN-04 | Outbox with at-least-once delivery | Must | 1 | Done (schema) |
-| SYN-05 | Idempotent server ingest, deduplicated on key | Must | 4 | Planned |
-| SYN-06 | Reference data pull with a watermark cursor | Must | 4 | Planned |
-| SYN-07 | Sync status visible on the till | Must | 4 | Planned |
-| SYN-08 | Two terminals in one shop, both offline, reconcile on reconnect | Must | 4 | Planned |
-| SYN-09 | Alert the owner when a till has not synced for 24 hours | Should | 5 | Planned |
+Back up outside the application database folder; offer a second destination such as USB.
+Display last successful backup and failures. A second copy on the same disk is not sufficient
+protection against disk loss. Restore requires owner approval and a safety backup.
 
-## 10. Back office and reporting
+## 8. Outside version 1
 
-| ID | Feature | Priority | Phase | Status |
-|---|---|---|---|---|
-| BO-01 | Web login for owners and managers | Must | 5 | Planned |
-| BO-02 | Product and price management | Must | 5 | Planned |
-| BO-03 | User management | Must | 5 | Planned |
-| BO-04 | Sales history and receipt lookup | Must | 5 | Planned |
-| BO-05 | Audit trail viewer | Must | 5 | Planned |
-| BO-06 | Daily sales summary dashboard | Must | 6 | Planned |
-| BO-07 | Reports by product, category, cashier, hour | Should | 6 | Planned |
-| BO-08 | Margin report from cost snapshots | Should | 6 | Planned |
-| BO-09 | Tax summary for filing | Must | 6 | Planned |
-| BO-10 | CSV and Excel export | Should | 6 | Planned |
-| BO-11 | Scheduled email reports | Could | 7 | Planned |
-
-## 11. Multi-shop and tenancy
-
-| ID | Feature | Priority | Phase | Status |
-|---|---|---|---|---|
-| TEN-01 | Shop as the tenant boundary on every table | Must | 1 | Done |
-| TEN-02 | PostgreSQL row level security as the primary control | Must | 1 | Done |
-| TEN-03 | EF Core query filters as defence in depth | Must | 1 | Done |
-| TEN-04 | Automated cross-tenant leakage test | Must | 1 | Done |
-| TEN-05 | Shop and terminal provisioning | Must | 5 | Planned |
-| TEN-06 | Owner view spanning several branches | Should | 5 | Planned |
-| TEN-07 | Stock transfer between branches | Could | 7 | Planned |
-
-## 12. Customization
-
-| ID | Feature | Priority | Phase | Status |
-|---|---|---|---|---|
-| CFG-01 | Per-shop settings store | Must | 1 | Done (schema) |
-| CFG-02 | Receipt template stored as data | Should | 7 | Planned |
-| CFG-03 | Pricing rules: time, quantity, category | Should | 7 | Planned |
-| CFG-04 | Custom fields on products and customers | Could | 7 | Planned |
-| CFG-05 | Feature flags per shop | Could | 7 | Planned |
-| CFG-06 | Multi-language interface, Sinhala and Tamil | Could | 7 | Planned |
-| CFG-07 | Tenant-supplied scripts or plugins | Won't | - | Security and support burden outweigh the benefit |
-
-## 13. Compliance
-
-| ID | Feature | Priority | Phase | Status |
-|---|---|---|---|---|
-| CMP-01 | Inclusive VAT extracted rather than added | Must | 1 | Done |
-| CMP-02 | Tax rates as effective-dated data, never constants | Must | 1 | Done |
-| CMP-03 | Exempt and zero-rated item handling | Must | 1 | Done |
-| CMP-04 | Financial records immutable, enforced by database triggers | Must | 1 | Done |
-| CMP-05 | Tax registration number printed on receipts | Must | 3 | Planned |
-| CMP-06 | Out of PCI scope, card data never touches the system | Must | All | Done (by design) |
-| CMP-07 | E-invoicing integration if mandated | Could | 7 | Confirm current rules before pilot |
-
-## 14. Operations
-
-| ID | Feature | Priority | Phase | Status |
-|---|---|---|---|---|
-| OPS-01 | Signed auto-update with staged rollout | Must | 7 | Planned |
-| OPS-02 | Structured logging with correlation identifiers | Must | 1 | Planned |
-| OPS-03 | OpenTelemetry traces and metrics | Should | 4 | Planned |
-| OPS-04 | Health endpoints on the API | Must | 1 | Planned |
-| OPS-05 | Terminal health: outbox depth, last sync, printer state | Must | 4 | Planned |
-| OPS-06 | Point-in-time restore, rehearsed quarterly | Must | 7 | Planned |
-| OPS-07 | Local nightly backup on the till | Should | 7 | Planned |
-| OPS-08 | Remote support access to a terminal | Could | 7 | Planned |
-
----
+No cloud hosting, web back office, multi-tenancy, multi-branch views, device enrollment,
+outbox/sync pipeline, customer credit, loyalty, ecommerce, accounting ledger, payment-gateway
+integration, receipt-template editor, custom scripting, or multi-computer shared database.
+Tamil is not an interface requirement; the requested interface languages are Sinhala/English.
 
 ## Definition of done
 
-A feature is not done when the code works. It is done when all of the following hold:
+- Reachable through the Windows application, with useful Sinhala and English messages.
+- Financial/stock rules covered by meaningful tests; completed records remain historical.
+- Verified with realistic products, repeated scans, fractional weights and tier boundaries.
+- Receipt preview and physical Sinhala output checked on the shop's actual printer.
+- Exported Sinhala text, barcode leading zeroes and report totals verified.
+- Interrupted writes do not leave partial sales/exchanges; printing can be retried safely.
+- Backup restored on a clean installation and totals checked before pilot.
+- Core checkout is keyboard-accessible and understandable to an untrained cashier.
 
-| # | Requirement |
-|---|---|
-| 1 | Domain rules covered by tests in the same commit |
-| 2 | Works offline if it belongs to the till |
-| 3 | Scoped to a single shop and covered by the tenancy test |
-| 4 | Errors handled with a message a cashier can act on |
-| 5 | Privileged actions written to the audit log |
-| 6 | CI green, including architecture tests |
-| 7 | Reachable by keyboard alone, no mouse required |
+## Performance targets
 
----
-
-## Non-functional targets
-
-These are acceptance thresholds, not aspirations. A till that is slow is a till that gets replaced.
-
-| Area | Target |
-|---|---|
-| Scan to line appearing | Under 100ms |
-| Sale completion to receipt | Under 500ms |
-| Application cold start | Under 5 seconds |
-| Product search over 10,000 items | Under 150ms |
-| Uptime of the till, independent of network | 100%, this is the central design bet |
-| Sale data loss | Zero. A completed sale that vanishes ends the business relationship. |
-| Local database growth | Under 500MB for two years of a busy minimart |
-| Sync catch-up after 24 hours offline | Under 5 minutes |
+On the intended shop PC with 10,000 products: scan-to-line under 100 ms, product search under
+150 ms and cold start under 5 seconds. Saving a typical sale should finish within 500 ms;
+physical printing is measured separately against the chosen printer. These are targets to
+validate, not current guarantees. Billing has no internet dependency.

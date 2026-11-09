@@ -4,6 +4,10 @@
 - **Date:** 2026-08-25
 - **Relates to:** SYN-02, SYN-03
 
+> Scope update (2026-11-09): [ADR 0005](0005-single-shop-windows-pos.md) replaces the
+> multi-terminal offline/sync deployment assumptions. The local ledger/receipt rule remains
+> applicable. The rationale below records the original decision.
+
 ## Context
 
 Receipt numbers appear on paper the customer keeps, and a tax audit expects a sequence with no

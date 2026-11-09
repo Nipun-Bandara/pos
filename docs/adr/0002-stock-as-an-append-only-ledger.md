@@ -4,6 +4,10 @@
 - **Date:** 2026-08-25
 - **Relates to:** INV-01, INV-02, INV-03, INV-09
 
+> Scope update (2026-11-09): [ADR 0005](0005-single-shop-windows-pos.md) replaces the
+> multi-terminal offline/sync deployment assumptions. The local ledger/receipt rule remains
+> applicable. The rationale below records the original decision.
+
 ## Context
 
 The conventional design is a `QuantityOnHand` column updated on every sale. It is simple, fast

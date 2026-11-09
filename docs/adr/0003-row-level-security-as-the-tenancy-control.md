@@ -1,6 +1,6 @@
 # ADR 0003: Row level security is the tenancy control, not EF query filters
 
-- **Status:** Accepted
+- **Status:** Superseded for the current product by [ADR 0005](0005-single-shop-windows-pos.md)
 - **Date:** 2026-08-25
 - **Relates to:** TEN-01, TEN-02, TEN-03, TEN-04
 
