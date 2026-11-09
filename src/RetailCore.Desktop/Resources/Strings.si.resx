@@ -1,0 +1,240 @@
+<?xml version='1.0' encoding='utf-8'?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
+  </resheader>
+  <data xml:space="preserve" name="AppTitle">
+    <value>RetailCore POS</value>
+  </data>
+  <data xml:space="preserve" name="AlreadyRunning">
+    <value>RetailCore දැනටමත් විවෘතයි. එම කවුළුව වෙත යන්න.</value>
+  </data>
+  <data xml:space="preserve" name="Welcome">
+    <value>ඔබේ වෙළඳසැල සකසන්න</value>
+  </data>
+  <data xml:space="preserve" name="SetupHelp">
+    <value>වෙළඳසැල සහ පළමු හිමිකරු සාදන්න. හිමිකරුගේ PIN අංකය ආරක්ෂා කරන්න.</value>
+  </data>
+  <data xml:space="preserve" name="ShopName">
+    <value>වෙළඳසැලේ නම</value>
+  </data>
+  <data xml:space="preserve" name="LegalName">
+    <value>ලියාපදිංචි / ව්‍යාපාර නම</value>
+  </data>
+  <data xml:space="preserve" name="Currency">
+    <value>මුදල් ඒකකය</value>
+  </data>
+  <data xml:space="preserve" name="TimeZone">
+    <value>වේලා කලාපය</value>
+  </data>
+  <data xml:space="preserve" name="Address">
+    <value>ලිපිනය</value>
+  </data>
+  <data xml:space="preserve" name="Telephone">
+    <value>දුරකථන අංකය</value>
+  </data>
+  <data xml:space="preserve" name="ReceiptFooter">
+    <value>සිංහල බිල්පතේ අවසන් සටහන</value>
+  </data>
+  <data xml:space="preserve" name="PrinterName">
+    <value>Windows මුද්‍රණ යන්ත්‍රයේ නම (අත්‍යවශ්‍ය නොවේ)</value>
+  </data>
+  <data xml:space="preserve" name="PaperWidth">
+    <value>කඩදාසි පළල (මි.මී.)</value>
+  </data>
+  <data xml:space="preserve" name="CashIncrement">
+    <value>මුදල් වටය කිරීම (සුළු ඒකක; 100 = රු. 1)</value>
+  </data>
+  <data xml:space="preserve" name="OwnerName">
+    <value>හිමිකරුගේ නම</value>
+  </data>
+  <data xml:space="preserve" name="Pin">
+    <value>PIN (ඉලක්කම් 6–12)</value>
+  </data>
+  <data xml:space="preserve" name="ConfirmPin">
+    <value>PIN නැවත ඇතුළත් කරන්න</value>
+  </data>
+  <data xml:space="preserve" name="CreateShop">
+    <value>වෙළඳසැල සාදන්න</value>
+  </data>
+  <data xml:space="preserve" name="SignIn">
+    <value>පිවිසෙන්න</value>
+  </data>
+  <data xml:space="preserve" name="Unlock">
+    <value>අගුල හරින්න</value>
+  </data>
+  <data xml:space="preserve" name="Locked">
+    <value>තිරය අගුලු දමා ඇත</value>
+  </data>
+  <data xml:space="preserve" name="SelectUser">
+    <value>පරිශීලකයා තෝරන්න</value>
+  </data>
+  <data xml:space="preserve" name="SignOut">
+    <value>ඉවත් වන්න / පරිශීලකයා වෙනස් කරන්න</value>
+  </data>
+  <data xml:space="preserve" name="Lock">
+    <value>තිරය අගුලු දමන්න</value>
+  </data>
+  <data xml:space="preserve" name="Billing">
+    <value>බිල්පත්</value>
+  </data>
+  <data xml:space="preserve" name="Products">
+    <value>භාණ්ඩ</value>
+  </data>
+  <data xml:space="preserve" name="Stock">
+    <value>තොග</value>
+  </data>
+  <data xml:space="preserve" name="Returns">
+    <value>ආපසු භාර ගැනීම්</value>
+  </data>
+  <data xml:space="preserve" name="Reports">
+    <value>වාර්තා</value>
+  </data>
+  <data xml:space="preserve" name="Settings">
+    <value>සැකසුම්</value>
+  </data>
+  <data xml:space="preserve" name="ComingSoon">
+    <value>මෙම කොටස ඉදිරි අදියරකදී ලබා ගත හැක.</value>
+  </data>
+  <data xml:space="preserve" name="SettingsTitle">
+    <value>වෙළඳසැල සහ පරිශීලකයන්</value>
+  </data>
+  <data xml:space="preserve" name="Language">
+    <value>තිර භාෂාව</value>
+  </data>
+  <data xml:space="preserve" name="SaveSettings">
+    <value>වෙළඳසැල් සැකසුම් සුරකින්න</value>
+  </data>
+  <data xml:space="preserve" name="Saved">
+    <value>සාර්ථකව සුරකින ලදී.</value>
+  </data>
+  <data xml:space="preserve" name="SetupDone">
+    <value>වෙළඳසැල සාදන ලදී. හිමිකරුගේ PIN සමඟ පිවිසෙන්න.</value>
+  </data>
+  <data xml:space="preserve" name="UserManagement">
+    <value>පරිශීලක කළමනාකරණය</value>
+  </data>
+  <data xml:space="preserve" name="UserName">
+    <value>පෙන්වන නම</value>
+  </data>
+  <data xml:space="preserve" name="Role">
+    <value>භූමිකාව</value>
+  </data>
+  <data xml:space="preserve" name="Owner">
+    <value>හිමිකරු</value>
+  </data>
+  <data xml:space="preserve" name="Cashier">
+    <value>මුදල් අයකැමි</value>
+  </data>
+  <data xml:space="preserve" name="LegacyRole">
+    <value>පැරණි භූමිකාව (හිමිකරු හෝ අයකැමි තෝරන්න)</value>
+  </data>
+  <data xml:space="preserve" name="Active">
+    <value>සක්‍රියයි</value>
+  </data>
+  <data xml:space="preserve" name="CreateUser">
+    <value>පරිශීලකයා සාදන්න</value>
+  </data>
+  <data xml:space="preserve" name="EditUser">
+    <value>වෙනස් කිරීමට පරිශීලකයා තෝරන්න</value>
+  </data>
+  <data xml:space="preserve" name="NewPin">
+    <value>නව PIN (වෙනස් නොකරන්නේ නම් හිස්ව තබන්න)</value>
+  </data>
+  <data xml:space="preserve" name="ClearLockout">
+    <value>ගිණුමේ අගුල ඉවත් කරන්න</value>
+  </data>
+  <data xml:space="preserve" name="UpdateUser">
+    <value>තෝරාගත් පරිශීලකයා යාවත්කාලීන කරන්න</value>
+  </data>
+  <data xml:space="preserve" name="OwnerApproval">
+    <value>හිමිකරුගේ අනුමැතිය</value>
+  </data>
+  <data xml:space="preserve" name="ApprovalHelp">
+    <value>හිමිකරුවෙකු මෙම සැකසුම් PIN සමඟ තහවුරු කළ යුතුය. අනුමැතිය විනාඩි දෙකකින් අවසන් වේ.</value>
+  </data>
+  <data xml:space="preserve" name="Approve">
+    <value>අනුමත කරන්න</value>
+  </data>
+  <data xml:space="preserve" name="Cancel">
+    <value>අවලංගු කරන්න</value>
+  </data>
+  <data xml:space="preserve" name="Retry">
+    <value>ආරම්භය නැවත උත්සාහ කරන්න</value>
+  </data>
+  <data xml:space="preserve" name="Loading">
+    <value>කරුණාකර රැඳී සිටින්න…</value>
+  </data>
+  <data xml:space="preserve" name="InvalidCredentials">
+    <value>පරිශීලකයා හෝ PIN වැරදියි. නැවත උත්සාහ කරන්න.</value>
+  </data>
+  <data xml:space="preserve" name="AccountLocked">
+    <value>වැරදි PIN නැවත ඇතුළත් කිරීම නිසා ගිණුම විනාඩි 15කට අගුලු දමා ඇත. රැඳී සිටින්න හෝ හිමිකරුගෙන් අගුල ඉවත් කරගන්න.</value>
+  </data>
+  <data xml:space="preserve" name="SignInRequired">
+    <value>ඉදිරියට යාමට නැවත පිවිසෙන්න.</value>
+  </data>
+  <data xml:space="preserve" name="OwnerRequired">
+    <value>මෙම ක්‍රියාව කළ හැක්කේ සක්‍රිය හිමිකරුවෙකුට පමණි.</value>
+  </data>
+  <data xml:space="preserve" name="ApprovalRequired">
+    <value>හිමිකරුගේ අනුමැතිය නැත, කල් ඉකුත් වී ඇත හෝ සැකසුම් වෙනස් වී ඇත. නැවත පරීක්ෂා කර අනුමත කරන්න.</value>
+  </data>
+  <data xml:space="preserve" name="InvalidPin">
+    <value>ඉලක්කම් 6 සිට 12 දක්වා (0–9) PIN ඇතුළත් කරන්න.</value>
+  </data>
+  <data xml:space="preserve" name="PinMismatch">
+    <value>PIN ඇතුළත් කිරීම් දෙක නොගැළපේ.</value>
+  </data>
+  <data xml:space="preserve" name="InvalidUser">
+    <value>අක්ෂර 100 දක්වා නමක් ඇතුළත් කර හිමිකරු හෝ අයකැමි තෝරන්න.</value>
+  </data>
+  <data xml:space="preserve" name="InvalidLanguage">
+    <value>සිංහල හෝ ඉංග්‍රීසි තෝරන්න.</value>
+  </data>
+  <data xml:space="preserve" name="InvalidProfile">
+    <value>අවශ්‍ය නම්, පෙළ දිග, කඩදාසි පළල (මි.මී. 40–300) සහ මුදල් වටය කිරීම (සුළු ඒකක 1–100000) පරීක්ෂා කරන්න.</value>
+  </data>
+  <data xml:space="preserve" name="InvalidTimeZone">
+    <value>වලංගු වේලා කලාපයක් ඇතුළත් කරන්න. උදාහරණය: Asia/Colombo.</value>
+  </data>
+  <data xml:space="preserve" name="CurrencyFixed">
+    <value>පවතින වෙළඳසැලේ මුදල් ඒකකය වෙනස් කළ නොහැක.</value>
+  </data>
+  <data xml:space="preserve" name="LastOwner">
+    <value>අවම වශයෙන් එක් සක්‍රිය හිමිකරු ගිණුමක් තබා ගන්න.</value>
+  </data>
+  <data xml:space="preserve" name="DuplicateUser">
+    <value>එම නම දැනටමත් භාවිත වේ. වෙනත් නමක් තෝරන්න.</value>
+  </data>
+  <data xml:space="preserve" name="AlreadyConfigured">
+    <value>මෙම වෙළඳසැල දැනටමත් සකසා ඇත. පිවිසෙන්න.</value>
+  </data>
+  <data xml:space="preserve" name="LocalConfiguration">
+    <value>දත්ත ගබඩාවේ එක් සක්‍රිය වෙළඳසැලක් සහ එක් සක්‍රිය පර්යන්තයක් තිබිය යුතුය. සහාය ලබා ගන්න.</value>
+  </data>
+  <data xml:space="preserve" name="OwnerMissing">
+    <value>සක්‍රිය හිමිකරුවෙකු හමු නොවීය. ප්‍රවේශය නැවත ලබා ගැනීමට සහාය ලබා ගන්න; නව දත්ත ගබඩාවක් නොසාදන්න.</value>
+  </data>
+  <data xml:space="preserve" name="OperationConflict">
+    <value>මෙම ඉල්ලීම් අංකය වෙනත් ක්‍රියාවකට භාවිත වී ඇත. නැවත පූරණය කර උත්සාහ කරන්න.</value>
+  </data>
+  <data xml:space="preserve" name="StorageError">
+    <value>දත්ත විවෘත කිරීමට හෝ සුරැකීමට නොහැකි විය. තැටියේ ඉඩ සහ ගොනු ප්‍රවේශය පරීක්ෂා කර නැවත උත්සාහ කරන්න. පවතින දත්ත ගබඩාව තබා ගන්න.</value>
+  </data>
+  <data xml:space="preserve" name="UnexpectedError">
+    <value>ක්‍රියාව අවසන් කළ නොහැකි විය. නැවත උත්සාහ කරන්න හෝ සහාය ලබා ගන්න.</value>
+  </data>
+  <data xml:space="preserve" name="Confirm">
+    <value>තහවුරු කරන්න</value>
+  </data>
+</root>

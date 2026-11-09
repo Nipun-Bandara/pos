@@ -32,6 +32,16 @@ public enum AuditAction
     ManagerOverrideUsed = 12,
 
     ProductPriceChanged = 13,
+
+    ShopConfigured = 14,
+
+    ShopSettingsChanged = 15,
+
+    UserChanged = 16,
+
+    SessionLocked = 17,
+
+    LanguageChanged = 18,
 }
 
 /// <summary>

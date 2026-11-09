@@ -810,6 +810,11 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)");
+
                     b.Property<DateTimeOffset?>("LockedUntil")
                         .HasColumnType("timestamp with time zone");
 
@@ -1044,6 +1049,9 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<long>("CashIncrementMinor")
+                        .HasColumnType("bigint");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
@@ -1056,6 +1064,17 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<int>("PaperWidthMillimeters")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("PrinterName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("ReceiptFooter")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("TaxRegistrationNumber")
                         .HasMaxLength(50)

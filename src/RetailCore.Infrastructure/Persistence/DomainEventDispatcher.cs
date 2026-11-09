@@ -25,7 +25,13 @@ public sealed class DomainEventDispatcher(IServiceProvider services) : IDomainEv
         {
             var handlerType = typeof(IDomainEventHandler<>).MakeGenericType(domainEvent.GetType());
 
-            foreach (var handler in services.GetServices(handlerType))
+            var handlers = services.GetServices(handlerType).ToArray();
+            if (handlers.Length == 0)
+            {
+                throw new InvalidOperationException($"No handler registered for {domainEvent.GetType().Name}.");
+            }
+
+            foreach (var handler in handlers)
             {
                 if (handler is null)
                 {

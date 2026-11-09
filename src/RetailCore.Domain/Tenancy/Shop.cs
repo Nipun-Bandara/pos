@@ -51,6 +51,36 @@ public sealed class Shop : AggregateRoot<ShopId>
     /// <summary>IANA identifier, for example "Asia/Colombo". Shift and report boundaries use it.</summary>
     public string TimeZoneId { get; private set; } = "UTC";
 
+    public string? ReceiptFooter { get; private set; }
+
+    public string? PrinterName { get; private set; }
+
+    public int PaperWidthMillimeters { get; private set; } = 80;
+
+    public long CashIncrementMinor { get; private set; } = 100;
+
+    public void UpdateProfile(string name, string legalName, string timeZoneId,
+        string? receiptFooter, string? printerName, int paperWidthMillimeters, long cashIncrementMinor)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentException.ThrowIfNullOrWhiteSpace(legalName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(timeZoneId);
+        if (name.Length > 200 || legalName.Length > 200 || timeZoneId.Length > 100
+            || receiptFooter?.Length > 1000 || printerName?.Length > 200
+            || paperWidthMillimeters is < 40 or > 300 || cashIncrementMinor is < 1 or > 100_000)
+        {
+            throw new DomainException("Invalid shop profile.");
+        }
+
+        Name = name.Trim();
+        LegalName = legalName.Trim();
+        TimeZoneId = timeZoneId;
+        ReceiptFooter = receiptFooter?.Trim();
+        PrinterName = printerName?.Trim();
+        PaperWidthMillimeters = paperWidthMillimeters;
+        CashIncrementMinor = cashIncrementMinor;
+    }
+
     public bool IsActive { get; private set; } = true;
 
     public static Shop Create(

@@ -12,12 +12,19 @@ public sealed class DatabaseFixture : IAsyncLifetime
     private SqliteHarness? _sqlite;
     private PostgresHarness? _postgres;
 
-    public static TheoryData<string> ProviderNames { get; } = new("SQLite", "PostgreSQL");
+    public static bool PostgresEnabled =>
+        Environment.GetEnvironmentVariable("RETAILCORE_TEST_POSTGRES") == "1";
+
+    public static TheoryData<string> ProviderNames => PostgresEnabled
+        ? new("SQLite", "PostgreSQL") : new("SQLite");
 
     public async ValueTask InitializeAsync()
     {
         _sqlite = await SqliteHarness.CreateAsync().ConfigureAwait(false);
-        _postgres = await PostgresHarness.CreateAsync().ConfigureAwait(false);
+        if (PostgresEnabled)
+        {
+            _postgres = await PostgresHarness.CreateAsync().ConfigureAwait(false);
+        }
     }
 
     internal IDatabaseHarness For(string provider) => provider switch

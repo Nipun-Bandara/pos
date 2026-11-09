@@ -15,6 +15,9 @@ internal sealed class ShopConfiguration : IEntityTypeConfiguration<Shop>
             .HasConversion<ValueConverters.ShopIdConverter>()
             .ValueGeneratedNever();
 
+        builder.Property(s => s.ReceiptFooter).HasMaxLength(1000);
+        builder.Property(s => s.PrinterName).HasMaxLength(200);
+
         builder.Property(s => s.Name).HasMaxLength(200).IsRequired();
         builder.Property(s => s.LegalName).HasMaxLength(200).IsRequired();
 

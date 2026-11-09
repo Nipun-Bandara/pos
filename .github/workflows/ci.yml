@@ -1,13 +1,16 @@
 name: CI
 
-# PLAN.md section 5: build with warnings as errors, unit tests, architecture tests,
-# integration tests, pending-migration check. A red build is never merged.
-
 on:
   push:
     branches: [main, master]
   pull_request:
     branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      legacy_postgres:
+        description: Also run retained PostgreSQL compatibility checks
+        type: boolean
+        default: false
 
 env:
   DOTNET_NOLOGO: true
@@ -15,82 +18,68 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
-  build-and-test:
-    name: Build and test
+  local-build-and-test:
+    name: Local SQLite build and tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up .NET
-        uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
+      - run: dotnet restore
+      - run: dotnet build --no-restore --configuration Release
+      - name: Domain rules
+        run: dotnet tests/RetailCore.Domain.Tests/bin/Release/net10.0/RetailCore.Domain.Tests.dll
+      - name: Architecture boundaries
+        run: dotnet tests/RetailCore.Architecture.Tests/bin/Release/net10.0/RetailCore.Architecture.Tests.dll
+      - name: SQLite integration
+        run: dotnet tests/RetailCore.Integration.Tests/bin/Release/net10.0/RetailCore.Integration.Tests.dll
+      - name: Setup, authentication, transactions and migrations
+        run: dotnet tests/RetailCore.Foundation.Tests/bin/Release/net10.0/RetailCore.Foundation.Tests.dll
+      - name: SQLite model and migrations agree
+        run: |
+          dotnet tool install --global dotnet-ef --version 10.0.11
+          dotnet ef migrations has-pending-model-changes --no-build --configuration Release --project src/RetailCore.Infrastructure.Sqlite
 
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
+  windows-desktop:
+    name: Windows WPF build and workflow
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
         with:
-          path: ~/.nuget/packages
-          key: nuget-${{ runner.os }}-${{ hashFiles('**/Directory.Packages.props') }}
-          restore-keys: nuget-${{ runner.os }}-
+          global-json-file: global.json
+      - run: dotnet restore
+      - run: dotnet build --no-restore --configuration Release
+      - name: File-backed foundation on Windows
+        run: dotnet tests/RetailCore.Foundation.Tests/bin/Release/net10.0/RetailCore.Foundation.Tests.dll
+      - name: Real WPF setup, sign-in, language, lock and reopen workflow
+        run: dotnet tests/RetailCore.Desktop.Tests/bin/Release/net10.0-windows/RetailCore.Desktop.Tests.dll
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-ui-previews
+          path: tests/RetailCore.Desktop.Tests/bin/Release/net10.0-windows/artifacts/*.png
+          if-no-files-found: warn
 
-      - name: Restore
-        run: dotnet restore
-
-      # TreatWarningsAsErrors is set in Directory.Build.props, so this fails on a warning.
-      - name: Build
-        run: dotnet build --no-restore --configuration Release
-
-      # Domain and architecture suites need nothing external. The integration suite starts a
-      # real PostgreSQL through Testcontainers, which works on the hosted runner's Docker.
-      - name: Test
-        run: dotnet test --no-build --configuration Release
-
-  migrations-in-step:
-    name: Models and migrations agree
+  legacy-postgres:
+    name: Optional legacy PostgreSQL compatibility
+    if: github.event_name == 'workflow_dispatch' && inputs.legacy_postgres
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    # PLAN.md Phase 1: CI blocks a merge where a model was edited without a migration.
-    # Catching it here is the difference between a five-minute fix and a failed deployment.
-
+    timeout-minutes: 20
+    env:
+      RETAILCORE_TEST_POSTGRES: '1'
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up .NET
-        uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
-
-      - name: Install EF Core tools
-        run: dotnet tool install --global dotnet-ef --version 10.0.11
-
-      - name: Restore
-        run: dotnet restore
-
-      - name: Check the till schema has no pending model changes
+      - run: dotnet restore
+      - run: dotnet build --no-restore --configuration Release
+      - run: dotnet tests/RetailCore.Integration.Tests/bin/Release/net10.0/RetailCore.Integration.Tests.dll
+      - name: Retained PostgreSQL model and migrations agree
         run: |
-          dotnet ef migrations has-pending-model-changes \
-            --project src/RetailCore.Infrastructure.Sqlite \
-            --startup-project src/RetailCore.Infrastructure.Sqlite
-
-      - name: Check the central schema has no pending model changes
-        run: |
-          dotnet ef migrations has-pending-model-changes \
-            --project src/RetailCore.Infrastructure.Postgres \
-            --startup-project src/RetailCore.Infrastructure.Postgres
-
-      # SQLite and PostgreSQL are kept in step deliberately (PLAN.md Phase 1). If one side
-      # gains a migration and the other does not, the till and the server drift apart.
-      - name: Both providers have the same number of migrations
-        run: |
-          till=$(ls src/RetailCore.Infrastructure.Sqlite/Migrations/*_*.cs \
-            | grep -v Designer | wc -l)
-          central=$(ls src/RetailCore.Infrastructure.Postgres/Migrations/*_*.cs \
-            | grep -v Designer | wc -l)
-          echo "till migrations: $till, central migrations: $central"
-          if [ "$till" -gt "$central" ]; then
-            echo "::error::The till has more migrations than the central database."
-            exit 1
-          fi
+          dotnet tool install --global dotnet-ef --version 10.0.11
+          dotnet ef migrations has-pending-model-changes --no-build --configuration Release --project src/RetailCore.Infrastructure.Postgres

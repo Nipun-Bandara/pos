@@ -1,0 +1,240 @@
+<?xml version='1.0' encoding='utf-8'?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
+  </resheader>
+  <data xml:space="preserve" name="AppTitle">
+    <value>RetailCore POS</value>
+  </data>
+  <data xml:space="preserve" name="AlreadyRunning">
+    <value>RetailCore is already open. Return to the existing window.</value>
+  </data>
+  <data xml:space="preserve" name="Welcome">
+    <value>Set up your shop</value>
+  </data>
+  <data xml:space="preserve" name="SetupHelp">
+    <value>Create your shop and first owner. Keep the owner PIN safe.</value>
+  </data>
+  <data xml:space="preserve" name="ShopName">
+    <value>Shop name</value>
+  </data>
+  <data xml:space="preserve" name="LegalName">
+    <value>Registered / business name</value>
+  </data>
+  <data xml:space="preserve" name="Currency">
+    <value>Currency</value>
+  </data>
+  <data xml:space="preserve" name="TimeZone">
+    <value>Time zone</value>
+  </data>
+  <data xml:space="preserve" name="Address">
+    <value>Address</value>
+  </data>
+  <data xml:space="preserve" name="Telephone">
+    <value>Telephone</value>
+  </data>
+  <data xml:space="preserve" name="ReceiptFooter">
+    <value>Sinhala receipt footer</value>
+  </data>
+  <data xml:space="preserve" name="PrinterName">
+    <value>Windows printer name (optional)</value>
+  </data>
+  <data xml:space="preserve" name="PaperWidth">
+    <value>Paper width (mm)</value>
+  </data>
+  <data xml:space="preserve" name="CashIncrement">
+    <value>Cash rounding increment (minor units; 100 = Rs. 1)</value>
+  </data>
+  <data xml:space="preserve" name="OwnerName">
+    <value>Owner name</value>
+  </data>
+  <data xml:space="preserve" name="Pin">
+    <value>PIN (6–12 digits)</value>
+  </data>
+  <data xml:space="preserve" name="ConfirmPin">
+    <value>Confirm PIN</value>
+  </data>
+  <data xml:space="preserve" name="CreateShop">
+    <value>Create shop</value>
+  </data>
+  <data xml:space="preserve" name="SignIn">
+    <value>Sign in</value>
+  </data>
+  <data xml:space="preserve" name="Unlock">
+    <value>Unlock</value>
+  </data>
+  <data xml:space="preserve" name="Locked">
+    <value>Screen locked</value>
+  </data>
+  <data xml:space="preserve" name="SelectUser">
+    <value>Select user</value>
+  </data>
+  <data xml:space="preserve" name="SignOut">
+    <value>Sign out / change user</value>
+  </data>
+  <data xml:space="preserve" name="Lock">
+    <value>Lock screen</value>
+  </data>
+  <data xml:space="preserve" name="Billing">
+    <value>Billing</value>
+  </data>
+  <data xml:space="preserve" name="Products">
+    <value>Products</value>
+  </data>
+  <data xml:space="preserve" name="Stock">
+    <value>Stock</value>
+  </data>
+  <data xml:space="preserve" name="Returns">
+    <value>Returns</value>
+  </data>
+  <data xml:space="preserve" name="Reports">
+    <value>Reports</value>
+  </data>
+  <data xml:space="preserve" name="Settings">
+    <value>Settings</value>
+  </data>
+  <data xml:space="preserve" name="ComingSoon">
+    <value>This section will be available in a later milestone.</value>
+  </data>
+  <data xml:space="preserve" name="SettingsTitle">
+    <value>Shop and users</value>
+  </data>
+  <data xml:space="preserve" name="Language">
+    <value>Interface language</value>
+  </data>
+  <data xml:space="preserve" name="SaveSettings">
+    <value>Save shop settings</value>
+  </data>
+  <data xml:space="preserve" name="Saved">
+    <value>Saved successfully.</value>
+  </data>
+  <data xml:space="preserve" name="SetupDone">
+    <value>Shop created. Sign in with your owner PIN.</value>
+  </data>
+  <data xml:space="preserve" name="UserManagement">
+    <value>User management</value>
+  </data>
+  <data xml:space="preserve" name="UserName">
+    <value>Display name</value>
+  </data>
+  <data xml:space="preserve" name="Role">
+    <value>Role</value>
+  </data>
+  <data xml:space="preserve" name="Owner">
+    <value>Owner</value>
+  </data>
+  <data xml:space="preserve" name="Cashier">
+    <value>Cashier</value>
+  </data>
+  <data xml:space="preserve" name="LegacyRole">
+    <value>Legacy role (choose owner or cashier)</value>
+  </data>
+  <data xml:space="preserve" name="Active">
+    <value>Active</value>
+  </data>
+  <data xml:space="preserve" name="CreateUser">
+    <value>Create user</value>
+  </data>
+  <data xml:space="preserve" name="EditUser">
+    <value>Select user to update</value>
+  </data>
+  <data xml:space="preserve" name="NewPin">
+    <value>New PIN (leave empty to keep)</value>
+  </data>
+  <data xml:space="preserve" name="ClearLockout">
+    <value>Clear account lockout</value>
+  </data>
+  <data xml:space="preserve" name="UpdateUser">
+    <value>Update selected user</value>
+  </data>
+  <data xml:space="preserve" name="OwnerApproval">
+    <value>Owner approval</value>
+  </data>
+  <data xml:space="preserve" name="ApprovalHelp">
+    <value>An owner must confirm these exact shop settings with their PIN. Approval expires in two minutes.</value>
+  </data>
+  <data xml:space="preserve" name="Approve">
+    <value>Approve</value>
+  </data>
+  <data xml:space="preserve" name="Cancel">
+    <value>Cancel</value>
+  </data>
+  <data xml:space="preserve" name="Retry">
+    <value>Retry startup</value>
+  </data>
+  <data xml:space="preserve" name="Loading">
+    <value>Please wait…</value>
+  </data>
+  <data xml:space="preserve" name="InvalidCredentials">
+    <value>Incorrect user or PIN. Try again.</value>
+  </data>
+  <data xml:space="preserve" name="AccountLocked">
+    <value>This account is locked for 15 minutes after repeated incorrect PINs. Wait or ask an owner to reset it.</value>
+  </data>
+  <data xml:space="preserve" name="SignInRequired">
+    <value>Please sign in again to continue.</value>
+  </data>
+  <data xml:space="preserve" name="OwnerRequired">
+    <value>Only an active owner can perform this action.</value>
+  </data>
+  <data xml:space="preserve" name="ApprovalRequired">
+    <value>Owner approval is missing, expired or no longer matches. Review and approve again.</value>
+  </data>
+  <data xml:space="preserve" name="InvalidPin">
+    <value>Enter a PIN containing 6 to 12 digits (0–9).</value>
+  </data>
+  <data xml:space="preserve" name="PinMismatch">
+    <value>The two PIN entries do not match.</value>
+  </data>
+  <data xml:space="preserve" name="InvalidUser">
+    <value>Enter a name of up to 100 characters and select owner or cashier.</value>
+  </data>
+  <data xml:space="preserve" name="InvalidLanguage">
+    <value>Choose Sinhala or English.</value>
+  </data>
+  <data xml:space="preserve" name="InvalidProfile">
+    <value>Check required names, text lengths, paper width (40–300 mm) and cash increment (1–100000 minor units).</value>
+  </data>
+  <data xml:space="preserve" name="InvalidTimeZone">
+    <value>Enter a valid time zone, for example Asia/Colombo.</value>
+  </data>
+  <data xml:space="preserve" name="CurrencyFixed">
+    <value>The existing shop currency cannot be changed.</value>
+  </data>
+  <data xml:space="preserve" name="LastOwner">
+    <value>Keep at least one active owner account.</value>
+  </data>
+  <data xml:space="preserve" name="DuplicateUser">
+    <value>That display name is already in use. Choose another.</value>
+  </data>
+  <data xml:space="preserve" name="AlreadyConfigured">
+    <value>This shop has already been configured. Sign in instead.</value>
+  </data>
+  <data xml:space="preserve" name="LocalConfiguration">
+    <value>This database must contain one active shop and one active terminal. Ask for support before continuing.</value>
+  </data>
+  <data xml:space="preserve" name="OwnerMissing">
+    <value>No active owner was found. Ask for support to recover access; do not create a replacement database.</value>
+  </data>
+  <data xml:space="preserve" name="OperationConflict">
+    <value>This request identifier was already used for another operation. Refresh and try again.</value>
+  </data>
+  <data xml:space="preserve" name="StorageError">
+    <value>The data could not be opened or saved. Check available disk space and file access, then retry. Keep the existing database.</value>
+  </data>
+  <data xml:space="preserve" name="UnexpectedError">
+    <value>The action could not finish. Try again or ask for support.</value>
+  </data>
+  <data xml:space="preserve" name="Confirm">
+    <value>Confirm</value>
+  </data>
+</root>
