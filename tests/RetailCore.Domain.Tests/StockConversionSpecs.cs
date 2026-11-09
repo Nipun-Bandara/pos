@@ -2,6 +2,8 @@ using RetailCore.Domain.Catalogue;
 using RetailCore.Domain.Common;
 using RetailCore.Domain.Inventory;
 using RetailCore.Domain.Monetary;
+using RetailCore.Domain.Sales;
+using RetailCore.Domain.Tax;
 
 namespace RetailCore.Domain.Tests;
 
@@ -44,6 +46,35 @@ public sealed class StockConversionSpecs
         movement.UnitCost!.Value.ToDecimal().ShouldBe(100);
         movement.InputUnitCostMinor.ShouldBe(250000);
         movement.PostingKey.ShouldNotBeNull();
+    }
+
+    [Fact]
+    public void Sale_and_return_keep_original_pack_mapping_cost_and_disposition()
+    {
+        var currency = Currency.FromCode("LKR");
+        var p = Product.Create(ShopId.New(), "BAG", "Rice bag", CategoryId.New(), UnitOfMeasure.Pack,
+            Money.FromMajor(3000, currency), Money.FromMajor(2500, currency), TaxRateId.New());
+        var root = ProductId.New();
+        p.ConfigureStock(root, UnitOfMeasure.Kilogram, 25000, Quantity.Zero);
+        var actor = UserId.New();
+        var sale = Sale.Start(p.ShopId, TerminalId.New(), ShiftId.New(), actor, currency, DateTimeOffset.UtcNow);
+        var line = sale.AddLine(p, Quantity.Of(2), TaxTreatment.Exempt("NO-TAX"));
+        p.ConfigureStock(ProductId.New(), UnitOfMeasure.Kilogram, 20000, Quantity.Zero);
+        p.RecordCost(Money.FromMajor(4000, currency));
+        sale.AddCashPayment(Money.FromMajor(6000, currency), DateTimeOffset.UtcNow);
+        sale.Complete(ReceiptNumber.Create("T1", 1), DateTimeOffset.UtcNow);
+        var sold = sale.ItemsSold().Single();
+        sold.StockProductId.ShouldBe(root); sold.FactorThousandths.ShouldBe(25000);
+        sold.UnitCost!.Value.ToDecimal().ShouldBe(2500);
+        var refund = Refund.Against(sale, sale.ShiftId, actor, "Damaged bag", actor, PaymentMethod.Cash,
+            DateTimeOffset.UtcNow, new Dictionary<SaleLineId, Quantity>());
+        var returned = refund.AddLine(line.Id, Quantity.One, ReturnDisposition.Damaged);
+        refund.Complete(ReceiptNumber.Create("T1", 2), DateTimeOffset.UtcNow);
+        returned.StockProductId.ShouldBe(root); returned.StockFactorThousandths.ShouldBe(25000);
+        returned.UnitCostMinor.ShouldBe(250000);
+        var item = refund.DomainEvents.OfType<RefundIssued>().Single().Items.Single();
+        item.Saleable.ShouldBeFalse(); item.StockProductId.ShouldBe(root); item.FactorThousandths.ShouldBe(25000);
+        item.UnitCost!.Value.ToDecimal().ShouldBe(2500);
     }
 
     [Fact]

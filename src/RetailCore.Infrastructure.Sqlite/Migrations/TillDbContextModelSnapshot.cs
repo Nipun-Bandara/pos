@@ -93,6 +93,16 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("StockBaseProductId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("StockBaseUnit")
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("StockFactorThousandths")
+                        .HasColumnType("INTEGER");
+
                     b.Property<Guid>("TaxRateId")
                         .HasColumnType("TEXT");
 
@@ -160,10 +170,33 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("ApprovedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("BaseUnit")
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("ConversionFactorThousandths")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Direction")
                         .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("EnteredProductId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InputCostCurrency")
+                        .HasMaxLength(3)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("InputQuantityThousandths")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long?>("InputUnitCostMinor")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Kind")
                         .IsRequired()
@@ -171,6 +204,10 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset>("OccurredAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PostingKey")
+                        .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("ProductId")
@@ -181,6 +218,10 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("RecordedBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Reference")
+                        .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("ShopId")
@@ -217,6 +258,9 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                         });
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PostingKey")
+                        .IsUnique();
 
                     b.HasIndex("SourceType", "SourceId");
 
@@ -384,9 +428,17 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("CostCurrency")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Disposition")
+                        .IsRequired()
+                        .HasMaxLength(20)
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("OriginalSaleLineId")
@@ -405,6 +457,19 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
+
+                    b.Property<string>("StockBaseUnit")
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("StockFactorThousandths")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("StockProductId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("UnitCostMinor")
+                        .HasColumnType("INTEGER");
 
                     b.ComplexProperty(typeof(Dictionary<string, object>), "Amount", "RetailCore.Domain.Sales.RefundLine.Amount#Money", b1 =>
                         {
@@ -675,6 +740,16 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                     b.Property<string>("Sku")
                         .IsRequired()
                         .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("StockBaseUnit")
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("StockFactorThousandths")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("StockProductId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Unit")
@@ -1246,6 +1321,28 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                     b.HasKey("TerminalId");
 
                     b.ToTable("ReceiptCounters", (string)null);
+                });
+
+            modelBuilder.Entity("RetailCore.Infrastructure.Persistence.StockPostingReceipt", b =>
+                {
+                    b.Property<Guid>("ShopId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SourceType")
+                        .HasMaxLength(30)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("SourceId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Fingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ShopId", "SourceType", "SourceId");
+
+                    b.ToTable("StockPostingReceipts", (string)null);
                 });
 
             modelBuilder.Entity("RetailCore.Infrastructure.Sqlite.Foundation.CommandRecord", b =>

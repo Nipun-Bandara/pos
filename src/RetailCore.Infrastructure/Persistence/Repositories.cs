@@ -223,6 +223,51 @@ public sealed class ShiftRepository(RetailCoreDbContext context) : IShiftReposit
 
 public sealed class StockLedger(RetailCoreDbContext context) : IStockLedger
 {
+    public async Task PostAsync(ShopId shop, string sourceType, Guid sourceId, IReadOnlyList<StockMovement> movements, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(movements);
+        if (sourceId == Guid.Empty || string.IsNullOrWhiteSpace(sourceType) || sourceType.Length > 30
+            || movements.Any(m => m.ShopId != shop || m.SourceId != sourceId
+                || m.SourceType != sourceType || m.PostingKey is null || !m.Quantity.IsPositive)
+            || movements.Select(m => m.PostingKey).Distinct().Count() != movements.Count)
+            throw new RetailCore.Application.Foundation.FoundationException("StockPostingConflict");
+        static string Effect(StockMovement m) => $"{m.PostingKey}|{m.Quantity.Thousandths}|{m.Direction}|{m.InputQuantityThousandths}|{m.InputUnitCostMinor}|{m.InputCostCurrency}|{m.BaseUnit}";
+        var fingerprint = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
+            System.Text.Encoding.UTF8.GetBytes(string.Join('\n', movements.Select(Effect).Order(StringComparer.Ordinal)))));
+        var prior = context.Set<StockPostingReceipt>().Local.SingleOrDefault(r => r.ShopId == shop && r.SourceType == sourceType && r.SourceId == sourceId)
+            ?? await context.Set<StockPostingReceipt>().IgnoreQueryFilters().SingleOrDefaultAsync(r => r.ShopId == shop
+                && r.SourceType == sourceType && r.SourceId == sourceId, cancellationToken).ConfigureAwait(false);
+        if (prior is not null)
+        {
+            if (prior.Fingerprint != fingerprint) throw new RetailCore.Application.Foundation.FoundationException("StockPostingConflict");
+            return;
+        }
+        // Historical effects have no posting receipt. Never silently duplicate or rewrite them.
+        if (await context.StockMovements.IgnoreQueryFilters().AnyAsync(m => m.ShopId == shop && (m.SourceType == sourceType
+                || (sourceType == "SaleVoid" && m.SourceType == "Sale" && m.Kind == StockMovementKind.SaleVoided))
+            && m.SourceId == sourceId, cancellationToken).ConfigureAwait(false))
+            throw new RetailCore.Application.Foundation.FoundationException("StockPostingConflict");
+        foreach (var group in movements.GroupBy(m => m.ProductId))
+        {
+            var balance = await context.StockMovements.IgnoreQueryFilters().Where(m => m.ShopId == shop && m.ProductId == group.Key)
+                .SumAsync(m => m.Direction == StockDirection.In ? m.Quantity.Thousandths : -m.Quantity.Thousandths, cancellationToken).ConfigureAwait(false);
+            balance = StockConversion.After(balance, context.StockMovements.Local.Where(m => context.Entry(m).State == EntityState.Added
+                && m.ShopId == shop && m.ProductId == group.Key).Select(m => (m.Quantity, m.Direction)));
+            if (StockConversion.After(balance, group.Select(m => (m.Quantity, m.Direction))) < 0 && group.Any(m => m.Direction == StockDirection.Out))
+            {
+                foreach (var outgoing in group.Where(m => m.Direction == StockDirection.Out))
+                {
+                    if (outgoing.ApprovedBy is not { } ownerId || string.IsNullOrWhiteSpace(outgoing.Reason)
+                        || !await context.Users.IgnoreQueryFilters().AnyAsync(u => u.Id == ownerId && u.ShopId == shop
+                            && u.IsActive && u.Role == Role.Owner, cancellationToken).ConfigureAwait(false))
+                        throw new RetailCore.Application.Foundation.FoundationException("InsufficientStock");
+                }
+            }
+        }
+        context.Add(new StockPostingReceipt(shop, sourceType, sourceId, fingerprint));
+        context.StockMovements.AddRange(movements);
+    }
+
     /// <summary>
     /// INV-02: derived from the ledger, never read from a column. Clamped at zero because a
     /// caller asking "how many do I have" cannot use a negative answer; use

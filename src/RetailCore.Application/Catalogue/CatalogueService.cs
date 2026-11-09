@@ -13,7 +13,7 @@ public sealed record BandInput(decimal Minimum, decimal Price);
 public sealed record ProductInput(ProductId? Id, string Sku, string SinhalaName, string EnglishName,
     string ReceiptName, CategoryId CategoryId, UnitOfMeasure Unit, decimal Cost, decimal NormalPrice,
     string Barcode, IReadOnlyList<BandInput> Bands, bool Active = true);
-public sealed record ProductRow(ProductInput Product, string Category, string Currency, long StockThousandths)
+public sealed record ProductRow(ProductInput Product, string Category, string Currency, long StockThousandths, UnitOfMeasure StockUnit = UnitOfMeasure.Each)
 {
     public string Sku => Product.Sku;
     public string SinhalaName => Product.SinhalaName;
@@ -48,7 +48,7 @@ public sealed class CatalogueService(ILocalTransactions transactions, Foundation
                 p.PriceBands.Select(b => new BandInput(b.MinimumThousandths / 1000m,
                     Money.FromMinor(b.PriceMinor, p.UnitPrice.Currency).ToDecimal())).ToArray(), p.IsActive),
                 categories.SingleOrDefault(c => c.Id == p.CategoryId)?.Name ?? "", shop.Currency.Code,
-                stock.GetValueOrDefault(p.Id))).OrderBy(p => p.Sku, StringComparer.Ordinal).ToArray();
+                stock.GetValueOrDefault(p.StockBaseProductId ?? p.Id), p.StockBaseUnit ?? p.Unit)).OrderBy(p => p.Sku, StringComparer.Ordinal).ToArray();
             return new CatalogueData(rows, categories.Select(c => new CategoryRow(c.Id, c.SinhalaName, c.Name, c.IsActive))
                 .OrderBy(c => c.EnglishName, StringComparer.Ordinal).ToArray(), shop.Currency.Code);
         }, cancellationToken);
@@ -101,13 +101,16 @@ public sealed class CatalogueService(ILocalTransactions transactions, Foundation
                     ? Product.Create(actor.ShopId, input.Sku, input.EnglishName, input.CategoryId, input.Unit,
                         Money.FromMajor(input.NormalPrice, shop.Currency), Money.FromMajor(input.Cost, shop.Currency), noTax.Id)
                     : products.Single(p => p.Id == input.Id);
+                if (product.Unit != input.Unit && (await store.MovementsAsync(actor.ShopId, ct).ConfigureAwait(false))
+                    .Any(m => m.ProductId == product.Id || m.EnteredProductId == product.Id))
+                    throw new FoundationException("StockMappingLocked");
                 Apply(product, input, shop.Currency);
                 if (input.Id is null) store.Add(product);
                 store.Audit(AuditEntry.Record(actor.ShopId, AuditAction.ProductChanged, "Product", product.Id.Value,
                     clock.UtcNow, actor.Id, detailsJson: JsonSerializer.Serialize(input)));
                 return product.Id;
             }
-            catch (DomainException ex) { throw new FoundationException(ex.Message == "InvalidPricing" ? "InvalidPricing" : "InvalidProduct"); }
+            catch (DomainException ex) { throw new FoundationException(ex.Message is "InvalidPricing" or "StockMappingLocked" ? ex.Message : "InvalidProduct"); }
             catch (ArgumentException) { throw new FoundationException("InvalidProduct"); }
             catch (OverflowException) { throw new FoundationException("InvalidProduct"); }
         }, cancellationToken);

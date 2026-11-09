@@ -28,6 +28,10 @@ public interface ILocalStore
     void Add(RetailCore.Domain.Catalogue.Product product);
     void Add(RetailCore.Domain.Catalogue.Category category);
     void Add(RetailCore.Domain.Tax.TaxRate rate);
+    Task<IReadOnlyList<RetailCore.Domain.Inventory.StockMovement>> MovementsAsync(ShopId shop, CancellationToken ct);
+    Task PostStockAsync(ShopId shop, string sourceType, Guid sourceId, IReadOnlyList<RetailCore.Domain.Inventory.StockMovement> movements, CancellationToken ct);
+    Task<CompletedLocalCommand?> CommandAsync(Guid id, CancellationToken ct);
+    void CompleteCommand(Guid id, string kind, string fingerprint, string result);
     void Add(Shop shop);
     void Add(Terminal terminal);
     void Add(User user);
@@ -45,6 +49,8 @@ public interface ILocalTransactions
     Task<T> ExecuteOnceAsync<T>(Guid operationId, string kind, string fingerprint,
         Func<ILocalStore, CancellationToken, Task<T>> command, CancellationToken cancellationToken = default);
 }
+
+public sealed record CompletedLocalCommand(string Kind, string Fingerprint, string Result);
 
 public sealed record UserSummary(UserId Id, string Name, Role Role, bool IsActive, string Language);
 public sealed record ShopProfile(string Name, string LegalName, string Currency, string TimeZoneId,

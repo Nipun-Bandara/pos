@@ -171,12 +171,11 @@ public class SaleRoundTripSpecs(DatabaseFixture fixture)
             // INV-02: derived from the ledger, not read from a column.
             var onHand = await ledger.SignedOnHandAsync(shop.TinnedFish.Id);
 
-            // INV-09: nothing was received first, so four sold leaves minus four. That is a
-            // correct answer, not an error.
-            onHand.ShouldBe(-4m);
+            // Stock must be available unless an owner explicitly approved a shortage.
+            onHand.ShouldBe(96m);
 
             var movement = await context.StockMovements
-                .SingleAsync(m => m.ProductId == shop.TinnedFish.Id);
+                .SingleAsync(m => m.ProductId == shop.TinnedFish.Id && m.Kind == StockMovementKind.Sale);
 
             movement.Kind.ShouldBe(StockMovementKind.Sale);
             movement.Direction.ShouldBe(StockDirection.Out);
@@ -350,9 +349,9 @@ public class SaleRoundTripSpecs(DatabaseFixture fixture)
             var alreadyRefunded = await refunds.RefundedQuantitiesAsync(saleId);
             alreadyRefunded.Values.Single().ShouldBe(Quantity.One);
 
-            // RET-06: three sold, one back, so the ledger nets to minus two.
+            // RET-06: 100 received, three sold, one saleable return.
             var ledger = new StockLedger(context);
-            (await ledger.SignedOnHandAsync(shop.TinnedFish.Id)).ShouldBe(-2m);
+            (await ledger.SignedOnHandAsync(shop.TinnedFish.Id)).ShouldBe(98m);
         }
     }
 
@@ -410,6 +409,9 @@ public class SaleRoundTripSpecs(DatabaseFixture fixture)
         context.TaxRates.Add(shop.StandardRate);
         context.Products.AddRange(shop.TinnedFish, shop.Tomatoes, shop.Rice);
         context.Shifts.Add(shop.Shift);
+        foreach (var product in new[] { shop.TinnedFish, shop.Tomatoes, shop.Rice })
+            context.StockMovements.Add(StockMovement.Manual(shop.Shop.Id, product.Id, Quantity.Of(100), StockDirection.In,
+                StockMovementKind.OpeningBalance, "Test opening", shop.Manager.Id, SampleShop.Now));
 
         await context.SaveChangesAsync();
     }

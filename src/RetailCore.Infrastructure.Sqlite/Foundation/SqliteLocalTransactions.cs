@@ -110,15 +110,33 @@ public sealed class SqliteLocalTransactions(IServiceScopeFactory scopes) : ILoca
             await context.TaxRates.IgnoreQueryFilters().Where(p => p.ShopId == shop).ToListAsync(ct).ConfigureAwait(false);
         public async Task<IReadOnlyDictionary<ProductId, long>> StockAsync(ShopId shop, CancellationToken ct)
         {
-            return await context.StockMovements.IgnoreQueryFilters().Where(p => p.ShopId == shop)
+            var balances = await context.StockMovements.IgnoreQueryFilters().Where(p => p.ShopId == shop)
                 .GroupBy(p => p.ProductId).Select(g => new { Product = g.Key,
                     Balance = g.Sum(p => p.Direction == RetailCore.Domain.Inventory.StockDirection.In
                         ? p.Quantity.Thousandths : -p.Quantity.Thousandths) })
                 .ToDictionaryAsync(p => p.Product, p => p.Balance, ct).ConfigureAwait(false);
+            foreach (var pending in context.StockMovements.Local.Where(m => context.Entry(m).State == EntityState.Added && m.ShopId == shop))
+                balances[pending.ProductId] = checked(balances.GetValueOrDefault(pending.ProductId)
+                    + (pending.Direction == RetailCore.Domain.Inventory.StockDirection.In ? pending.Quantity.Thousandths : -pending.Quantity.Thousandths));
+            return balances;
         }
         public void Add(RetailCore.Domain.Catalogue.Product product) => context.Products.Add(product);
         public void Add(RetailCore.Domain.Catalogue.Category category) => context.Categories.Add(category);
         public void Add(RetailCore.Domain.Tax.TaxRate rate) => context.TaxRates.Add(rate);
+        public async Task<IReadOnlyList<RetailCore.Domain.Inventory.StockMovement>> MovementsAsync(ShopId shop, CancellationToken ct)
+        {
+            var stored = await context.StockMovements.IgnoreQueryFilters().Where(m => m.ShopId == shop).ToListAsync(ct).ConfigureAwait(false);
+            return stored.Concat(context.StockMovements.Local.Where(m => context.Entry(m).State == EntityState.Added && m.ShopId == shop)).ToArray();
+        }
+        public Task PostStockAsync(ShopId shop, string sourceType, Guid sourceId, IReadOnlyList<RetailCore.Domain.Inventory.StockMovement> movements, CancellationToken ct) =>
+            new RetailCore.Infrastructure.Persistence.StockLedger(context).PostAsync(shop, sourceType, sourceId, movements, ct);
+        public async Task<CompletedLocalCommand?> CommandAsync(Guid id, CancellationToken ct)
+        {
+            var record = await context.Set<CommandRecord>().SingleOrDefaultAsync(r => r.Id == id, ct).ConfigureAwait(false);
+            return record is null ? null : new CompletedLocalCommand(record.Kind, record.Fingerprint, record.ResultJson);
+        }
+        public void CompleteCommand(Guid id, string kind, string fingerprint, string result) =>
+            context.Add(new CommandRecord(id, kind, fingerprint, result));
         public void Add(Shop shop) => context.Shops.Add(shop);
         public void Add(Terminal terminal) => context.Terminals.Add(terminal);
         public void Add(User user) => context.Users.Add(user);

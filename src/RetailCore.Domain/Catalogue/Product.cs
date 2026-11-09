@@ -40,7 +40,7 @@ public sealed class Product : Entity<ProductId>, IBelongsToShop
     public void ConfigureStock(ProductId baseProduct, UnitOfMeasure baseUnit, long factorThousandths, Quantity reorder)
     {
         if (factorThousandths <= 0 || !Enum.IsDefined(baseUnit)
-            || (!baseUnit.AllowsFractionalQuantity() && factorThousandths % 1000 != 0)
+            || (!baseUnit.AllowsFractionalQuantity() && (factorThousandths % 1000 != 0 || !reorder.IsWholeUnits))
             || (baseProduct == Id && (factorThousandths != 1000 || baseUnit != Unit)))
             throw new DomainException("InvalidStockConfiguration");
         StockBaseProductId = baseProduct == Id ? null : baseProduct;

@@ -90,6 +90,7 @@ public interface IShiftRepository
 
 public interface IStockLedger
 {
+    Task PostAsync(ShopId shop, string sourceType, Guid sourceId, IReadOnlyList<StockMovement> movements, CancellationToken cancellationToken = default);
     /// <summary>INV-02: derived from the movement ledger, never read from a column.</summary>
     Task<Quantity> OnHandAsync(ProductId productId, CancellationToken cancellationToken = default);
 

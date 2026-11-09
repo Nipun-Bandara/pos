@@ -98,6 +98,16 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<Guid?>("StockBaseProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("StockBaseUnit")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<long>("StockFactorThousandths")
+                        .HasColumnType("bigint");
+
                     b.Property<Guid>("TaxRateId")
                         .HasColumnType("uuid");
 
@@ -165,10 +175,33 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("ApprovedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BaseUnit")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<long>("ConversionFactorThousandths")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Direction")
                         .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
+
+                    b.Property<Guid?>("EnteredProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("InputCostCurrency")
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)");
+
+                    b.Property<long>("InputQuantityThousandths")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("InputUnitCostMinor")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Kind")
                         .IsRequired()
@@ -177,6 +210,10 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
 
                     b.Property<DateTimeOffset>("OccurredAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PostingKey")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
@@ -187,6 +224,10 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
 
                     b.Property<Guid?>("RecordedBy")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("Reference")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<Guid>("ShopId")
                         .HasColumnType("uuid");
@@ -222,6 +263,9 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
                         });
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PostingKey")
+                        .IsUnique();
 
                     b.HasIndex("SourceType", "SourceId");
 
@@ -389,10 +433,18 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("CostCurrency")
+                        .HasColumnType("text");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Disposition")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<Guid>("OriginalSaleLineId")
                         .HasColumnType("uuid");
@@ -410,6 +462,19 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<string>("StockBaseUnit")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<long>("StockFactorThousandths")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid?>("StockProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("UnitCostMinor")
+                        .HasColumnType("bigint");
 
                     b.ComplexProperty(typeof(Dictionary<string, object>), "Amount", "RetailCore.Domain.Sales.RefundLine.Amount#Money", b1 =>
                         {
@@ -681,6 +746,16 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<string>("StockBaseUnit")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<long>("StockFactorThousandths")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid?>("StockProductId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Unit")
                         .IsRequired()
@@ -1251,6 +1326,28 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
                     b.HasKey("TerminalId");
 
                     b.ToTable("ReceiptCounters", (string)null);
+                });
+
+            modelBuilder.Entity("RetailCore.Infrastructure.Persistence.StockPostingReceipt", b =>
+                {
+                    b.Property<Guid>("ShopId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("SourceType")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<Guid>("SourceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Fingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("ShopId", "SourceType", "SourceId");
+
+                    b.ToTable("StockPostingReceipts", (string)null);
                 });
 
             modelBuilder.Entity("RetailCore.Domain.Catalogue.Product", b =>

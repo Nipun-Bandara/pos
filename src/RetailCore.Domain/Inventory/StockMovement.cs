@@ -54,9 +54,9 @@ public enum StockDirection
 /// how it got wrong. A ledger reconciles by construction and explains itself.
 /// </para>
 /// <para>
-/// INV-09: nothing here refuses to go negative. An offline till cannot know what another
-/// till has sold, and a cashier who is holding the item in their hand is not helped by the
-/// software insisting it does not exist. Negative stock is a reporting signal, not an error.
+/// Signed balances can represent an owner-approved shortage. The application write
+/// boundary checks availability and requires exact, reasoned owner approval before a
+/// posting can make stock negative.
 /// </para>
 /// <para>
 /// Rows are never updated or deleted. A mistake is corrected by a compensating movement, so
