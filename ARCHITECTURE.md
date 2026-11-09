@@ -159,3 +159,24 @@ access and a safety backup. Test restoring onto another clean installation.
 Ship a Windows installer and controlled upgrades with a pre-upgrade backup and forward-only
 migrations. Local logs and a small support export are enough initially; distributed tracing,
 cloud health endpoints and remote device management are outside scope.
+
+## Milestone 04 checkout boundary
+
+`BillingService` uses the existing local transaction and owner-approval infrastructure.
+Per-user SQLite baskets retain quantities and proposed final prices; every settlement
+rebuilds the quote from current catalogue, tax, shift and stock revisions. The quote hash
+and basket version protect approval against changed inputs. Manual discounts replace the
+qualified tier price, require an exact owner grant at completion, and snapshot both prices.
+
+The basket identity is the sale/command identity. One SQLite transaction saves its sale,
+payment, receipt counter, converted stock posting, audit, immutable result and next basket.
+An authenticated exact retry returns that saved result even after restart. Conflicting
+retries fail. Completed lines preserve Sinhala receipt/name, normal/qualified/charged
+prices, tax, cost and base-stock conversion snapshots. Forward migrations leave old bills
+unchanged. Cash uses the configured increment and stores rounding separately; drawer cash
+uses the applied cash amount without subtracting change again. Cards are external approvals
+with restricted optional reference text, never payment credentials or gateway calls.
+
+The WPF Billing screen and Windows dispatcher acceptance test are implemented; execution on
+Windows and target-device acceptance remain required. See
+[the milestone 04 validation record](docs/implementation/MILESTONE_04.md).

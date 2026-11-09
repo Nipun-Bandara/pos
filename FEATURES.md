@@ -16,10 +16,14 @@ counts are not a statement that the current checkout passes tests.
 
 ## 1. Checkout and payments
 
+Milestone 04 adds the reachable Billing workflow in source, including atomic cash/card
+settlement, persisted baskets, opening float and owner-approved final prices. Windows runtime
+acceptance remains pending; see [validation notes](docs/implementation/MILESTONE_04.md).
+
 | ID | Feature | Priority | Status |
 |---|---|---|---|
-| SAL-01 | Scan barcode to add an item; repeated scans combine its quantity | Must | Planned |
-| SAL-02 | Search by product name, SKU or barcode; quick category selection | Must | Planned |
+| SAL-01 | Scan barcode to add an item; repeated scans combine its quantity | Must | Foundation |
+| SAL-02 | Search by product name, SKU or barcode; quick category selection | Must | Foundation |
 | SAL-04 | Edit quantities and remove items before payment | Must | Foundation |
 | SAL-05 | Sell weighed goods to three decimal places, e.g. 1.250 kg | Must | Foundation |
 | SAL-07 | Owner-authorized manual discount with reason; no silent stacking with tier prices | Must | Foundation |
@@ -37,7 +41,7 @@ counts are not a statement that the current checkout passes tests.
 
 Milestone 02 implements product/category editing, quantity prices and preview in source.
 Windows runtime acceptance remains pending; see [validation notes](docs/implementation/MILESTONE_02.md).
-Billing tier integration remains milestone 04; receipt rendering remains milestone 05.
+Milestone 04 connects tiers to Billing; receipt rendering remains milestone 05.
 
 | ID | Feature | Priority | Status |
 |---|---|---|---|
