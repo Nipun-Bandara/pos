@@ -29,6 +29,8 @@ public sealed class CheckoutSpecs
         sale.AmountSettled.ToDecimal().ShouldBe(150.50m);
         sale.Payments.Single().Amount.ToDecimal().ShouldBe(150.50m);
         sale.BalanceDue.IsZero.ShouldBeTrue();
+        Money.FromMajor(150.25m, Lkr).RoundToIncrement(50).ToDecimal().ShouldBe(150.50m);
+        Money.FromMajor(150.24m, Lkr).RoundToIncrement(50).ToDecimal().ShouldBe(150m);
     }
 
     [Fact]
@@ -59,6 +61,15 @@ public sealed class CheckoutSpecs
         line.ReceiptNameSnapshot.ShouldBe("තේ පැකට්");
         Should.Throw<DomainException>(() => Sale(p).AddCheckoutLine(p, Quantity.Of(2), TaxTreatment.Exempt("NO-TAX"), Money.FromMajor(91, Lkr), "Offer", owner));
         Should.Throw<DomainException>(() => Sale(p).AddCheckoutLine(p, Quantity.Of(2), TaxTreatment.Exempt("NO-TAX"), Money.FromMajor(80, Lkr), "Offer"));
+    }
+
+    [Fact]
+    public void Summing_checkout_money_never_wraps_into_a_negative_balance()
+    {
+        var maximum = Money.FromMinor(long.MaxValue, Lkr);
+        Should.Throw<OverflowException>(() => Money.Sum([maximum, Money.FromMinor(1, Lkr)], Lkr));
+        Should.Throw<OverflowException>(() => maximum.MultiplyBy(2L));
+        Should.Throw<OverflowException>(() => maximum.RoundToIncrement(10));
     }
 
     [Theory]

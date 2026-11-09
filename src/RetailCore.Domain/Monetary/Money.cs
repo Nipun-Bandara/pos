@@ -101,7 +101,7 @@ public readonly record struct Money : IComparable<Money>, IComparable, IFormatta
 
     public Money Abs() => new(Math.Abs(MinorUnits), RequireCode());
 
-    public Money Negate() => new(-MinorUnits, RequireCode());
+    public Money Negate() => new(checked(-MinorUnits), RequireCode());
 
     /// <summary>
     /// Rounds to the smallest coin in circulation. PAY-02.
@@ -129,7 +129,7 @@ public readonly record struct Money : IComparable<Money>, IComparable, IFormatta
     }
 
     /// <summary>Multiplies by a whole number. Exact, no rounding possible.</summary>
-    public Money MultiplyBy(long factor) => new(MinorUnits * factor, RequireCode());
+    public Money MultiplyBy(long factor) => new(checked(MinorUnits * factor), RequireCode());
 
     /// <summary>
     /// Multiplies by a fractional factor such as a quantity or a tax rate, rounding the
@@ -217,10 +217,10 @@ public readonly record struct Money : IComparable<Money>, IComparable, IFormatta
     }
 
     public static Money operator +(Money left, Money right) =>
-        new(left.MinorUnits + right.MinorUnits, RequireSameCurrency(left, right));
+        new(checked(left.MinorUnits + right.MinorUnits), RequireSameCurrency(left, right));
 
     public static Money operator -(Money left, Money right) =>
-        new(left.MinorUnits - right.MinorUnits, RequireSameCurrency(left, right));
+        new(checked(left.MinorUnits - right.MinorUnits), RequireSameCurrency(left, right));
 
     public static Money operator -(Money value) => value.Negate();
 
