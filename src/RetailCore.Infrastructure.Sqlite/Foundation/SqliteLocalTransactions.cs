@@ -95,6 +95,13 @@ public sealed class SqliteLocalTransactions(IServiceScopeFactory scopes) : ILoca
 
     private sealed class LocalStore(TillDbContext context) : ILocalStore
     {
+        public Task<RetailCore.Domain.Shifts.ShiftSalesSummary> ShiftSummaryAsync(ShiftId shift, CancellationToken ct) =>
+            new RetailCore.Infrastructure.Persistence.ShiftRepository(context).SalesSummaryAsync(shift, ct);
+        public async Task<RetailCore.Application.Reporting.TradingRecords> TradingAsync(ShopId shop, CancellationToken ct) => new(
+            await context.Sales.IgnoreQueryFilters().Include(s=>s.Lines).Include(s=>s.Payments).Where(s=>s.ShopId==shop && s.CompletedAt!=null).ToListAsync(ct).ConfigureAwait(false),
+            await context.Refunds.IgnoreQueryFilters().Include(r=>r.Lines).Where(r=>r.ShopId==shop && r.CompletedAt!=null).ToListAsync(ct).ConfigureAwait(false),
+            await context.Shifts.IgnoreQueryFilters().Include(s=>s.CashMovements).Where(s=>s.ShopId==shop).ToListAsync(ct).ConfigureAwait(false),
+            await context.AuditEntries.IgnoreQueryFilters().Where(a=>a.ShopId==shop).ToListAsync(ct).ConfigureAwait(false));
         public async Task<IReadOnlyList<Shop>> ShopsAsync(CancellationToken cancellationToken) =>
             await context.Shops.ToListAsync(cancellationToken).ConfigureAwait(false);
         public async Task<IReadOnlyList<Terminal>> TerminalsAsync(ShopId shopId, CancellationToken cancellationToken) =>

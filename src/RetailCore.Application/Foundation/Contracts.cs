@@ -18,6 +18,8 @@ public interface IPinHasher
 /// <summary>A fresh unit of work per read or write; entities never escape a transaction.</summary>
 public interface ILocalStore
 {
+    Task<RetailCore.Application.Reporting.TradingRecords> TradingAsync(ShopId shop, CancellationToken ct);
+    Task<RetailCore.Domain.Shifts.ShiftSalesSummary> ShiftSummaryAsync(RetailCore.Domain.Common.ShiftId shift, CancellationToken ct);
     Task<IReadOnlyList<Shop>> ShopsAsync(CancellationToken cancellationToken);
     Task<IReadOnlyList<Terminal>> TerminalsAsync(ShopId shopId, CancellationToken cancellationToken);
     Task<IReadOnlyList<User>> UsersAsync(ShopId shopId, CancellationToken cancellationToken);

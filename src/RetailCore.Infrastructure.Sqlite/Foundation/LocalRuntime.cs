@@ -29,6 +29,8 @@ public static class LocalRuntime
         services.AddSingleton<IPinHasher, Argon2PinHasher>();
         services.AddSingleton<LocalSession>();
         services.AddSingleton<FoundationService>();
+        services.AddSingleton<RetailCore.Application.Reporting.CashService>();
+        services.AddSingleton<RetailCore.Application.Reporting.ReportService>();
         services.AddSingleton<RetailCore.Application.Receipts.ReceiptService>();
         services.AddSingleton<RetailCore.Application.Returns.ReturnService>();
         services.AddSingleton<RetailCore.Application.Checkout.BillingService>();
