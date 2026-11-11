@@ -1,0 +1,47 @@
+<root>
+  <data name="Tagline" xml:space="preserve">
+    <value>හොඳම දේ අඩුම මිලට</value>
+  </data>
+  <data name="Telephone" xml:space="preserve">
+    <value>දු.</value>
+  </data>
+  <data name="Tender" xml:space="preserve">
+    <value>ගෙවීම් ක්‍රමය</value>
+  </data>
+  <data name="Mixed" xml:space="preserve">
+    <value>මිශ්‍ර ගෙවීම</value>
+  </data>
+  <data name="Quantity" xml:space="preserve">
+    <value>ප්‍රමාණය</value>
+  </data>
+  <data name="Retail" xml:space="preserve">
+    <value>වෙළඳ මිල</value>
+  </data>
+  <data name="OurPrice" xml:space="preserve">
+    <value>අපේ මිල</value>
+  </data>
+  <data name="LineTotal" xml:space="preserve">
+    <value>එකතුව</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>—</value>
+  </data>
+  <data name="CashTender" xml:space="preserve">
+    <value>මුදලින් ලැබුණු මුදල</value>
+  </data>
+  <data name="CardPaid" xml:space="preserve">
+    <value>කාඩ්පත් ගෙවීම්</value>
+  </data>
+  <data name="Savings" xml:space="preserve">
+    <value>ඔබ ලැබූ ලාභය</value>
+  </data>
+  <data name="Items" xml:space="preserve">
+    <value>භාණ්ඩ වර්ග ගණන</value>
+  </data>
+  <data name="Thanks" xml:space="preserve">
+    <value>ස්තූතියි, නැවත එන්න!!</value>
+  </data>
+  <data name="ValidationPending" xml:space="preserve">
+    <value>නියැදි ආකෘතිය — සැබෑ මුද්‍රණ පරීක්ෂාව අවශ්‍යයි</value>
+  </data>
+</root>

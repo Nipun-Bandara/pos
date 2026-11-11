@@ -170,6 +170,7 @@ public sealed class BillingService(ILocalTransactions transactions, FoundationSe
                 quote.NeedsStockApproval ? request.NegativeReason! : "Sale", quote.NeedsStockApproval ? owner : null);
             await store.PostStockAsync(c.Shop.Id, "Sale", sale.Id.Value, movements, ct).ConfigureAwait(false);
             store.Add(sale);
+            store.AddReceipt(c.Shop.Id, RetailCore.Application.Receipts.ReceiptDocument.Capture(sale, c.Shop, actor.DisplayName));
             foreach (var line in sale.Lines.Where(l => l.ManualPriceApprovedBy is not null))
                 store.Audit(AuditEntry.Record(c.Shop.Id, AuditAction.PriceOverridden, "Sale", sale.Id.Value, clock.UtcNow, actor.Id, owner,
                     detailsJson: JsonSerializer.Serialize(new { line.ProductId, line.Quantity, line.UnitPrice, line.QualifiedTierUnitPriceMinor,

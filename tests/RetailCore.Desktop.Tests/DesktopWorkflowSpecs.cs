@@ -46,7 +46,7 @@ public sealed class DesktopWorkflowSpecs
         Texts.Use("en");
         var services = new ServiceCollection().AddLocalFoundation(Path.Combine(path, "till.db"));
         await using var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
-        var vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>(), provider.GetRequiredService<RetailCore.Application.Checkout.BillingService>());
+        var vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>(), provider.GetRequiredService<RetailCore.Application.Checkout.BillingService>(), provider.GetRequiredService<RetailCore.Application.Receipts.ReceiptService>());
         var window = new MainWindow(vm);
         try
         {
@@ -66,6 +66,7 @@ public sealed class DesktopWorkflowSpecs
             await ExerciseProductsAsync(window, vm);
             await ExerciseStockAsync(window, vm);
             await ExerciseBillingAsync(window, vm);
+            await ExerciseReceiptsAsync(window, vm);
             var language = Descendants(window).OfType<ComboBox>()
                 .Single(c => AutomationProperties.GetName(c) == Texts.Get("Language"));
             language.SelectedIndex = 1;
@@ -102,7 +103,7 @@ public sealed class DesktopWorkflowSpecs
             var ownerId = vm.Current!.Id;
             window.Close();
             // Reopen the actual window and sign in against the same database with a new session.
-            vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>(), provider.GetRequiredService<RetailCore.Application.Checkout.BillingService>());
+            vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>(), provider.GetRequiredService<RetailCore.Application.Checkout.BillingService>(), provider.GetRequiredService<RetailCore.Application.Receipts.ReceiptService>());
             window = new MainWindow(vm);
             window.Show();
             await UntilAsync(() => vm.Screen == "Login" && !vm.Busy);
@@ -116,6 +117,10 @@ public sealed class DesktopWorkflowSpecs
             Click(window, "VerifyLastCompletion"); await UntilAsync(() => !vm.Busy);
             vm.BillingState!.Basket.LastResult!.Receipt.ShouldBe("T1-000004");
             Capture(window, "billing-si.png");
+            Click(window, "OpenSavedBill"); await UntilAsync(() => vm.SelectedBill is not null && !vm.Busy);
+            vm.SelectedBill!.Receipt.Number.ShouldBe("T1-000004");
+            vm.SelectedBill.Prints.Single().Outcome!.Status.ShouldBe("PrintFailed");
+            Capture(window, "receipt-history-si.png");
             vm.Current!.Language.ShouldBe("si");
             (await vm.Service.ProfileAsync()).Telephone.ShouldBe("0771234567");
             Click(window, "Products");
@@ -156,6 +161,46 @@ public sealed class DesktopWorkflowSpecs
             Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
             Directory.Delete(path, true);
         }
+    }
+
+    private static async Task ExerciseReceiptsAsync(Window window, MainViewModel vm)
+    {
+        var profile = (await vm.Service.ProfileAsync()) with { PrinterName = "RetailCore-Acceptance-Nonexistent-Queue", PaperWidthMillimeters = 72 };
+        var approval = await vm.Service.ApproveAsync(vm.Current!.Id, "638194", FoundationService.SettingsApproval(profile));
+        await vm.Service.SaveProfileAsync(profile, approval);
+        Click(window, "OpenSavedBill"); await UntilAsync(() => vm.SelectedBill is not null && !vm.Busy);
+        vm.SelectedBill!.Receipt.Number.ShouldBe("T1-000004");
+        Find<TextBox>(window, "SavedReceiptText").Text.ShouldContain("තේ");
+        var original = Find<TextBox>(window, "SavedReceiptText").Text;
+        // Execute the real Windows adapter's missing-queue path. This is not a physical printer test.
+        Click(window, "PrintReceipt"); await UntilAsync(() => !vm.Busy);
+        vm.Message.ShouldBe(Texts.Get("PrintFailed"));
+        vm.SelectedBill!.Prints.Single().Outcome!.Status.ShouldBe("PrintFailed");
+        var closePreview = window.Dispatcher.InvokeAsync(async () =>
+        {
+            await UntilAsync(() => window.OwnedWindows.Cast<Window>().Any());
+            var preview = window.OwnedWindows.Cast<Window>().Single();
+            Capture(preview, "receipt-provisional-si.png"); preview.Close();
+        }).Task.Unwrap();
+        Click(window, "PreviewReceipt"); await closePreview; await UntilAsync(() => !vm.Busy);
+        var count = (await vm.Receipts.HistoryAsync(new(vm.ReceiptSettings!.Today, vm.ReceiptSettings.Today))).Count;
+        count.ShouldBe(4);
+        Find<TextBox>(window, "BillNumberLookup").Text = "t1-4";
+        Click(window, "FindBill"); await UntilAsync(() => !vm.Busy);
+        vm.SelectedBill!.Receipt.Number.ShouldBe("T1-000004");
+        Find<TextBox>(window, "SavedReceiptText").Text.ShouldContain("පිටපත");
+        original.ShouldContain("160.00");
+        var receipt = vm.SelectedBill.Receipt;
+        var longReceipt = receipt with { Lines = Enumerable.Range(1,100).Select(i => receipt.Lines[0] with
+            { Number = i, Name = string.Concat(Enumerable.Repeat("දිගු සිංහල භාණ්ඩ නාමය ",8)) }).ToArray() };
+        var rendered = ReceiptRenderer.Render(longReceipt,48,true);
+        rendered.Language.IetfLanguageTag.ShouldBe("si-LK");
+        rendered.Blocks.OfType<System.Windows.Documents.Table>().ShouldContain(t => t.Columns.Count == 4);
+        receipt.Version.ShouldBe(2);
+        var paginated = ((System.Windows.Documents.IDocumentPaginatorSource)rendered).DocumentPaginator;
+        paginated.ComputePageCount(); paginated.PageCount.ShouldBeGreaterThan(1);
+        paginated.GetPage(0).Size.Width.ShouldBe(48d * 96 / 25.4, .01);
+        Click(window, "Billing"); await UntilAsync(() => vm.Section == "Billing" && !vm.Busy);
     }
 
     private static async Task ExerciseBillingAsync(Window window, MainViewModel vm)

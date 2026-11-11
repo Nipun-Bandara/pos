@@ -180,3 +180,26 @@ with restricted optional reference text, never payment credentials or gateway ca
 The WPF Billing screen and Windows dispatcher acceptance test are implemented; execution on
 Windows and target-device acceptance remain required. See
 [the milestone 04 validation record](docs/implementation/MILESTONE_04.md).
+
+## Milestone 05 receipt boundary
+
+Checkout now freezes a versioned receipt document in its existing SQLite transaction.
+History filters use shop-local inclusive dates; exact bill lookup spans all dates. Receipt
+rendering reads original financial/name/cost/tax/tier and header snapshots, without consulting
+current catalogue prices. Legacy bills explicitly flag an unknown original header and freeze
+the first-view header while retaining the original financial records.
+
+`ReceiptService` commits a print attempt and audit before calling `IReceiptPrinter` outside
+the financial transaction, then appends an outcome. Attempts, outcomes and receipt documents
+are protected by SQLite append-only triggers and foreign keys. Duplicate attempt identities
+never resubmit a job. Interrupted outcomes remain unknown; deliberate retries are marked
+copies. The Windows adapter and preview share a Sinhala WPF renderer and vector Code 39
+barcode; spool acceptance is distinct from physical output. Owner/PIN-approved settings
+select the exact queue and printable width. There is no automatic default-printer fallback.
+
+The supplied receipt photograph now defines fixed version 2 for new bills. Saved version 1
+receipts retain their original renderer. The version 2 layout uses four WPF columns and
+calculates customer savings from original normal prices and line totals, excluding cash
+rounding. Xprinter 80 mm paper is known; exact driver/model and imageable width remain
+unverified. Preserve renderer versions when introducing another layout. Windows and physical acceptance remain gates; see
+[the milestone 05 validation record](docs/implementation/MILESTONE_05.md).

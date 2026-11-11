@@ -157,6 +157,53 @@ public sealed class SqliteLocalTransactions(IServiceScopeFactory scopes) : ILoca
             new RetailCore.Infrastructure.Persistence.ReceiptNumberAllocator(context).NextAsync(shop, terminal, ct);
         public void Add(RetailCore.Domain.Sales.Sale sale) => context.Sales.Add(sale);
         public void Add(RetailCore.Domain.Shifts.Shift shift) => context.Shifts.Add(shift);
+        public async Task<IReadOnlyList<RetailCore.Application.Receipts.BillSummary>> BillsAsync(ShopId shop, DateTimeOffset from, DateTimeOffset until, string? number, CancellationToken ct)
+        {
+            // SQLite cannot order/compare DateTimeOffset directly. julianday respects historical offsets.
+            var rows = await context.Database.SqlQuery<BillQueryRow>($"SELECT Id AS SaleId, ReceiptNumber AS Number, CompletedAt, TotalMinor, CurrencyCode AS Currency, Status FROM Sales WHERE ShopId={shop.Value} AND ReceiptNumber IS NOT NULL AND CompletedAt IS NOT NULL AND julianday(CompletedAt)>=julianday({from.ToString("O")}) AND julianday(CompletedAt)<julianday({until.ToString("O")}) AND ({number} IS NULL OR ReceiptNumber={number}) ORDER BY julianday(CompletedAt) DESC,ReceiptNumber DESC LIMIT 501")
+                .ToListAsync(ct).ConfigureAwait(false);
+            if (rows.Count > 500) throw new FoundationException("NarrowBillDates");
+            return rows.Select(s => new RetailCore.Application.Receipts.BillSummary(s.SaleId, s.Number, s.CompletedAt,
+                    "", s.TotalMinor, s.Currency, Enum.Parse<RetailCore.Domain.Sales.SaleStatus>(s.Status))).ToArray();
+        }
+        private sealed record BillQueryRow(Guid SaleId, string Number, DateTimeOffset CompletedAt, long TotalMinor, string Currency, string Status);
+
+        public Task<RetailCore.Domain.Sales.Sale?> SavedSaleAsync(ShopId shop, Guid? id, string? number, CancellationToken ct)
+        {
+            var query = context.Sales.IgnoreQueryFilters().Include(s => s.Lines).Include(s => s.Payments)
+                .Where(s => s.ShopId == shop && s.CompletedAt != null && s.ReceiptNumber != null);
+            if (id is { } value) query = query.Where(s => s.Id == new SaleId(value));
+            else { var receipt = RetailCore.Domain.Sales.ReceiptNumber.Parse(number!); query = query.Where(s => s.ReceiptNumber == receipt); }
+            return query.SingleOrDefaultAsync(ct);
+        }
+        public async Task<RetailCore.Application.Receipts.ReceiptDocument?> ReceiptAsync(ShopId shop, Guid sale, CancellationToken ct)
+        {
+            var row = await context.Set<ReceiptRecord>().SingleOrDefaultAsync(r => r.ShopId == shop && r.SaleId == new SaleId(sale), ct).ConfigureAwait(false);
+            return row is null ? null : JsonSerializer.Deserialize<RetailCore.Application.Receipts.ReceiptDocument>(row.DocumentJson);
+        }
+        public void AddReceipt(ShopId shop, RetailCore.Application.Receipts.ReceiptDocument receipt) =>
+            context.Add(new ReceiptRecord(shop, receipt.SaleId, JsonSerializer.Serialize(receipt)));
+        public async Task<IReadOnlyList<RetailCore.Application.Receipts.PrintHistory>> PrintsAsync(ShopId shop, Guid sale, CancellationToken ct)
+        {
+            var attempts = await context.Set<PrintAttemptRecord>().Where(r => r.ShopId == shop && r.SaleId == new SaleId(sale)).ToListAsync(ct).ConfigureAwait(false);
+            var ids = attempts.Select(r => r.Id).ToArray();
+            var outcomes = await context.Set<PrintOutcomeRecord>().Where(r => ids.Contains(r.AttemptId)).ToListAsync(ct).ConfigureAwait(false);
+            return attempts.Select(r => new RetailCore.Application.Receipts.PrintHistory(
+                JsonSerializer.Deserialize<RetailCore.Application.Receipts.PrintAttempt>(r.DocumentJson)!,
+                outcomes.Where(o => o.AttemptId == r.Id).Select(o => JsonSerializer.Deserialize<RetailCore.Application.Receipts.PrintOutcome>(o.DocumentJson)).SingleOrDefault()))
+                .OrderBy(r => r.Attempt.RequestedAt).ToArray();
+        }
+        public async Task<RetailCore.Application.Receipts.PrintAttempt?> PrintAttemptAsync(ShopId shop, Guid id, CancellationToken ct)
+        {
+            var row = await context.Set<PrintAttemptRecord>().SingleOrDefaultAsync(r => r.ShopId == shop && r.Id == id, ct).ConfigureAwait(false);
+            if (row is null && await context.Set<PrintAttemptRecord>().AnyAsync(r => r.Id == id, ct).ConfigureAwait(false)) throw new FoundationException("PrintConflict");
+            return row is null ? null : JsonSerializer.Deserialize<RetailCore.Application.Receipts.PrintAttempt>(row.DocumentJson);
+        }
+        public async Task<Guid> PrintShopAsync(Guid attemptId, CancellationToken ct) => (await context.Set<PrintAttemptRecord>().Where(r => r.Id == attemptId).Select(r => r.ShopId).SingleAsync(ct).ConfigureAwait(false)).Value;
+        public void AddPrintAttempt(ShopId shop, RetailCore.Application.Receipts.PrintAttempt attempt) =>
+            context.Add(new PrintAttemptRecord(shop, attempt.Id, attempt.SaleId, JsonSerializer.Serialize(attempt)));
+        public void AddPrintOutcome(RetailCore.Application.Receipts.PrintOutcome outcome) =>
+            context.Add(new PrintOutcomeRecord(outcome.AttemptId, JsonSerializer.Serialize(outcome)));
         public void Add(Shop shop) => context.Shops.Add(shop);
         public void Add(Terminal terminal) => context.Terminals.Add(terminal);
         public void Add(User user) => context.Users.Add(user);

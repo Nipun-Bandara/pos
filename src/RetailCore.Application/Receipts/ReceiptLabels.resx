@@ -1,0 +1,103 @@
+<root>
+  <data name="Provisional" xml:space="preserve">
+    <value>තාවකාලික ආකෘතිය — හිමිකරුගේ අනුමැතිය හා මුද්‍රණ පරීක්ෂාව අවශ්‍යයි</value>
+  </data>
+  <data name="Registration" xml:space="preserve">
+    <value>බදු ලියාපදිංචි අංකය</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>නැවත මුද්‍රණය / පිටපත</value>
+  </data>
+  <data name="Original" xml:space="preserve">
+    <value>මුල් බිල්පත</value>
+  </data>
+  <data name="Bill" xml:space="preserve">
+    <value>බිල් අංකය</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>දිනය</value>
+  </data>
+  <data name="Cashier" xml:space="preserve">
+    <value>අයකැමි</value>
+  </data>
+  <data name="Legacy" xml:space="preserve">
+    <value>පැරණි බිල්පත: වෙළඳසැල් ශීර්ෂය පළමු පෙරදසුනේදී සුරැකිණි; මුල් ශීර්ෂය නොදනී</value>
+  </data>
+  <data name="Discount" xml:space="preserve">
+    <value>වට්ටම</value>
+  </data>
+  <data name="Tier" xml:space="preserve">
+    <value>ප්‍රමාණ මිල මට්ටම</value>
+  </data>
+  <data name="Manual" xml:space="preserve">
+    <value>හිමිකරු අනුමත අවසන් මිල</value>
+  </data>
+  <data name="Gross" xml:space="preserve">
+    <value>දළ එකතුව</value>
+  </data>
+  <data name="Net" xml:space="preserve">
+    <value>බදු රහිත එකතුව</value>
+  </data>
+  <data name="Tax" xml:space="preserve">
+    <value>ඇතුළත් බදු</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>මුළු එකතුව</value>
+  </data>
+  <data name="Rounding" xml:space="preserve">
+    <value>මුදල් වටකිරීම</value>
+  </data>
+  <data name="Due" xml:space="preserve">
+    <value>ගෙවිය යුතු මුදල</value>
+  </data>
+  <data name="Paid" xml:space="preserve">
+    <value>ගෙවූ මුදල</value>
+  </data>
+  <data name="Tendered" xml:space="preserve">
+    <value>ලැබුණු මුදල</value>
+  </data>
+  <data name="Change" xml:space="preserve">
+    <value>ඉතිරි මුදල</value>
+  </data>
+  <data name="PaymentCash" xml:space="preserve">
+    <value>මුදල්</value>
+  </data>
+  <data name="PaymentCard" xml:space="preserve">
+    <value>කාඩ්පත</value>
+  </data>
+  <data name="PaymentQr" xml:space="preserve">
+    <value>වෙනත් ගෙවීම</value>
+  </data>
+  <data name="PaymentVoucher" xml:space="preserve">
+    <value>වවුචරය</value>
+  </data>
+  <data name="PaymentOther" xml:space="preserve">
+    <value>වෙනත් ගෙවීම</value>
+  </data>
+  <data name="Page" xml:space="preserve">
+    <value>පිටුව</value>
+  </data>
+  <data name="UnitEach" xml:space="preserve">
+    <value>ඒකක</value>
+  </data>
+  <data name="UnitKilogram" xml:space="preserve">
+    <value>කි.ග්‍රෑ.</value>
+  </data>
+  <data name="UnitGram" xml:space="preserve">
+    <value>ග්‍රෑ.</value>
+  </data>
+  <data name="UnitLitre" xml:space="preserve">
+    <value>ලීටර්</value>
+  </data>
+  <data name="UnitMillilitre" xml:space="preserve">
+    <value>මි.ලී.</value>
+  </data>
+  <data name="UnitMetre" xml:space="preserve">
+    <value>මීටර්</value>
+  </data>
+  <data name="UnitPack" xml:space="preserve">
+    <value>ඇසුරුම්</value>
+  </data>
+  <data name="Voided" xml:space="preserve"><value>අවලංගු කළ බිල්පත</value></data>
+  <data name="PaymentShopCredit" xml:space="preserve"><value>පැරණි ණය ගෙවීම</value></data>
+</root>

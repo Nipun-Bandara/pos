@@ -33,8 +33,11 @@ and transaction/audit primitives; Windows acceptance is still pending. See
 [validation notes](docs/implementation/MILESTONE_02.md). Milestone 03 adds stock workflows and posting contracts in source, with Windows acceptance pending;
 see [validation notes](docs/implementation/MILESTONE_03.md). Milestone 04 adds reachable cash/card
 Billing, opening float, historical snapshots and atomic stock/payment settlement in source;
-Windows acceptance is pending. See [validation notes](docs/implementation/MILESTONE_04.md). Printing,
-exchange workflows and backup/export remain unimplemented. Tenant/outbox infrastructure is legacy
+Windows acceptance is pending. See [validation notes](docs/implementation/MILESTONE_04.md).
+Milestone 05 adds saved-bill lookup, original receipt snapshots and provisional Sinhala
+preview/print/retry in source, now using the supplied sample as version 2; Windows runtime and physical printer acceptance
+are outstanding. See [validation notes](docs/implementation/MILESTONE_05.md). Exchange workflows
+and backup/export remain unimplemented. Tenant/outbox infrastructure is legacy
 scope. Earlier documents reported passing tests; current build/test status must be verified
 in the implementation environment rather than carried forward as a guarantee.
 

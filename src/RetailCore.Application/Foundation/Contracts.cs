@@ -39,6 +39,15 @@ public interface ILocalStore
     Task<RetailCore.Domain.Sales.ReceiptNumber> NextReceiptAsync(ShopId shop, TerminalId terminal, CancellationToken ct);
     void Add(RetailCore.Domain.Sales.Sale sale);
     void Add(RetailCore.Domain.Shifts.Shift shift);
+    Task<IReadOnlyList<RetailCore.Application.Receipts.BillSummary>> BillsAsync(ShopId shop, DateTimeOffset from, DateTimeOffset until, string? number, CancellationToken ct);
+    Task<RetailCore.Domain.Sales.Sale?> SavedSaleAsync(ShopId shop, Guid? id, string? number, CancellationToken ct);
+    Task<RetailCore.Application.Receipts.ReceiptDocument?> ReceiptAsync(ShopId shop, Guid sale, CancellationToken ct);
+    void AddReceipt(ShopId shop, RetailCore.Application.Receipts.ReceiptDocument receipt);
+    Task<IReadOnlyList<RetailCore.Application.Receipts.PrintHistory>> PrintsAsync(ShopId shop, Guid sale, CancellationToken ct);
+    Task<RetailCore.Application.Receipts.PrintAttempt?> PrintAttemptAsync(ShopId shop, Guid id, CancellationToken ct);
+    Task<Guid> PrintShopAsync(Guid attemptId, CancellationToken ct);
+    void AddPrintAttempt(ShopId shop, RetailCore.Application.Receipts.PrintAttempt attempt);
+    void AddPrintOutcome(RetailCore.Application.Receipts.PrintOutcome outcome);
     void Add(Shop shop);
     void Add(Terminal terminal);
     void Add(User user);

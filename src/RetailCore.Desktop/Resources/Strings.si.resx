@@ -49,7 +49,7 @@
     <value>Windows මුද්‍රණ යන්ත්‍රයේ නම (අත්‍යවශ්‍ය නොවේ)</value>
   </data>
   <data xml:space="preserve" name="PaperWidth">
-    <value>කඩදාසි පළල (මි.මී.)</value>
+    <value>මුද්‍රණය කළ හැකි පළල (මි.මී.)</value>
   </data>
   <data xml:space="preserve" name="CashIncrement">
     <value>මුදල් වටය කිරීම (සුළු ඒකක; 100 = රු. 1)</value>
@@ -409,4 +409,51 @@
   <data name="CashStillOwed" xml:space="preserve"><value>තව ගෙවිය යුතු මුදල</value></data>
   <data name="BillingAmountTooLarge" xml:space="preserve"><value>බිල්පතේ මුදල ඉතා විශාලය. ප්‍රමාණය අඩු කරන්න හෝ මිල නිවැරදි කිරීමට හිමිකරුට දන්වන්න.</value></data>
   <data name="PaidAmount" xml:space="preserve"><value>ගෙවූ මුදල</value></data>
+  <data name="BillHistory" xml:space="preserve"><value>සුරැකි බිල්පත්</value></data>
+  <data name="BillHistoryHelp" xml:space="preserve"><value>දින වෙළඳසැලේ වේලා කලාපය අනුව (අවසන් දිනය ඇතුළුව) වේ. උපරිම දින 367 සහ බිල්පත් 500 යි. සියලු දින සෙවීමට බිල් අංකය ඇතුළත් කරන්න හෝ ස්කෑන් කරන්න.</value></data>
+  <data name="BillFrom" xml:space="preserve"><value>ආරම්භක දේශීය දිනය</value></data>
+  <data name="BillThrough" xml:space="preserve"><value>අවසන් දේශීය දිනය</value></data>
+  <data name="FilterBills" xml:space="preserve"><value>බිල්පත් පෙරන්න</value></data>
+  <data name="BillNumberLookup" xml:space="preserve"><value>බිල් අංකය ස්කෑන් කරන්න / ඇතුළත් කරන්න (සියලු දින)</value></data>
+  <data name="FindBill" xml:space="preserve"><value>බිල්පත සොයන්න</value></data>
+  <data name="BillNumber" xml:space="preserve"><value>බිල් අංකය</value></data>
+  <data name="BillLocalDate" xml:space="preserve"><value>වෙළඳසැලේ දේශීය දිනය/වේලාව</value></data>
+  <data name="BillTotal" xml:space="preserve"><value>මුල් එකතුව</value></data>
+  <data name="BillStatus" xml:space="preserve"><value>වත්මන් තත්ත්වය</value></data>
+  <data name="OpenBill" xml:space="preserve"><value>තෝරාගත් බිල්පත විවෘත කරන්න</value></data>
+  <data name="OpenSavedBill" xml:space="preserve"><value>සුරැකි බිල්පත සොයන්න / මුද්‍රණය කරන්න</value></data>
+  <data name="ProvisionalReceipt" xml:space="preserve"><value>තාවකාලික බිල් ආකෘතිය — හිමිකරුගේ ආකෘතිය හා සැබෑ මුද්‍රණ පරීක්ෂාව අවශ්‍යයි</value></data>
+  <data name="ReceiptPrinter" xml:space="preserve"><value>සකස් කළ Windows මුද්‍රකය</value></data>
+  <data name="PrintableWidth" xml:space="preserve"><value>මුද්‍රණය කළ හැකි පළල (මි.මී.)</value></data>
+  <data name="LegacyBillHeader" xml:space="preserve"><value>පැරණි බිල්පත: මුල් වෙළඳසැල් ශීර්ෂය සුරැකී නැත. පළමු බැලීමේදී ශීර්ෂය සුරැකේ; මුල් භාණ්ඩ හා මුදල් දත්ත නොවෙනස් වේ.</value></data>
+  <data name="PreviewReceipt" xml:space="preserve"><value>සිංහල බිල් පෙරදසුන</value></data>
+  <data name="PrintReceipt" xml:space="preserve"><value>සුරැකි බිල්පත මුද්‍රණය කරන්න</value></data>
+  <data name="ReprintReceipt" xml:space="preserve"><value>පිටපතක් ලෙස යළි මුද්‍රණය කරන්න</value></data>
+  <data name="PrintRecoveryHelp" xml:space="preserve"><value>මුද්‍රණය ගෙවීම් හෝ තොග නැවත සටහන් නොකරයි. Windows කාර්යය පිළිගැනීම කඩදාසි මුද්‍රණය තහවුරු නොකරයි. බාධාවකදී නැවත මුද්‍රණයට පෙර මුද්‍රක පෝලිම බලන්න; යළි මුද්‍රණ පිටපත් ලෙස සලකුණු වේ.</value></data>
+  <data name="PrintDateUtc" xml:space="preserve"><value>මුද්‍රණ ඉල්ලීම (UTC)</value></data>
+  <data name="PrintCopy" xml:space="preserve"><value>ප්‍රතිදාන වර්ගය</value></data>
+  <data name="PrintStatus" xml:space="preserve"><value>මුද්‍රණ ප්‍රතිඵලය</value></data>
+  <data name="PrintUnknown" xml:space="preserve"><value>නොදන්නා / බාධා විය — යළි උත්සාහයට පෙර මුද්‍රක පෝලිම බලන්න</value></data>
+  <data name="PrintAlreadyRequested" xml:space="preserve"><value>මෙම උත්සාහය දැනටමත් ඉල්ලා ඇත. ප්‍රතිඵලය හා මුද්‍රක පෝලිම බලන්න; යළි උත්සාහයට පිටපතක් තෝරන්න.</value></data>
+  <data name="PrintSpoolAccepted" xml:space="preserve"><value>Windows මුද්‍රණ කාර්යය පිළිගත්තේය. මුද්‍රිත කඩදාසිය පරීක්ෂා කරන්න.</value></data>
+  <data name="PrintFailed" xml:space="preserve"><value>මුද්‍රණය අසාර්ථක හෝ භාරදීම අවිනිශ්චිතය. බිල්පත සුරැකී ඇත. මුද්‍රකය හා පෝලිම පරීක්ෂා කර පිටපතක් ලෙස යළි උත්සාහ කරන්න.</value></data>
+  <data name="PrinterNotConfigured" xml:space="preserve"><value>හිමිකරු: සැකසුම් තුළ නිවැරදි Windows මුද්‍රක පෝලිම් නම සකසන්න.</value></data>
+  <data name="PrinterWidthUnsupported" xml:space="preserve"><value>සැකසූ පළල/තීරු කේතය මුද්‍රණ ප්‍රදේශයට නොගැළපේ. හිමිකරු: පළල, කඩදාසි හා ධාවක සැකසුම් පරීක්ෂා කර නැවත පෙරදසුන බලන්න.</value></data>
+  <data name="BillBarcodeUnavailable" xml:space="preserve"><value>මෙම පැරණි බිල් අංකයට සහාය දක්වන තීරු කේතය භාවිත කළ නොහැක. අංකය ඇතුළත් කර සොයන්න; මුද්‍රණයට පෙර හිමිකරු අමතන්න.</value></data>
+  <data name="PrintConflict" xml:space="preserve"><value>මුද්‍රණ අනන්‍යතාව ගැටේ. සුරැකි බිල්පත යළි පූරණය කර නව පිටපතක් ආරම්භ කරන්න.</value></data>
+  <data name="InvalidBillDates" xml:space="preserve"><value>උපරිම දින 367 ක වලංගු දින පරාසයක් තෝරන්න.</value></data>
+  <data name="NarrowBillDates" xml:space="preserve"><value>බිල්පත් 500 කට වැඩිය ගැළපේ. දින පරාසය අඩු කරන්න හෝ නිශ්චිත බිල් අංකයෙන් සොයන්න.</value></data>
+  <data name="InvalidBillNumber" xml:space="preserve"><value>සම්පූර්ණ බිල් අංකය ඇතුළත් කරන්න. උදා: T1-000042.</value></data>
+  <data name="BillNotFound" xml:space="preserve"><value>සුරැකි බිල්පත හමු නොවීය. සම්පූර්ණ බිල් අංකය පරීක්ෂා කරන්න.</value></data>
+  <data name="SelectBill" xml:space="preserve"><value>පළමුව සුරැකි බිල්පතක් තෝරන්න.</value></data>
+  <data name="BillStatusCompleted" xml:space="preserve"><value>සම්පූර්ණයි</value></data>
+  <data name="BillStatusVoided" xml:space="preserve"><value>අවලංගුයි</value></data>
+  <data name="BillTaxCode" xml:space="preserve"><value>මුල් බදු කේතය</value></data>
+  <data name="BillTaxCategory" xml:space="preserve"><value>මුල් බදු වර්ගය</value></data>
+  <data name="BillTaxRate" xml:space="preserve"><value>මුල් බදු අනුපාතය</value></data>
+  <data name="BillTax" xml:space="preserve"><value>මුල් බදු මුදල</value></data>
+  <data name="BillTaxExempt" xml:space="preserve"><value>බදු නිදහස්</value></data>
+  <data name="BillTaxZeroRated" xml:space="preserve"><value>ශුන්‍ය බදු</value></data>
+  <data name="BillTaxStandard" xml:space="preserve"><value>සාමාන්‍ය බදු</value></data>
+  <data name="SampleReceipt" xml:space="preserve"><value>ලබා දුන් නියැදි බිල්පත අනුව — සැබෑ මුද්‍රණ පරීක්ෂාව අවශ්‍යයි</value></data>
 </root>

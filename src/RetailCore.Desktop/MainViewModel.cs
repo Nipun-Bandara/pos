@@ -6,8 +6,27 @@ using RetailCore.Domain.Security;
 
 namespace RetailCore.Desktop;
 
-public sealed class MainViewModel(FoundationService service, LocalSession session, RetailCore.Application.Catalogue.CatalogueService catalogue, RetailCore.Application.Inventory.StockService stock, RetailCore.Application.Checkout.BillingService billing) : INotifyPropertyChanged
+public sealed class MainViewModel(FoundationService service, LocalSession session, RetailCore.Application.Catalogue.CatalogueService catalogue, RetailCore.Application.Inventory.StockService stock, RetailCore.Application.Checkout.BillingService billing, RetailCore.Application.Receipts.ReceiptService receipts) : INotifyPropertyChanged
 {
+    public RetailCore.Application.Receipts.ReceiptService Receipts { get; } = receipts;
+    public IReadOnlyList<RetailCore.Application.Receipts.BillSummary> Bills { get; private set; } = [];
+    public RetailCore.Application.Receipts.BillDetail? SelectedBill { get; private set; }
+    public RetailCore.Application.Receipts.ReceiptSettings? ReceiptSettings { get; private set; }
+    public async Task LoadBillsAsync(RetailCore.Application.Receipts.BillFilter filter)
+    {
+        Bills = await Receipts.HistoryAsync(filter); SelectedBill = null; Notify(nameof(Screen));
+    }
+    public async Task OpenBillAsync(Guid? id = null, string? number = null)
+    {
+        SelectedBill = id is { } value ? await Receipts.DetailAsync(value) : await Receipts.FindAsync(number!);
+        ReceiptSettings = await Receipts.SettingsAsync(); Section = "Reports"; Notify(nameof(Screen));
+    }
+    public async Task PrintBillAsync(Guid id, RetailCore.Application.Receipts.IReceiptPrinter printer)
+    {
+        var result = await Receipts.PrintAsync(id, Guid.NewGuid(), printer);
+        SelectedBill = await Receipts.DetailAsync(id); ReceiptSettings = await Receipts.SettingsAsync();
+        Notify(nameof(Screen)); ShowMessage(result.Status);
+    }
     public RetailCore.Application.Checkout.BillingService Billing { get; } = billing;
     public RetailCore.Application.Checkout.BillingState? BillingState { get; private set; }
     public IReadOnlyList<UserSummary> Approvers { get; private set; } = [];
@@ -76,6 +95,11 @@ public sealed class MainViewModel(FoundationService service, LocalSession sessio
         }
 
         if (section == "Billing") { BillingState = await Billing.LoadAsync(); Approvers = await Service.ApproversAsync(); }
+        if (section == "Reports")
+        {
+            ReceiptSettings = await Receipts.SettingsAsync();
+            Bills = await Receipts.HistoryAsync(new(ReceiptSettings.Today, ReceiptSettings.Today)); SelectedBill = null;
+        }
         if (section == "Products") CatalogueData = await Catalogue.LoadAsync();
         if (section == "Stock") StockData = await Stock.LoadAsync();
         Section = section;
@@ -105,6 +129,7 @@ public sealed class MainViewModel(FoundationService service, LocalSession sessio
         if (Current is null || Session.IsLocked) { return; }
         Service.Lock();
         BillingState = null;
+        Bills = []; SelectedBill = null; ReceiptSettings = null;
         Approvers = [];
         StockData = null;
         CatalogueData = null;
@@ -121,6 +146,7 @@ public sealed class MainViewModel(FoundationService service, LocalSession sessio
         Service.SignOut();
         Current = null;
         BillingState = null;
+        Bills = []; SelectedBill = null; ReceiptSettings = null;
         Approvers = [];
         StockData = null;
         CatalogueData = null;
