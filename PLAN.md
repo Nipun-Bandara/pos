@@ -35,7 +35,7 @@ see [validation notes](docs/implementation/MILESTONE_03.md). Milestone 04 adds r
 Billing, opening float, historical snapshots and atomic stock/payment settlement in source;
 Windows acceptance is pending. See [validation notes](docs/implementation/MILESTONE_04.md).
 Milestone 05 adds saved-bill lookup, original receipt snapshots and provisional Sinhala
-preview/print/retry in source; owner template, Windows runtime and physical printer acceptance
+preview/print/retry in source, now using the supplied sample as version 2; Windows runtime and physical printer acceptance
 are outstanding. See [validation notes](docs/implementation/MILESTONE_05.md). Exchange workflows
 and backup/export remain unimplemented. Tenant/outbox infrastructure is legacy
 scope. Earlier documents reported passing tests; current build/test status must be verified

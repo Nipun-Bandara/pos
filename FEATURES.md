@@ -129,8 +129,9 @@ atomically. An interrupted exchange must not leave only half the operation commi
 ## 5. Receipts and hardware
 
 Milestone 05 adds saved-bill history, frozen receipt snapshots, a provisional Sinhala
-preview/Windows printing adapter and audited reprint recovery in source. The owner's custom
-template, Windows execution and actual printer acceptance remain outstanding; see
+preview/Windows printing adapter and audited reprint recovery in source. The supplied
+sample layout is implemented as version 2; Windows execution and actual printer acceptance
+remain outstanding; see
 [validation notes](docs/implementation/MILESTONE_05.md). Foundation does not mean accepted
 physical output. Linked returns remain milestone 06.
 

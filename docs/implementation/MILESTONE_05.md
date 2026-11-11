@@ -2,7 +2,8 @@
 
 Branch: `codex/receipts-and-history`, created from updated `development` at `34113f7`,
 which contains the merged checkout milestone. Existing work was preserved. Implementation
-is provisional until the owner's actual template and printer details arrive. Windows runtime
+now includes the owner-supplied sample layout as version 2; final printer details and validation
+are outstanding. Windows runtime
 and physical acceptance have not been performed here; the milestone is not accepted and the
 local merge is withheld. No push was performed.
 
@@ -43,17 +44,34 @@ Failure messages also cover uncertain submission; drivers' raw exception message
 
 ## Provisional template contract and missing inputs
 
-The fixed `provisional-si-v1` layout is intentionally stamped provisional in both preview and
-paper content. It is not the owner's approved custom template. It consumes version 1 frozen
-receipt documents and has no editable template language, scripts or template editor. A future
-approved template must receive a new version rather than changing the rendering rules of
-already saved version 1 documents. The snapshot includes shop header/contact/tax registration,
-footer, cashier, original local timestamp/zone, currency, lines and payments. Print metadata
-and current void/copy banners are separate from original financial content.
+The owner supplied a receipt photograph and identified an Xprinter with 80 mm paper.
+New bills now freeze version 2 (`owner-sample-si-v2`), based on that photograph: centered shop
+name/tagline/address/telephone, bill metadata, boxed four-column heading (quantity, retail
+price, our price, total), item names above numeric rows, payment/change summary, boxed customer
+savings, item-type count and Sinhala thank-you footer. The required bill barcode remains below
+that layout. Table alignment uses actual WPF columns, not spaces or printer character tables.
+Cash tender is labelled as money received, and a payment-method row replaces the photograph's
+customer field because the app has no recorded customer account. Currency, tax when nonzero,
+cash rounding when nonzero, and reprint/void markings remain explicit.
 
-Specific unresolved inputs: the owner's custom Sinhala template (field order, headings,
-branding and footer), printer model and exact Windows queue/driver, actual imageable width,
-paper width/media configuration, and access to the intended Windows PC and physical printer.
+Retail means the frozen normal selling price; our price means the final charged unit price.
+The sample's 320→310 and 1450→1360 values give 100.00 total customer savings. Savings use
+integer minor units and original quantities/line totals, exclude cash rounding, and show an
+unknown marker if an original normal-price snapshot is missing. They are not merchant profit.
+Quantity is printed to three decimals, with its unit beside the product name. Item count means
+distinct receipt lines, not summed kilograms and pieces. Shop branding/contact/footer still
+come from the configured shop snapshots; the photograph's phone, cashier, bill number and
+transaction values are not hardcoded or copied into shop settings. The photograph is not
+stored in the repository.
+
+Existing version 1 receipts keep the original `provisional-si-v1` layout and content. Legacy
+bills without header snapshots still use that version with the explicit legacy warning. No
+old receipt is rewritten. Both versions are fixed, with no scripts or template editor. New
+sample-based receipts and previews still state that real printing needs validation.
+
+Specific unresolved inputs: exact Xprinter model and Windows queue/driver, actual printable
+width (80 mm paper does not establish the imageable width), media configuration and access to
+the intended Windows PC/printer. Review the sample-based rendering on Windows before approval.
 Use a scanner configured for ordinary Code 39 without mandatory checksum/extended decoding
 for these bill codes; verify its actual configuration during physical acceptance. Unsupported
 historical terminal characters/overlong codes produce an actionable barcode error; manual
@@ -120,8 +138,8 @@ is explicitly not physical hardware acceptance. They demonstrate:
 
 Recorded automated gates: Release solution build with warnings-as-errors has zero warnings
 and errors; domain 151 passed; architecture 11 passed; SQLite integration 10 passed with
-3 optional PostgreSQL runtime checks skipped. Application/file-backed foundation: 57 passed. Both provider migration snapshots report no pending model changes.
-Old migration files are unchanged. All 293 Sinhala/English interface keys match, including
+3 optional PostgreSQL runtime checks skipped. Application/file-backed foundation: 58 passed after the sample-layout update. Both provider migration snapshots report no pending model changes.
+Old migration files are unchanged. All 294 Sinhala/English interface keys match, including
 saved-bill labels and status/tax enums; fixed Sinhala receipt resources are separate. CI YAML
 parses and whitespace checks pass. Restore used the existing local package cache; no new
 package dependency was introduced.
@@ -136,7 +154,7 @@ on Linux but **was not executed here**. Its missing-queue scenario is not a disc
 physical printer test. Windows CI is configured; no remote execution/result is claimed.
 
 Before merge, run the Release Windows build and Desktop executable test, review real
-previews/keyboard flow/Sinhala translations, then apply the supplied template and verify it
+previews/keyboard flow/Sinhala translations, then review the implemented sample layout and verify it
 on the actual printer. Physically disconnect/reconnect, restart/find/retry without another
 sale; inspect Sinhala shaping/wrapping, totals, paper edges, page/feed behavior and barcode
 scanning. Confirm configured queue/media/scaling and scan focus on the target PC. Spooler
@@ -144,3 +162,13 @@ acceptance alone cannot satisfy these checks. No physical printer or scanner tes
 
 Merge is withheld because the required Windows runtime and physical/template validation are
 unavailable. Work stays on `codex/receipts-and-history`; `development` remains at `34113f7`.
+
+## Sample-layout follow-up verification
+
+A test reproduces the photograph's 1,670.00 total, 2,000.00 cash received, 330.00 change and
+100.00 savings from frozen normal/final prices. It also verifies fractional-unit savings,
+unknown original prices, card-only tender rows and exclusion of cash rounding from savings.
+The legacy test checks that saved version 1 output continues through the original renderer.
+The Windows test now asserts four actual table columns and version 2 pagination; it remains
+unexecuted on this Linux host. No physical Xprinter output or pixel-perfect match is claimed.
+No database schema or existing migration changed for this versioned JSON/layout update.

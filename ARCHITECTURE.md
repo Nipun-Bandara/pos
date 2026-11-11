@@ -197,7 +197,9 @@ copies. The Windows adapter and preview share a Sinhala WPF renderer and vector 
 barcode; spool acceptance is distinct from physical output. Owner/PIN-approved settings
 select the exact queue and printable width. There is no automatic default-printer fallback.
 
-The fixed version 1 template remains provisional until the owner supplies the actual layout
-and printer/media details. Preserve old renderer versions when introducing an approved
-layout. Windows and physical acceptance remain gates; see
+The supplied receipt photograph now defines fixed version 2 for new bills. Saved version 1
+receipts retain their original renderer. The version 2 layout uses four WPF columns and
+calculates customer savings from original normal prices and line totals, excluding cash
+rounding. Xprinter 80 mm paper is known; exact driver/model and imageable width remain
+unverified. Preserve renderer versions when introducing another layout. Windows and physical acceptance remain gates; see
 [the milestone 05 validation record](docs/implementation/MILESTONE_05.md).
