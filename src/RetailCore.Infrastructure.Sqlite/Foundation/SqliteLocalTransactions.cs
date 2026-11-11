@@ -137,6 +137,26 @@ public sealed class SqliteLocalTransactions(IServiceScopeFactory scopes) : ILoca
         }
         public void CompleteCommand(Guid id, string kind, string fingerprint, string result) =>
             context.Add(new CommandRecord(id, kind, fingerprint, result));
+        public async Task<RetailCore.Application.Checkout.BasketDocument?> BasketAsync(ShopId shop, TerminalId terminal, UserId user, CancellationToken ct)
+        {
+            var record = await context.Set<BillingBasketRecord>().IgnoreQueryFilters().SingleOrDefaultAsync(b => b.UserId == user && b.ShopId == shop && b.TerminalId == terminal, ct).ConfigureAwait(false);
+            return record is null ? null : JsonSerializer.Deserialize<RetailCore.Application.Checkout.BasketDocument>(record.DocumentJson);
+        }
+        public void SaveBasket(ShopId shop, TerminalId terminal, UserId user, RetailCore.Application.Checkout.BasketDocument basket)
+        {
+            var record = context.Set<BillingBasketRecord>().Local.SingleOrDefault(b => b.UserId == user);
+            var json = JsonSerializer.Serialize(basket);
+            if (record is null) context.Add(new BillingBasketRecord(shop, terminal, user, json));
+            else record.Update(json);
+        }
+        public Task<RetailCore.Domain.Shifts.Shift?> OpenShiftAsync(ShopId shop, TerminalId terminal, CancellationToken ct) =>
+            context.Shifts.IgnoreQueryFilters().Include(s => s.CashMovements).SingleOrDefaultAsync(s => s.ShopId == shop && s.TerminalId == terminal && s.Status == RetailCore.Domain.Shifts.ShiftStatus.Open, ct);
+        public async Task<RetailCore.Domain.Monetary.Money> ExpectedCashAsync(RetailCore.Domain.Shifts.Shift shift, CancellationToken ct) =>
+            shift.ExpectedCashFrom(await new RetailCore.Infrastructure.Persistence.ShiftRepository(context).SalesSummaryAsync(shift.Id, ct).ConfigureAwait(false));
+        public Task<RetailCore.Domain.Sales.ReceiptNumber> NextReceiptAsync(ShopId shop, TerminalId terminal, CancellationToken ct) =>
+            new RetailCore.Infrastructure.Persistence.ReceiptNumberAllocator(context).NextAsync(shop, terminal, ct);
+        public void Add(RetailCore.Domain.Sales.Sale sale) => context.Sales.Add(sale);
+        public void Add(RetailCore.Domain.Shifts.Shift shift) => context.Shifts.Add(shift);
         public void Add(Shop shop) => context.Shops.Add(shop);
         public void Add(Terminal terminal) => context.Terminals.Add(terminal);
         public void Add(User user) => context.Users.Add(user);

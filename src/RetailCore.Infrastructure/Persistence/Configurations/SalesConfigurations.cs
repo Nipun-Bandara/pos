@@ -141,6 +141,8 @@ internal sealed class SaleLineConfiguration : IEntityTypeConfiguration<SaleLine>
 
         builder.Property(l => l.SaleId).HasConversion<ValueConverters.SaleIdConverter>().IsRequired();
         builder.Property(l => l.ProductId).HasConversion<ValueConverters.ProductIdConverter>().IsRequired();
+        builder.Property(l => l.ManualPriceApprovedBy).HasConversion<ValueConverters.UserIdConverter>();
+        builder.Property(l => l.ManualPriceReason).HasMaxLength(500);
         builder.Property(l => l.StockProductId).HasConversion<ValueConverters.ProductIdConverter>();
         builder.Property(l => l.StockBaseUnit).HasConversion<string>().HasMaxLength(20);
         builder.Property(l => l.VoidedBy).HasConversion<ValueConverters.UserIdConverter>();

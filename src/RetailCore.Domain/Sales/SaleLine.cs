@@ -76,13 +76,31 @@ public sealed class SaleLine : Entity<SaleLineId>, IBelongsToShop
         StockFactorThousandths = product.StockFactorThousandths;
         StockBaseUnit = product.StockBaseUnit ?? product.Unit;
     }
+    public long? NormalUnitPriceMinor { get; private set; }
+    public long? QualifiedTierUnitPriceMinor { get; private set; }
+    public int? QualifiedPriceBand { get; private set; }
+    public string? ManualPriceReason { get; private set; }
+    public UserId? ManualPriceApprovedBy { get; private set; }
+    internal void SnapshotManualPrice(Money normal, Money tier, string reason, UserId owner)
+    {
+        NormalUnitPriceMinor = normal.MinorUnits;
+        QualifiedTierUnitPriceMinor = tier.MinorUnits;
+        QualifiedPriceBand = AppliedPriceBand;
+        AppliedPriceBand = null;
+        AppliedMinimumThousandths = null;
+        ManualPriceReason = reason.Trim();
+        ManualPriceApprovedBy = owner;
+    }
     public string? SinhalaNameSnapshot { get; private set; }
     public string? EnglishNameSnapshot { get; private set; }
     public string? ReceiptNameSnapshot { get; private set; }
     public int? AppliedPriceBand { get; private set; }
     public long? AppliedMinimumThousandths { get; private set; }
-    internal void SnapshotQuote(PriceQuote quote)
+    internal void SnapshotQuote(PriceQuote quote, Money normal)
     {
+        NormalUnitPriceMinor = normal.MinorUnits;
+        QualifiedTierUnitPriceMinor = quote.UnitPrice.MinorUnits;
+        QualifiedPriceBand = quote.Band;
         SinhalaNameSnapshot = quote.SinhalaName;
         EnglishNameSnapshot = quote.EnglishName;
         ReceiptNameSnapshot = quote.ReceiptName;

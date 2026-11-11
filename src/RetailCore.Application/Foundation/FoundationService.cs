@@ -149,6 +149,14 @@ public sealed class FoundationService(ILocalTransactions transactions, IPinHashe
                 shop.PaperWidthMillimeters, shop.CashIncrementMinor);
         }, cancellationToken);
 
+    public Task<IReadOnlyList<UserSummary>> ApproversAsync(CancellationToken cancellationToken = default) =>
+        transactions.ReadAsync<IReadOnlyList<UserSummary>>(async (store, ct) =>
+        {
+            var actor = await RequireUserAsync(store, false, ct).ConfigureAwait(false);
+            return (await store.UsersAsync(actor.ShopId, ct).ConfigureAwait(false))
+                .Where(u => u.IsActive && u.Role == Role.Owner).Select(Summary).ToArray();
+        }, cancellationToken);
+
     public Task<IReadOnlyList<UserSummary>> UsersAsync(CancellationToken cancellationToken = default) =>
         transactions.ReadAsync<IReadOnlyList<UserSummary>>(async (store, ct) =>
         {

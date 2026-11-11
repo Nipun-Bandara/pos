@@ -348,4 +348,65 @@
   <data name="StockSourceSaleVoid" xml:space="preserve"><value>Sale void</value></data>
   <data name="StockSourceRefund" xml:space="preserve"><value>Return</value></data>
   <data name="UnitUnknown" xml:space="preserve"><value>Unknown unit</value></data>
+  <data name="BillingKeyboardHelp" xml:space="preserve"><value>Scan a barcode and press Enter. Repeated scans add quantities. F2: scan, Ctrl+F: search, F4: cash, F6: remove, F9: complete. Manual weights allow three decimals.</value></data>
+  <data name="ScanBarcode" xml:space="preserve"><value>Barcode / manual barcode entry</value></data>
+  <data name="ScanQuantity" xml:space="preserve"><value>Quantity for this scan</value></data>
+  <data name="AddBarcode" xml:space="preserve"><value>Add barcode</value></data>
+  <data name="RefreshBilling" xml:space="preserve"><value>Refresh billing / recover saved result</value></data>
+  <data name="OpeningFloat" xml:space="preserve"><value>Opening cash float</value></data>
+  <data name="OpenShift" xml:space="preserve"><value>Open shift</value></data>
+  <data name="ExpectedDrawer" xml:space="preserve"><value>Expected drawer cash</value></data>
+  <data name="BillingSearch" xml:space="preserve"><value>Search name, SKU or barcode</value></data>
+  <data name="AllCategories" xml:space="preserve"><value>All categories</value></data>
+  <data name="ProductQuantity" xml:space="preserve"><value>Quantity to add</value></data>
+  <data name="AddSelectedProduct" xml:space="preserve"><value>Add selected product</value></data>
+  <data name="BillingQuantity" xml:space="preserve"><value>Basket quantity</value></data>
+  <data name="TierPrice" xml:space="preserve"><value>Qualified tier unit price</value></data>
+  <data name="ChargedPrice" xml:space="preserve"><value>Final unit price</value></data>
+  <data name="RequestedFinalPrice" xml:space="preserve"><value>Proposed final unit price (blank = automatic tier)</value></data>
+  <data name="DiscountReason" xml:space="preserve"><value>Discount reason</value></data>
+  <data name="ManualPriceHelp" xml:space="preserve"><value>A proposed final unit price replaces the quantity tier; it does not stack a discount. It must be positive and no higher than the qualified tier price. Owner PIN approval is required at settlement. Clear this field to return to automatic pricing.</value></data>
+  <data name="UpdateBillingLine" xml:space="preserve"><value>Update quantity / proposed price</value></data>
+  <data name="RemoveBillingLine" xml:space="preserve"><value>Remove selected item</value></data>
+  <data name="ClearBasket" xml:space="preserve"><value>Clear unpaid basket</value></data>
+  <data name="TenderCash" xml:space="preserve"><value>Cash</value></data>
+  <data name="TenderCard" xml:space="preserve"><value>Externally approved card</value></data>
+  <data name="CashTendered" xml:space="preserve"><value>Cash received</value></data>
+  <data name="CashRounding" xml:space="preserve"><value>Cash rounding adjustment</value></data>
+  <data name="CashDue" xml:space="preserve"><value>Cash amount due</value></data>
+  <data name="CardDue" xml:space="preserve"><value>Card amount due (exact)</value></data>
+  <data name="CashChange" xml:space="preserve"><value>Change</value></data>
+  <data name="ExternalCardApproved" xml:space="preserve"><value>Payment was approved on the external card terminal</value></data>
+  <data name="ExternalCardReference" xml:space="preserve"><value>External approval reference (optional)</value></data>
+  <data name="CardReferenceHelp" xml:space="preserve"><value>Enter only a short external approval identifier, e.g. AUTH-4471, or leave blank. Never enter a card number, PIN or security code. This app does not charge the card.</value></data>
+  <data name="NegativeStockReason" xml:space="preserve"><value>Reason for approved stock shortage</value></data>
+  <data name="CompleteSale" xml:space="preserve"><value>Complete sale</value></data>
+  <data name="SavedSale" xml:space="preserve"><value>Saved bill</value></data>
+  <data name="VerifyLastCompletion" xml:space="preserve"><value>Verify last saved bill (no new payment)</value></data>
+  <data name="ScanInProgress" xml:space="preserve"><value>Scans are still processing. Wait for the basket, then retry.</value></data>
+  <data name="InvalidFloat" xml:space="preserve"><value>Enter a nonnegative opening float with valid currency precision.</value></data>
+  <data name="ShiftAlreadyOpen" xml:space="preserve"><value>A shift is already open on this terminal. Refresh Billing to use it.</value></data>
+  <data name="OpenShiftRequired" xml:space="preserve"><value>Open a shift with the counted opening float before completing a sale.</value></data>
+  <data name="BarcodeNotFound" xml:space="preserve"><value>No active product uses that barcode. Check the code or search by name/SKU.</value></data>
+  <data name="AmbiguousBarcode" xml:space="preserve"><value>More than one legacy product uses this barcode. Ask the owner to correct the catalogue.</value></data>
+  <data name="InvalidBillingQuantity" xml:space="preserve"><value>Enter a positive quantity with at most three decimal places. Each/Pack need whole quantities.</value></data>
+  <data name="InvalidManualPrice" xml:space="preserve"><value>Enter a positive final unit price no higher than the current tier and a reason. Clear the proposed price if a quantity change qualifies for a better tier.</value></data>
+  <data name="SelectBillingLine" xml:space="preserve"><value>Select a basket item first.</value></data>
+  <data name="BillingProductUnavailable" xml:space="preserve"><value>A basket product is inactive, incomplete or invalid. Remove it or ask the owner to correct Products.</value></data>
+  <data name="BillingTaxUnavailable" xml:space="preserve"><value>A product has no effective tax rule for today. Ask the owner to correct its tax assignment.</value></data>
+  <data name="BasketEmpty" xml:space="preserve"><value>Add at least one item before settlement.</value></data>
+  <data name="CheckoutChanged" xml:space="preserve"><value>Prices, tax, shift or stock changed since review. Refresh Billing and review the new total before paying.</value></data>
+  <data name="InsufficientTender" xml:space="preserve"><value>Cash received is less than the rounded amount due. Enter the full tender.</value></data>
+  <data name="CardApprovalRequired" xml:space="preserve"><value>Confirm approval on the external card terminal before recording the payment.</value></data>
+  <data name="InvalidTender" xml:space="preserve"><value>Enter a valid cash tender or record the exact externally approved card amount.</value></data>
+  <data name="InvalidCardReference" xml:space="preserve"><value>Use only a short alphanumeric external approval reference, or leave it blank. Card numbers, PINs and security codes are not accepted.</value></data>
+  <data name="StaleBasket" xml:space="preserve"><value>The saved basket changed or was completed. Refresh Billing to recover its current state and last result.</value></data>
+  <data name="BasketTooLarge" xml:space="preserve"><value>A basket supports up to 200 different products. Complete or clear this basket first.</value></data>
+  <data name="QualifiedBand" xml:space="preserve"><value>Qualified tier</value></data>
+  <data name="BillingPriceMode" xml:space="preserve"><value>Pricing</value></data>
+  <data name="BillingManualTrue" xml:space="preserve"><value>Proposed owner price</value></data>
+  <data name="BillingManualFalse" xml:space="preserve"><value>Automatic tier</value></data>
+  <data name="CashStillOwed" xml:space="preserve"><value>Cash still owed</value></data>
+  <data name="BillingAmountTooLarge" xml:space="preserve"><value>The basket amount is too large. Reduce the quantity or ask the owner to correct its price.</value></data>
+  <data name="PaidAmount" xml:space="preserve"><value>Paid amount</value></data>
 </root>

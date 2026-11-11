@@ -250,7 +250,25 @@ public sealed class Sale : AggregateRoot<SaleId>, IBelongsToShop
             throw new DomainException("InvalidProduct");
         var quote = QuantityPricing.Preview(product, quantity);
         var line = AddLine(product, quantity, taxTreatment, quote.UnitPrice);
-        line.SnapshotQuote(quote);
+        line.SnapshotQuote(quote, product.UnitPrice);
+        return line;
+    }
+
+    /// <summary>Final owner-approved unit price replaces the tier; no percentage stacking.</summary>
+    public SaleLine AddCheckoutLine(Product product, Quantity quantity, TaxTreatment tax,
+        Money? finalUnitPrice = null, string? reason = null, UserId? approvedBy = null)
+    {
+        var quote = QuantityPricing.Preview(product, quantity);
+        if (finalUnitPrice is { } final && (approvedBy is null || string.IsNullOrWhiteSpace(reason)
+            || reason.Length > 500 || !final.IsPositive || final.Currency != quote.UnitPrice.Currency || final > quote.UnitPrice))
+            throw new DomainException("InvalidManualPrice");
+        var line = AddPricedLine(product, quantity, tax);
+        if (finalUnitPrice is { } price)
+        {
+            line.OverridePrice(price);
+            line.SnapshotManualPrice(product.UnitPrice, quote.UnitPrice, reason!, approvedBy!.Value);
+            Recalculate();
+        }
         return line;
     }
 
@@ -383,23 +401,19 @@ public sealed class Sale : AggregateRoot<SaleId>, IBelongsToShop
     /// </remarks>
     /// <param name="tendered">What the customer handed over.</param>
     /// <returns>The change to hand back, which is zero unless the cash over-covers the balance.</returns>
-    public Money AddCashPayment(Money tendered, DateTimeOffset at)
+    public Money AddCashPayment(Money tendered, DateTimeOffset at, long? cashIncrementMinor = null)
     {
         RequireEditable();
         RequireCurrency(tendered);
 
-        if (!tendered.IsPositive)
-        {
-            throw new DomainException("The cash tendered must be more than zero.");
-        }
-
         var outstanding = BalanceDue;
-        if (!outstanding.IsPositive)
+        var rounded = cashIncrementMinor is { } increment ? outstanding.RoundToIncrement(increment) : outstanding.RoundToCashIncrement();
+        if (tendered.IsNegative || (tendered.IsZero && !rounded.IsZero))
+            throw new DomainException("InvalidTender");
+        if (outstanding.IsNegative || (outstanding.IsZero && _payments.Count > 0))
         {
             throw new DomainException("This sale is already paid in full.");
         }
-
-        var rounded = outstanding.RoundToCashIncrement();
 
         Money applied;
         if (tendered >= rounded)
@@ -414,7 +428,7 @@ public sealed class Sale : AggregateRoot<SaleId>, IBelongsToShop
             applied = tendered;
         }
 
-        var payment = Payment.Create(Id, ShopId, PaymentMethod.Cash, applied, tendered, null, at);
+        var payment = Payment.Create(Id, ShopId, PaymentMethod.Cash, applied, tendered, null, at, allowZeroCash: applied.IsZero);
         _payments.Add(payment);
         return payment.Change;
     }

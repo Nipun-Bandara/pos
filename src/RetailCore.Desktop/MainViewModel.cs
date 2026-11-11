@@ -6,8 +6,17 @@ using RetailCore.Domain.Security;
 
 namespace RetailCore.Desktop;
 
-public sealed class MainViewModel(FoundationService service, LocalSession session, RetailCore.Application.Catalogue.CatalogueService catalogue, RetailCore.Application.Inventory.StockService stock) : INotifyPropertyChanged
+public sealed class MainViewModel(FoundationService service, LocalSession session, RetailCore.Application.Catalogue.CatalogueService catalogue, RetailCore.Application.Inventory.StockService stock, RetailCore.Application.Checkout.BillingService billing) : INotifyPropertyChanged
 {
+    public RetailCore.Application.Checkout.BillingService Billing { get; } = billing;
+    public RetailCore.Application.Checkout.BillingState? BillingState { get; private set; }
+    public IReadOnlyList<UserSummary> Approvers { get; private set; } = [];
+    public void SetBillingState(RetailCore.Application.Checkout.BillingState state)
+    {
+        BillingState = state;
+        if (Section == "Billing") Notify(nameof(Screen));
+    }
+    public void ShowMessage(string key) { Message = Texts.Get(key); Notify(); }
     public RetailCore.Application.Inventory.StockService Stock { get; } = stock;
     public RetailCore.Application.Inventory.StockData? StockData { get; private set; }
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -50,6 +59,8 @@ public sealed class MainViewModel(FoundationService service, LocalSession sessio
         Current = await Service.SignInAsync(id, pin, Unlocking);
         Texts.Use(Current.Language);
         Unlocking = false;
+        BillingState = await Billing.LoadAsync();
+        Approvers = await Service.ApproversAsync();
         Section = "Billing";
         Screen = "Shell";
         Notify(nameof(Screen));
@@ -64,6 +75,7 @@ public sealed class MainViewModel(FoundationService service, LocalSession sessio
             Users = await Service.UsersAsync();
         }
 
+        if (section == "Billing") { BillingState = await Billing.LoadAsync(); Approvers = await Service.ApproversAsync(); }
         if (section == "Products") CatalogueData = await Catalogue.LoadAsync();
         if (section == "Stock") StockData = await Stock.LoadAsync();
         Section = section;
@@ -92,6 +104,8 @@ public sealed class MainViewModel(FoundationService service, LocalSession sessio
     {
         if (Current is null || Session.IsLocked) { return; }
         Service.Lock();
+        BillingState = null;
+        Approvers = [];
         StockData = null;
         CatalogueData = null;
         Profile = null;
@@ -106,6 +120,8 @@ public sealed class MainViewModel(FoundationService service, LocalSession sessio
     {
         Service.SignOut();
         Current = null;
+        BillingState = null;
+        Approvers = [];
         StockData = null;
         CatalogueData = null;
         Profile = null;

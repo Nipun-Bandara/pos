@@ -727,8 +727,24 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
                     b.Property<int>("LineNumber")
                         .HasColumnType("integer");
 
+                    b.Property<Guid?>("ManualPriceApprovedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ManualPriceReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<long?>("NormalUnitPriceMinor")
+                        .HasColumnType("bigint");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
+
+                    b.Property<int?>("QualifiedPriceBand")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("QualifiedTierUnitPriceMinor")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("ReceiptNameSnapshot")
                         .HasColumnType("text");

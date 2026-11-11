@@ -32,6 +32,13 @@ public interface ILocalStore
     Task PostStockAsync(ShopId shop, string sourceType, Guid sourceId, IReadOnlyList<RetailCore.Domain.Inventory.StockMovement> movements, CancellationToken ct);
     Task<CompletedLocalCommand?> CommandAsync(Guid id, CancellationToken ct);
     void CompleteCommand(Guid id, string kind, string fingerprint, string result);
+    Task<RetailCore.Application.Checkout.BasketDocument?> BasketAsync(ShopId shop, TerminalId terminal, UserId user, CancellationToken ct);
+    void SaveBasket(ShopId shop, TerminalId terminal, UserId user, RetailCore.Application.Checkout.BasketDocument basket);
+    Task<RetailCore.Domain.Shifts.Shift?> OpenShiftAsync(ShopId shop, TerminalId terminal, CancellationToken ct);
+    Task<RetailCore.Domain.Monetary.Money> ExpectedCashAsync(RetailCore.Domain.Shifts.Shift shift, CancellationToken ct);
+    Task<RetailCore.Domain.Sales.ReceiptNumber> NextReceiptAsync(ShopId shop, TerminalId terminal, CancellationToken ct);
+    void Add(RetailCore.Domain.Sales.Sale sale);
+    void Add(RetailCore.Domain.Shifts.Shift shift);
     void Add(Shop shop);
     void Add(Terminal terminal);
     void Add(User user);

@@ -28,6 +28,15 @@ public sealed class TillDbContext(
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<Foundation.BillingBasketRecord>(b =>
+        {
+            b.ToTable("BillingBaskets");
+            b.HasKey(p => p.UserId);
+            b.Property(p => p.UserId).HasConversion(v => v.Value, v => new RetailCore.Domain.Common.UserId(v)).ValueGeneratedNever();
+            b.Property(p => p.ShopId).HasConversion(v => v.Value, v => new RetailCore.Domain.Common.ShopId(v));
+            b.Property(p => p.TerminalId).HasConversion(v => v.Value, v => new RetailCore.Domain.Common.TerminalId(v));
+            b.Property(p => p.DocumentJson).IsRequired();
+        });
         modelBuilder.Entity<Foundation.CommandRecord>(builder =>
         {
             builder.ToTable("LocalCommands");

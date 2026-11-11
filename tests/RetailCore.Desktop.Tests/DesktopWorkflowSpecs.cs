@@ -35,7 +35,7 @@ public sealed class DesktopWorkflowSpecs
         thread.SetApartmentState(ApartmentState.STA);
         thread.IsBackground = true;
         thread.Start();
-        await completion.Task.WaitAsync(TimeSpan.FromSeconds(90));
+        await completion.Task.WaitAsync(TimeSpan.FromMinutes(3));
     }
 
     private static async Task ExerciseAsync()
@@ -46,7 +46,7 @@ public sealed class DesktopWorkflowSpecs
         Texts.Use("en");
         var services = new ServiceCollection().AddLocalFoundation(Path.Combine(path, "till.db"));
         await using var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
-        var vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>());
+        var vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>(), provider.GetRequiredService<RetailCore.Application.Checkout.BillingService>());
         var window = new MainWindow(vm);
         try
         {
@@ -65,6 +65,7 @@ public sealed class DesktopWorkflowSpecs
             await UntilAsync(() => vm.Screen == "Shell" && !vm.Busy);
             await ExerciseProductsAsync(window, vm);
             await ExerciseStockAsync(window, vm);
+            await ExerciseBillingAsync(window, vm);
             var language = Descendants(window).OfType<ComboBox>()
                 .Single(c => AutomationProperties.GetName(c) == Texts.Get("Language"));
             language.SelectedIndex = 1;
@@ -101,7 +102,7 @@ public sealed class DesktopWorkflowSpecs
             var ownerId = vm.Current!.Id;
             window.Close();
             // Reopen the actual window and sign in against the same database with a new session.
-            vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>());
+            vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>(), provider.GetRequiredService<RetailCore.Application.Checkout.BillingService>());
             window = new MainWindow(vm);
             window.Show();
             await UntilAsync(() => vm.Screen == "Login" && !vm.Busy);
@@ -111,6 +112,10 @@ public sealed class DesktopWorkflowSpecs
             Click(window, "SignIn");
             await UntilAsync(() => vm.Screen == "Shell" && !vm.Busy);
             Texts.Language.ShouldBe("si");
+            vm.BillingState!.Basket.LastResult!.Receipt.ShouldBe("T1-000004");
+            Click(window, "VerifyLastCompletion"); await UntilAsync(() => !vm.Busy);
+            vm.BillingState!.Basket.LastResult!.Receipt.ShouldBe("T1-000004");
+            Capture(window, "billing-si.png");
             vm.Current!.Language.ShouldBe("si");
             (await vm.Service.ProfileAsync()).Telephone.ShouldBe("0771234567");
             Click(window, "Products");
@@ -120,7 +125,7 @@ public sealed class DesktopWorkflowSpecs
             restored.Barcode.ShouldBe("001234567890");
             Capture(window, "products-si.png");
             Click(window, "Stock"); await UntilAsync(() => vm.Section == "Stock" && !vm.Busy);
-            (await vm.Stock.LoadAsync()).Products.Single(p => p.Sku == "RICE").Balance.ShouldBe(49.75m);
+            (await vm.Stock.LoadAsync()).Products.Single(p => p.Sku == "RICE").Balance.ShouldBe(47.50m);
             Capture(window, "stock-si.png");
             Click(window, "SignOut");
             await UntilAsync(() => vm.Screen == "Login" && !vm.Busy);
@@ -151,6 +156,69 @@ public sealed class DesktopWorkflowSpecs
             Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
             Directory.Delete(path, true);
         }
+    }
+
+    private static async Task ExerciseBillingAsync(Window window, MainViewModel vm)
+    {
+        var tea = (await vm.Catalogue.LoadAsync()).Products.Single(p => p.Sku == "TEA-01").Product.Id!.Value;
+        await vm.Stock.PostAsync(new RetailCore.Application.Inventory.StockEntryInput(Guid.NewGuid(), tea,
+            RetailCore.Application.Inventory.StockEntryKind.Receiving, 20, 50, "Test receiving", DateTimeOffset.UtcNow));
+        Click(window, "Billing"); await UntilAsync(() => vm.Section == "Billing" && !vm.Busy);
+        Find<TextBox>(window, "OpeningFloat").Text = "1000";
+        Click(window, "OpenShift"); await UntilAsync(() => !vm.Busy);
+        vm.BillingState!.Shift.ShouldNotBeNull();
+        async Task Scan(string barcode)
+        {
+            Find<TextBox>(window, "ScanBarcode").Text = barcode; Click(window, "AddBarcode");
+            await UntilAsync(() => !vm.Busy);
+        }
+        foreach (var expected in new long[] { 10000, 18000, 25500, 32000, 40000 })
+        {
+            await Scan("001234567890"); vm.BillingState!.Quote.TotalMinor.ShouldBe(expected);
+        }
+        var cart = Find<DataGrid>(window, "BillingBasket"); cart.SelectedIndex = 0;
+        Find<TextBox>(window, "BillingQuantity").Text = "2";
+        Click(window, "UpdateBillingLine"); await UntilAsync(() => !vm.Busy);
+        vm.BillingState!.Quote.TotalMinor.ShouldBe(18000);
+        Find<TextBox>(window, "ScanQuantity").Text = "1.250";
+        await Scan("00001"); vm.BillingState!.Quote.TotalMinor.ShouldBe(36750);
+        Find<TextBox>(window, "CashTendered").Text = "400";
+        Click(window, "CompleteSale"); await UntilAsync(() => !vm.Busy);
+        vm.BillingState!.Basket.LastResult!.TotalMinor.ShouldBe(36750);
+        vm.BillingState.Basket.LastResult.RoundingMinor.ShouldBe(50);
+        vm.BillingState.Shift!.ExpectedCash.ShouldBe(1368);
+        await Scan("00001"); vm.BillingState!.Quote.TotalMinor.ShouldBe(15000);
+        Find<TextBox>(window, "CashTendered").Text = "200";
+        Click(window, "CompleteSale"); await UntilAsync(() => !vm.Busy);
+        vm.BillingState!.Basket.LastResult!.ChangeMinor.ShouldBe(5000);
+        vm.BillingState.Shift!.ExpectedCash.ShouldBe(1518);
+        Click(window, "VerifyLastCompletion"); await UntilAsync(() => !vm.Busy);
+        vm.BillingState!.Basket.LastResult!.Receipt.ShouldBe("T1-000002");
+        await Scan("001234567890");
+        Find<ComboBox>(window, "PaymentMethod").SelectedIndex = 1;
+        Find<CheckBox>(window, "ExternalCardApproved").IsChecked = true;
+        Find<TextBox>(window, "ExternalCardReference").Text = "AUTH-4471";
+        Click(window, "CompleteSale"); await UntilAsync(() => !vm.Busy);
+        vm.BillingState!.Basket.LastResult!.Receipt.ShouldBe("T1-000003");
+        vm.BillingState.Shift!.ExpectedCash.ShouldBe(1518);
+        await Scan("001234567890"); await Scan("001234567890");
+        Find<DataGrid>(window, "BillingBasket").SelectedIndex = 0;
+        Find<TextBox>(window, "RequestedFinalPrice").Text = "80";
+        Find<TextBox>(window, "DiscountReason").Text = "Owner offer";
+        Click(window, "UpdateBillingLine"); await UntilAsync(() => !vm.Busy);
+        vm.BillingState!.Quote.TotalMinor.ShouldBe(16000);
+        Find<TextBox>(window, "CashTendered").Text = "200";
+        var approvalInteraction = window.Dispatcher.InvokeAsync(async () =>
+        {
+            await UntilAsync(() => window.OwnedWindows.OfType<ApprovalDialog>().Any());
+            var dialog = window.OwnedWindows.OfType<ApprovalDialog>().Single();
+            Find<PasswordBox>(dialog, "Pin").Password = "638194"; Click(dialog, "Approve");
+        }).Task.Unwrap();
+        Click(window, "CompleteSale"); await approvalInteraction; await UntilAsync(() => !vm.Busy);
+        vm.BillingState!.Basket.LastResult!.Receipt.ShouldBe("T1-000004");
+        vm.BillingState.Basket.LastResult.ChangeMinor.ShouldBe(4000);
+        vm.BillingState.Shift!.ExpectedCash.ShouldBe(1678);
+        Capture(window, "billing-en.png");
     }
 
     private static async Task ExerciseStockAsync(Window window, MainViewModel vm)
