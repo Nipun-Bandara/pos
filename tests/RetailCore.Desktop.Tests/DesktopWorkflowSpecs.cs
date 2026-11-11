@@ -195,6 +195,8 @@ public sealed class DesktopWorkflowSpecs
             { Number = i, Name = string.Concat(Enumerable.Repeat("දිගු සිංහල භාණ්ඩ නාමය ",8)) }).ToArray() };
         var rendered = ReceiptRenderer.Render(longReceipt,48,true);
         rendered.Language.IetfLanguageTag.ShouldBe("si-LK");
+        rendered.Blocks.OfType<System.Windows.Documents.Table>().ShouldContain(t => t.Columns.Count == 4);
+        receipt.Version.ShouldBe(2);
         var paginated = ((System.Windows.Documents.IDocumentPaginatorSource)rendered).DocumentPaginator;
         paginated.ComputePageCount(); paginated.PageCount.ShouldBeGreaterThan(1);
         paginated.GetPage(0).Size.Width.ShouldBe(48d * 96 / 25.4, .01);

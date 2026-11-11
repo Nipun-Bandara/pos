@@ -175,8 +175,40 @@ public sealed partial class FoundationSpecs
             sale.Complete(await store.NextReceiptAsync(shop.Id,terminal.Id,ct),f.Clock.UtcNow);store.Add(sale);return sale.Id.Value;
         });
         var detail = await Receipts(f).DetailAsync(id); detail.Receipt.LegacyHeader.ShouldBeTrue();detail.Receipt.Lines.Single().Name.ShouldBe("තේ පැකට්");
+        detail.Receipt.Version.ShouldBe(1);
+        ReceiptDocument.TemplateFor(detail.Receipt.Version).ShouldBe("provisional-si-v1");
+        ReceiptLayout.Build(detail.Receipt,false).ShouldAllBe(r => r.Style == ReceiptStyle.Plain);
         detail.Receipt.Payments.Count.ShouldBe(2); detail.Receipt.PaidMinor.ShouldBe(15000); detail.Receipt.ChangeMinor.ShouldBe(10000);
         JsonSerializer.Serialize((await Receipts(f).DetailAsync(id)).Receipt).ShouldBe(JsonSerializer.Serialize(detail.Receipt));
+    }
+
+    [Fact]
+    public async Task Supplied_sample_layout_uses_original_retail_and_final_prices_and_exact_customer_savings()
+    {
+        await using var f = new LocalFixture(); await f.SetupAsync(); await BillingProduct(f,150);
+        var original = (await Receipts(f).DetailAsync(await CompleteReceiptBill(f))).Receipt;
+        original.Version.ShouldBe(2); ReceiptDocument.TemplateFor(original.Version).ShouldBe("owner-sample-si-v2");
+        var first = original.Lines[0] with { Number = 1, NormalPriceMinor = 32000, UnitPriceMinor = 31000, TotalMinor = 31000 };
+        var second = first with { Number = 2, NormalPriceMinor = 145000, UnitPriceMinor = 136000, TotalMinor = 136000 };
+        var sample = original with { Lines = [first,second], GrossMinor = 167000, NetMinor = 167000, TaxMinor = 0, DiscountMinor = 0,
+            TotalMinor = 167000, PaidMinor = 167000, ChangeMinor = 33000, RoundingMinor = 0,
+            Payments = [new(PaymentMethod.Cash,167000,200000,33000)] };
+        SampleReceiptLayout.SavingsMinor(sample).ShouldBe(10000);
+        var rows = ReceiptLayout.Build(sample,false);
+        rows.Single(r => r.Style == ReceiptStyle.ColumnsHeader).Column2.ShouldBe("වෙළඳ මිල");
+        var columns = rows.Where(r => r.Style == ReceiptStyle.Columns).ToArray();
+        columns[0].Column1.ShouldBe("1.000"); columns[0].Column2.ShouldBe("320.00"); columns[0].Column3.ShouldBe("310.00");
+        columns[1].Column4.ShouldBe("1360.00");
+        rows.Single(r => r.Style == ReceiptStyle.Box).Text.ShouldContain("100.00");
+        rows.ShouldContain(r => r.Column1 == SampleReceiptLayout.Label("CashTender") && r.Column2 == "2000.00");
+        rows.ShouldContain(r => r.Column1 == ReceiptLayout.Label("Change") && r.Column2 == "330.00");
+        SampleReceiptLayout.SavingsMinor(sample with { RoundingMinor = 50 }).ShouldBe(10000);
+        SampleReceiptLayout.SavingsMinor(sample with { Lines = [first with { NormalPriceMinor = null }] }).ShouldBeNull();
+        var weighted = sample with { Lines = [first with { QuantityThousandths = 1250, TotalMinor = 38750 }] };
+        SampleReceiptLayout.SavingsMinor(weighted).ShouldBe(1250);
+        var card = sample with { ChangeMinor = 0, Payments = [new(PaymentMethod.Card,167000,167000,0)] };
+        ReceiptLayout.Build(card,false).ShouldContain(r => r.Column1 == SampleReceiptLayout.Label("CashTender") && r.Column2 == "0.00");
+        ReceiptLayout.Build(card,false).ShouldContain(r => r.Column1 == SampleReceiptLayout.Label("CardPaid") && r.Column2 == "1670.00");
     }
 
     [Fact]

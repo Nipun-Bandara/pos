@@ -15,13 +15,17 @@ public sealed record ReceiptDocument(int Version, Guid SaleId, string Number, Da
     IReadOnlyList<ReceiptPayment> Payments, long GrossMinor, long DiscountMinor, long NetMinor, long TaxMinor,
     long TotalMinor, long RoundingMinor, long PaidMinor, long ChangeMinor, bool LegacyHeader)
 {
-    public const string Template = "provisional-si-v1";
+    public static string TemplateFor(int version) => version switch
+    {
+        1 => "provisional-si-v1", 2 => "owner-sample-si-v2",
+        _ => throw new InvalidOperationException("Unsupported receipt snapshot version."),
+    };
     public static ReceiptDocument Capture(Sale sale, Shop shop, string cashier, bool legacy = false)
     {
         if (sale.ReceiptNumber is null || sale.CompletedAt is null || sale.IsEditable)
             throw new InvalidOperationException("Only a saved completed bill can have a receipt.");
         var local = TimeZoneInfo.ConvertTime(sale.CompletedAt.Value, TimeZoneInfo.FindSystemTimeZoneById(shop.TimeZoneId));
-        return new(1, sale.Id.Value, sale.ReceiptNumber.Value.ToString(), sale.CompletedAt.Value,
+        return new(legacy ? 1 : 2, sale.Id.Value, sale.ReceiptNumber.Value.ToString(), sale.CompletedAt.Value,
             local.ToString("yyyy-MM-dd HH:mm:ss zzz", System.Globalization.CultureInfo.InvariantCulture), shop.TimeZoneId,
             shop.Name, string.Join("\n", new[] { shop.AddressLine1, shop.AddressLine2 }.Where(s => !string.IsNullOrWhiteSpace(s))),
             shop.Telephone, shop.TaxRegistrationNumber, shop.ReceiptFooter, cashier, sale.CurrencyCode,

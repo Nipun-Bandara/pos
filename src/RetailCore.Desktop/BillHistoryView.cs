@@ -46,7 +46,7 @@ public sealed partial class MainWindow
         {
             var d = detail.Receipt;
             panel.Children.Add(new TextBlock { Text = d.Number + " · " + Texts.Get("BillStatus" + detail.Status), FontSize = 24 });
-            panel.Children.Add(new TextBlock { Text = Texts.Get("ProvisionalReceipt"), TextWrapping = TextWrapping.Wrap });
+            panel.Children.Add(new TextBlock { Text = Texts.Get(d.Version == 2 ? "SampleReceipt" : "ProvisionalReceipt"), TextWrapping = TextWrapping.Wrap });
             panel.Children.Add(new TextBlock { Text = $"{Texts.Get("ReceiptPrinter")}: {settings.Printer ?? Texts.Get("PrinterNotConfigured")} · {Texts.Get("PrintableWidth")}: {settings.PrintableWidthMillimeters}", TextWrapping = TextWrapping.Wrap });
             if (d.LegacyHeader) panel.Children.Add(new TextBlock { Text = Texts.Get("LegacyBillHeader"), TextWrapping = TextWrapping.Wrap });
             // Receipt content always resolves Sinhala labels, independent of interface culture.
@@ -71,7 +71,7 @@ public sealed partial class MainWindow
                     pages.Children.Add(new TextBlock { Text = ReceiptLayout.Label("Page") + " " + (i + 1) });
                     pages.Children.Add(new DocumentPageView { DocumentPaginator = paginator, PageNumber = i, Margin = new Thickness(8) });
                 }
-                var preview = new Window { Owner = this, Title = Texts.Get("ProvisionalReceipt"), Width = 550, Height = 720,
+                var preview = new Window { Owner = this, Title = Texts.Get(d.Version == 2 ? "SampleReceipt" : "ProvisionalReceipt"), Width = 550, Height = 720,
                     Content = new ScrollViewer { Content = pages, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto } };
                 preview.ShowDialog(); return Task.CompletedTask;
             }));

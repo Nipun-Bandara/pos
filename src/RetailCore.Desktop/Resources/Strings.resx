@@ -455,4 +455,5 @@
   <data name="BillTaxExempt" xml:space="preserve"><value>Exempt</value></data>
   <data name="BillTaxZeroRated" xml:space="preserve"><value>Zero rated</value></data>
   <data name="BillTaxStandard" xml:space="preserve"><value>Standard rated</value></data>
+  <data name="SampleReceipt" xml:space="preserve"><value>Receipt based on supplied sample — physical printer validation pending</value></data>
 </root>

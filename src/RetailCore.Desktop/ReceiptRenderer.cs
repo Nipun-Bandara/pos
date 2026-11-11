@@ -25,8 +25,36 @@ public static class ReceiptRenderer
             Language = System.Windows.Markup.XmlLanguage.GetLanguage("si-LK"), FlowDirection = FlowDirection.LeftToRight,
         };
         foreach (var row in ReceiptLayout.Build(receipt, copy, status))
-            doc.Blocks.Add(new Paragraph(new Run(row.Text)) { Margin = new Thickness(0, 2, 0, 2),
-                FontWeight = row.Emphasis ? FontWeights.Bold : FontWeights.Normal, KeepTogether = true });
+        {
+            if (row.Style is ReceiptStyle.Columns or ReceiptStyle.ColumnsHeader or ReceiptStyle.Pair)
+            {
+                var pair = row.Style == ReceiptStyle.Pair;
+                var table = new Table { CellSpacing = 0, Margin = new Thickness(0, 2, 0, 2),
+                    BorderBrush = Brushes.Black, BorderThickness = new Thickness(row.Style == ReceiptStyle.ColumnsHeader ? 1 : 0) };
+                var columns = pair ? new[] { .48, .52 } : new[] { .20, .27, .27, .26 };
+                foreach (var fraction in columns) table.Columns.Add(new TableColumn { Width = new GridLength((width - 20) * fraction) });
+                var group = new TableRowGroup(); var line = new TableRow(); group.Rows.Add(line); table.RowGroups.Add(group);
+                var values = pair ? new[] { row.Column1, row.Column2 } : new[] { row.Column1, row.Column2, row.Column3, row.Column4 };
+                for (var i = 0; i < values.Length; i++)
+                    line.Cells.Add(new TableCell(new Paragraph(new Run(values[i] ?? ""))
+                    {
+                        Margin = new Thickness(0), TextAlignment = pair && i == 0 ? TextAlignment.Left : TextAlignment.Right,
+                        FontSize = pair ? 13 : 11,
+                        FontWeight = row.Emphasis || (!pair && i == 2) ? FontWeights.Bold : FontWeights.Normal,
+                    }) { Padding = new Thickness(1, 3, 1, 3) });
+                doc.Blocks.Add(table); continue;
+            }
+            doc.Blocks.Add(new Paragraph(new Run(row.Text))
+            {
+                Margin = new Thickness(0, 2, 0, 2), FontWeight = row.Emphasis ? FontWeights.Bold : FontWeights.Normal,
+                KeepTogether = true, KeepWithNext = row.Style == ReceiptStyle.ItemName,
+                TextAlignment = row.Style is ReceiptStyle.Title or ReceiptStyle.Center or ReceiptStyle.Box ? TextAlignment.Center : TextAlignment.Left,
+                FontSize = row.Style == ReceiptStyle.Title ? 24 : row.Style == ReceiptStyle.Box ? 17 : 13,
+                BorderBrush = Brushes.Black,
+                BorderThickness = row.Style == ReceiptStyle.Box ? new Thickness(1) : row.Style == ReceiptStyle.Rule ? new Thickness(0,0,0,1) : new Thickness(0),
+                Padding = new Thickness(row.Style == ReceiptStyle.Box ? 4 : 0),
+            });
+        }
         var modules = BillBarcode.Encode(receipt.Number);
         var narrow = (width - 16) / modules.Count;
         if (narrow < .75) throw new FoundationException("PrinterWidthUnsupported");

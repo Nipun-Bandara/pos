@@ -80,7 +80,7 @@ public sealed class ReceiptService(ILocalTransactions transactions, FoundationSe
                 shop.PaperWidthMillimeters, earlier.Count > 0, hash);
             store.AddPrintAttempt(shop.Id, attempt);
             store.Audit(AuditEntry.Record(shop.Id, AuditAction.ReceiptPrintRequested, "Sale", saleId, clock.UtcNow, actor.Id,
-                detailsJson: JsonSerializer.Serialize(new { attempt.Id, attempt.Printer, attempt.IsCopy, ReceiptDocument.Template, hash })));
+                detailsJson: JsonSerializer.Serialize(new { attempt.Id, attempt.Printer, attempt.IsCopy, Template = ReceiptDocument.TemplateFor(detail.Receipt.Version), hash })));
             var saved = await store.SavedSaleAsync(shop.Id, saleId, null, ct).ConfigureAwait(false) ?? throw new FoundationException("BillNotFound");
             return new PrintPayload(detail.Receipt, attempt, saved.Status);
         }, cancellationToken).ConfigureAwait(false);

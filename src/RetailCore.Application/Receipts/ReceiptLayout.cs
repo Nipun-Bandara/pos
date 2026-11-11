@@ -4,7 +4,9 @@ using RetailCore.Domain.Monetary;
 
 namespace RetailCore.Application.Receipts;
 
-public sealed record ReceiptRow(string Text, bool Emphasis = false);
+public enum ReceiptStyle { Plain, Title, Center, Rule, Pair, ColumnsHeader, ItemName, Columns, Box }
+public sealed record ReceiptRow(string Text, bool Emphasis = false, ReceiptStyle Style = ReceiptStyle.Plain,
+    string? Column1 = null, string? Column2 = null, string? Column3 = null, string? Column4 = null);
 /// <summary>Fixed provisional layout. All labels resolve from Sinhala resources regardless of UI culture.</summary>
 public static class ReceiptLayout
 {
@@ -17,6 +19,7 @@ public static class ReceiptLayout
     }
     public static IReadOnlyList<ReceiptRow> Build(ReceiptDocument d, bool copy, RetailCore.Domain.Sales.SaleStatus status = RetailCore.Domain.Sales.SaleStatus.Completed)
     {
+        if (d.Version == 2) return SampleReceiptLayout.Build(d, copy, status);
         if (d.Version != 1) throw new InvalidOperationException("Unsupported receipt snapshot version.");
         string A(long minor) => Amount(minor, d.Currency);
         var rows = new List<ReceiptRow> { new(Label("Provisional"), true), new(d.ShopName, true) };

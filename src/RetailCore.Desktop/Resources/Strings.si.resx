@@ -455,4 +455,5 @@
   <data name="BillTaxExempt" xml:space="preserve"><value>බදු නිදහස්</value></data>
   <data name="BillTaxZeroRated" xml:space="preserve"><value>ශුන්‍ය බදු</value></data>
   <data name="BillTaxStandard" xml:space="preserve"><value>සාමාන්‍ය බදු</value></data>
+  <data name="SampleReceipt" xml:space="preserve"><value>ලබා දුන් නියැදි බිල්පත අනුව — සැබෑ මුද්‍රණ පරීක්ෂාව අවශ්‍යයි</value></data>
 </root>
