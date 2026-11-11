@@ -49,6 +49,8 @@ public enum AuditAction
     StockCounted = 23,
     NegativeStockApproved = 24,
     SaleCompleted = 25,
+    ReceiptPrintRequested = 26,
+    ReceiptPrintFinished = 27,
 }
 
 /// <summary>

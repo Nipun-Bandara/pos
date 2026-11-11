@@ -28,6 +28,26 @@ public sealed class TillDbContext(
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<Foundation.ReceiptRecord>(b =>
+        {
+            b.ToTable("ReceiptDocuments"); b.HasKey(r => r.SaleId);
+            b.Property(r => r.SaleId).ValueGeneratedNever(); b.Property(r => r.DocumentJson).IsRequired();
+            b.HasIndex(r => r.ShopId);
+            b.HasOne<RetailCore.Domain.Sales.Sale>().WithOne().HasForeignKey<Foundation.ReceiptRecord>(r => r.SaleId).OnDelete(DeleteBehavior.Restrict);
+        });
+        modelBuilder.Entity<Foundation.PrintAttemptRecord>(b =>
+        {
+            b.ToTable("ReceiptPrintAttempts"); b.HasKey(r => r.Id);
+            b.Property(r => r.Id).ValueGeneratedNever(); b.Property(r => r.DocumentJson).IsRequired();
+            b.HasIndex(r => new { r.ShopId, r.SaleId });
+            b.HasOne<Foundation.ReceiptRecord>().WithMany().HasForeignKey(r => r.SaleId).OnDelete(DeleteBehavior.Restrict);
+        });
+        modelBuilder.Entity<Foundation.PrintOutcomeRecord>(b =>
+        {
+            b.ToTable("ReceiptPrintOutcomes"); b.HasKey(r => r.AttemptId);
+            b.Property(r => r.AttemptId).ValueGeneratedNever(); b.Property(r => r.DocumentJson).IsRequired();
+            b.HasOne<Foundation.PrintAttemptRecord>().WithOne().HasForeignKey<Foundation.PrintOutcomeRecord>(r => r.AttemptId).OnDelete(DeleteBehavior.Restrict);
+        });
         modelBuilder.Entity<Foundation.BillingBasketRecord>(b =>
         {
             b.ToTable("BillingBaskets");

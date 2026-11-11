@@ -1405,6 +1405,63 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                     b.ToTable("LocalCommands", (string)null);
                 });
 
+            modelBuilder.Entity("RetailCore.Infrastructure.Sqlite.Foundation.PrintAttemptRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DocumentJson")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("SaleId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ShopId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SaleId");
+
+                    b.HasIndex("ShopId", "SaleId");
+
+                    b.ToTable("ReceiptPrintAttempts", (string)null);
+                });
+
+            modelBuilder.Entity("RetailCore.Infrastructure.Sqlite.Foundation.PrintOutcomeRecord", b =>
+                {
+                    b.Property<Guid>("AttemptId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DocumentJson")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("AttemptId");
+
+                    b.ToTable("ReceiptPrintOutcomes", (string)null);
+                });
+
+            modelBuilder.Entity("RetailCore.Infrastructure.Sqlite.Foundation.ReceiptRecord", b =>
+                {
+                    b.Property<Guid>("SaleId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DocumentJson")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ShopId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("SaleId");
+
+                    b.HasIndex("ShopId");
+
+                    b.ToTable("ReceiptDocuments", (string)null);
+                });
+
             modelBuilder.Entity("RetailCore.Domain.Catalogue.Product", b =>
                 {
                     b.OwnsMany("RetailCore.Domain.Catalogue.ProductBarcode", "Barcodes", b1 =>
@@ -1600,6 +1657,33 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                         .WithMany("CashMovements")
                         .HasForeignKey("ShiftId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("RetailCore.Infrastructure.Sqlite.Foundation.PrintAttemptRecord", b =>
+                {
+                    b.HasOne("RetailCore.Infrastructure.Sqlite.Foundation.ReceiptRecord", null)
+                        .WithMany()
+                        .HasForeignKey("SaleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("RetailCore.Infrastructure.Sqlite.Foundation.PrintOutcomeRecord", b =>
+                {
+                    b.HasOne("RetailCore.Infrastructure.Sqlite.Foundation.PrintAttemptRecord", null)
+                        .WithOne()
+                        .HasForeignKey("RetailCore.Infrastructure.Sqlite.Foundation.PrintOutcomeRecord", "AttemptId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("RetailCore.Infrastructure.Sqlite.Foundation.ReceiptRecord", b =>
+                {
+                    b.HasOne("RetailCore.Domain.Sales.Sale", null)
+                        .WithOne()
+                        .HasForeignKey("RetailCore.Infrastructure.Sqlite.Foundation.ReceiptRecord", "SaleId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
