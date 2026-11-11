@@ -339,6 +339,18 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                     b.Property<Guid>("AuthorisedBy")
                         .HasColumnType("TEXT");
 
+                    b.Property<long?>("CardCreditMinor")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long?>("CardPaidMinor")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long?>("CashCreditMinor")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long?>("CashPaidMinor")
+                        .HasColumnType("INTEGER");
+
                     b.Property<Guid>("CashierId")
                         .HasColumnType("TEXT");
 
@@ -353,6 +365,16 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                         .HasMaxLength(3)
                         .HasColumnType("TEXT")
                         .IsFixedLength();
+
+                    b.Property<long>("ExchangeCreditMinor")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ExternalCardReference")
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsVoidReversal")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Method")
                         .IsRequired()
@@ -369,6 +391,9 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
 
                     b.Property<string>("ReceiptNumber")
                         .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ReplacementSaleId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("ShiftId")
@@ -556,6 +581,15 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                         .HasPrecision(5, 4)
                         .HasColumnType("TEXT")
                         .HasColumnName("MaxUnauthorisedDiscountRate");
+
+                    b.Property<long>("ExchangeCardCreditMinor")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("ExchangeCashCreditMinor")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("ExchangeRefundId")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ReceiptNumber")
                         .HasMaxLength(32)
@@ -1462,6 +1496,68 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                     b.ToTable("ReceiptDocuments", (string)null);
                 });
 
+            modelBuilder.Entity("RetailCore.Infrastructure.Sqlite.Foundation.ReturnPrintOutcomeRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DocumentJson")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ReturnPrintOutcomes", (string)null);
+                });
+
+            modelBuilder.Entity("RetailCore.Infrastructure.Sqlite.Foundation.ReturnPrintRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DocumentJson")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ShopId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocumentId");
+
+                    b.HasIndex("ShopId", "DocumentId");
+
+                    b.ToTable("ReturnPrintAttempts", (string)null);
+                });
+
+            modelBuilder.Entity("RetailCore.Infrastructure.Sqlite.Foundation.ReturnRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("OriginalSaleId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ResultJson")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("ShopId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OriginalSaleId");
+
+                    b.HasIndex("ShopId", "OriginalSaleId");
+
+                    b.ToTable("ReturnDocuments", (string)null);
+                });
+
             modelBuilder.Entity("RetailCore.Domain.Catalogue.Product", b =>
                 {
                     b.OwnsMany("RetailCore.Domain.Catalogue.ProductBarcode", "Barcodes", b1 =>
@@ -1683,6 +1779,33 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                     b.HasOne("RetailCore.Domain.Sales.Sale", null)
                         .WithOne()
                         .HasForeignKey("RetailCore.Infrastructure.Sqlite.Foundation.ReceiptRecord", "SaleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("RetailCore.Infrastructure.Sqlite.Foundation.ReturnPrintOutcomeRecord", b =>
+                {
+                    b.HasOne("RetailCore.Infrastructure.Sqlite.Foundation.ReturnPrintRecord", null)
+                        .WithOne()
+                        .HasForeignKey("RetailCore.Infrastructure.Sqlite.Foundation.ReturnPrintOutcomeRecord", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("RetailCore.Infrastructure.Sqlite.Foundation.ReturnPrintRecord", b =>
+                {
+                    b.HasOne("RetailCore.Infrastructure.Sqlite.Foundation.ReturnRecord", null)
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("RetailCore.Infrastructure.Sqlite.Foundation.ReturnRecord", b =>
+                {
+                    b.HasOne("RetailCore.Domain.Sales.Sale", null)
+                        .WithMany()
+                        .HasForeignKey("OriginalSaleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

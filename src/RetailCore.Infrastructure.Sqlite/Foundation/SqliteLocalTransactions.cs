@@ -204,6 +204,35 @@ public sealed class SqliteLocalTransactions(IServiceScopeFactory scopes) : ILoca
             context.Add(new PrintAttemptRecord(shop, attempt.Id, attempt.SaleId, JsonSerializer.Serialize(attempt)));
         public void AddPrintOutcome(RetailCore.Application.Receipts.PrintOutcome outcome) =>
             context.Add(new PrintOutcomeRecord(outcome.AttemptId, JsonSerializer.Serialize(outcome)));
+        public async Task<IReadOnlyList<RetailCore.Domain.Sales.Refund>> RefundsAsync(ShopId shop,SaleId original,CancellationToken ct)=>
+            await context.Refunds.IgnoreQueryFilters().Include(r=>r.Lines).Where(r=>r.ShopId==shop && r.OriginalSaleId==original && r.CompletedAt!=null).ToListAsync(ct).ConfigureAwait(false);
+        public void Add(RetailCore.Domain.Sales.Refund refund)=>context.Refunds.Add(refund);
+        public void AddReturn(ShopId shop,RetailCore.Application.Returns.ReturnResult result)=>context.Add(new ReturnRecord(shop,result.Id,result.OriginalSaleId,JsonSerializer.Serialize(result)));
+        public async Task<RetailCore.Application.Returns.ReturnResult?> ReturnAsync(ShopId shop,Guid id,CancellationToken ct)
+        {
+            var row=await context.Set<ReturnRecord>().SingleOrDefaultAsync(r=>r.ShopId==shop && r.Id==id,ct).ConfigureAwait(false);
+            return row is null?null:JsonSerializer.Deserialize<RetailCore.Application.Returns.ReturnResult>(row.ResultJson);
+        }
+        public async Task<IReadOnlyList<RetailCore.Application.Returns.ReturnResult>> ReturnsAsync(ShopId shop,Guid original,CancellationToken ct)
+        {
+            var rows=await context.Set<ReturnRecord>().Where(r=>r.ShopId==shop && r.OriginalSaleId==new SaleId(original)).ToListAsync(ct).ConfigureAwait(false);
+            return rows.Select(r=>JsonSerializer.Deserialize<RetailCore.Application.Returns.ReturnResult>(r.ResultJson)!).OrderByDescending(r=>r.Document.CompletedAt).ToArray();
+        }
+        public async Task<IReadOnlyList<RetailCore.Application.Receipts.PrintHistory>> ReturnPrintsAsync(ShopId shop,Guid id,CancellationToken ct)
+        {
+            var rows=await context.Set<ReturnPrintRecord>().Where(r=>r.ShopId==shop && r.DocumentId==id).ToListAsync(ct).ConfigureAwait(false);
+            var ids=rows.Select(r=>r.Id).ToArray();var outcomes=await context.Set<ReturnPrintOutcomeRecord>().Where(r=>ids.Contains(r.Id)).ToListAsync(ct).ConfigureAwait(false);
+            return rows.Select(r=>new RetailCore.Application.Receipts.PrintHistory(JsonSerializer.Deserialize<RetailCore.Application.Receipts.PrintAttempt>(r.DocumentJson)!,
+                outcomes.Where(o=>o.Id==r.Id).Select(o=>JsonSerializer.Deserialize<RetailCore.Application.Receipts.PrintOutcome>(o.DocumentJson)).SingleOrDefault())).ToArray();
+        }
+        public void AddReturnPrint(ShopId shop,RetailCore.Application.Receipts.PrintAttempt attempt)=>context.Add(new ReturnPrintRecord(shop,attempt.Id,attempt.SaleId,JsonSerializer.Serialize(attempt)));
+        public void AddReturnPrintOutcome(RetailCore.Application.Receipts.PrintOutcome outcome)=>context.Add(new ReturnPrintOutcomeRecord(outcome.AttemptId,JsonSerializer.Serialize(outcome)));
+        public async Task<RetailCore.Application.Receipts.PrintAttempt?> ReturnPrintAsync(ShopId shop,Guid id,CancellationToken ct)
+        {
+            var row=await context.Set<ReturnPrintRecord>().SingleOrDefaultAsync(r=>r.Id==id,ct).ConfigureAwait(false);
+            if(row is not null && row.ShopId!=shop)throw new FoundationException("PrintConflict");
+            return row is null?null:JsonSerializer.Deserialize<RetailCore.Application.Receipts.PrintAttempt>(row.DocumentJson);
+        }
         public void Add(Shop shop) => context.Shops.Add(shop);
         public void Add(Terminal terminal) => context.Terminals.Add(terminal);
         public void Add(User user) => context.Users.Add(user);

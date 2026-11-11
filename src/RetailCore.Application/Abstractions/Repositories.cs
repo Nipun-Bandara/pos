@@ -43,6 +43,7 @@ public interface IRefundRepository
         SaleId saleId,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyDictionary<SaleLineId,long>> RefundedAmountsAsync(SaleId saleId,CancellationToken cancellationToken=default);
     void Add(Refund refund);
 }
 

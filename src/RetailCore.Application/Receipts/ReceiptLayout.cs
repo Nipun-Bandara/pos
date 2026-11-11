@@ -19,6 +19,7 @@ public static class ReceiptLayout
     }
     public static IReadOnlyList<ReceiptRow> Build(ReceiptDocument d, bool copy, RetailCore.Domain.Sales.SaleStatus status = RetailCore.Domain.Sales.SaleStatus.Completed)
     {
+        if (d.Version == 3) return ReturnReceiptLayout.Build(d,copy);
         if (d.Version == 2) return SampleReceiptLayout.Build(d, copy, status);
         if (d.Version != 1) throw new InvalidOperationException("Unsupported receipt snapshot version.");
         string A(long minor) => Amount(minor, d.Currency);

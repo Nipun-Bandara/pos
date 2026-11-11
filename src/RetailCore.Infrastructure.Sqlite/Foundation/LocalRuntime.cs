@@ -30,6 +30,7 @@ public static class LocalRuntime
         services.AddSingleton<LocalSession>();
         services.AddSingleton<FoundationService>();
         services.AddSingleton<RetailCore.Application.Receipts.ReceiptService>();
+        services.AddSingleton<RetailCore.Application.Returns.ReturnService>();
         services.AddSingleton<RetailCore.Application.Checkout.BillingService>();
         services.AddSingleton<RetailCore.Application.Inventory.StockService>();
         services.AddSingleton<RetailCore.Application.Catalogue.CatalogueService>();

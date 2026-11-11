@@ -48,6 +48,15 @@ public interface ILocalStore
     Task<Guid> PrintShopAsync(Guid attemptId, CancellationToken ct);
     void AddPrintAttempt(ShopId shop, RetailCore.Application.Receipts.PrintAttempt attempt);
     void AddPrintOutcome(RetailCore.Application.Receipts.PrintOutcome outcome);
+    Task<IReadOnlyList<RetailCore.Domain.Sales.Refund>> RefundsAsync(ShopId shop, SaleId original, CancellationToken ct);
+    void Add(RetailCore.Domain.Sales.Refund refund);
+    void AddReturn(ShopId shop, RetailCore.Application.Returns.ReturnResult result);
+    Task<RetailCore.Application.Returns.ReturnResult?> ReturnAsync(ShopId shop, Guid id, CancellationToken ct);
+    Task<IReadOnlyList<RetailCore.Application.Returns.ReturnResult>> ReturnsAsync(ShopId shop, Guid original, CancellationToken ct);
+    Task<IReadOnlyList<RetailCore.Application.Receipts.PrintHistory>> ReturnPrintsAsync(ShopId shop, Guid id, CancellationToken ct);
+    void AddReturnPrint(ShopId shop, RetailCore.Application.Receipts.PrintAttempt attempt);
+    void AddReturnPrintOutcome(RetailCore.Application.Receipts.PrintOutcome outcome);
+    Task<RetailCore.Application.Receipts.PrintAttempt?> ReturnPrintAsync(ShopId shop, Guid id, CancellationToken ct);
     void Add(Shop shop);
     void Add(Terminal terminal);
     void Add(User user);

@@ -344,6 +344,18 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
                     b.Property<Guid>("AuthorisedBy")
                         .HasColumnType("uuid");
 
+                    b.Property<long?>("CardCreditMinor")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("CardPaidMinor")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("CashCreditMinor")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("CashPaidMinor")
+                        .HasColumnType("bigint");
+
                     b.Property<Guid>("CashierId")
                         .HasColumnType("uuid");
 
@@ -358,6 +370,16 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
                         .HasMaxLength(3)
                         .HasColumnType("character(3)")
                         .IsFixedLength();
+
+                    b.Property<long>("ExchangeCreditMinor")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ExternalCardReference")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<bool>("IsVoidReversal")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Method")
                         .IsRequired()
@@ -375,6 +397,9 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
                     b.Property<string>("ReceiptNumber")
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)");
+
+                    b.Property<Guid?>("ReplacementSaleId")
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("ShiftId")
                         .HasColumnType("uuid");
@@ -561,6 +586,15 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
                         .HasPrecision(5, 4)
                         .HasColumnType("numeric(5,4)")
                         .HasColumnName("MaxUnauthorisedDiscountRate");
+
+                    b.Property<long>("ExchangeCardCreditMinor")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ExchangeCashCreditMinor")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid?>("ExchangeRefundId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ReceiptNumber")
                         .HasMaxLength(32)

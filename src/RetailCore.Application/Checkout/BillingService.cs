@@ -190,6 +190,11 @@ public sealed class BillingService(ILocalTransactions transactions, FoundationSe
         }, cancellationToken);
     }
 
+    internal async Task<BillingState> WithinAsync(ILocalStore store, CancellationToken ct) =>
+        await StateAsync(store,await ContextAsync(store,ct).ConfigureAwait(false),ct).ConfigureAwait(false);
+    internal async Task<Sale> BuildWithinAsync(ILocalStore store, UserId owner, CancellationToken ct) =>
+        BuildSale(await ContextAsync(store,ct).ConfigureAwait(false),owner);
+
     private async Task<Context> ContextAsync(ILocalStore store, CancellationToken ct)
     {
         var actor = await foundation.RequireUserAsync(store, false, ct).ConfigureAwait(false);

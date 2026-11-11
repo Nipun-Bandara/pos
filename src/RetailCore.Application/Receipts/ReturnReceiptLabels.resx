@@ -1,0 +1,41 @@
+<root>
+  <data name="Return" xml:space="preserve">
+    <value>භාණ්ඩ ආපසු භාරගැනීම</value>
+  </data>
+  <data name="Exchange" xml:space="preserve">
+    <value>භාණ්ඩ හුවමාරුව</value>
+  </data>
+  <data name="Void" xml:space="preserve">
+    <value>අවලංගු කිරීමේ ප්‍රතිලේඛනය</value>
+  </data>
+  <data name="Original" xml:space="preserve">
+    <value>මුල් බිල්පත</value>
+  </data>
+  <data name="Replacement" xml:space="preserve">
+    <value>නව බිල්පත</value>
+  </data>
+  <data name="Reason" xml:space="preserve">
+    <value>හේතුව</value>
+  </data>
+  <data name="Saleable" xml:space="preserve">
+    <value>නැවත විකිණිය හැකි</value>
+  </data>
+  <data name="Damaged" xml:space="preserve">
+    <value>හානි වූ — තොගයට නොඑකතු කළ</value>
+  </data>
+  <data name="Credit" xml:space="preserve">
+    <value>මුල් බිලෙන් ආපසු ලැබිය යුතු වටිනාකම</value>
+  </data>
+  <data name="ReplacementTotal" xml:space="preserve">
+    <value>නව භාණ්ඩ එකතුව</value>
+  </data>
+  <data name="Collected" xml:space="preserve">
+    <value>අමතරව අයකළ මුදල</value>
+  </data>
+  <data name="CashRefund" xml:space="preserve">
+    <value>මුදලින් ආපසු ගෙවීම</value>
+  </data>
+  <data name="CardRefund" xml:space="preserve">
+    <value>බාහිර කාඩ්පත් ආපසු ගෙවීම</value>
+  </data>
+</root>

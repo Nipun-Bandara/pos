@@ -29,6 +29,7 @@ internal sealed class RefundConfiguration : IEntityTypeConfiguration<Refund>
             .IsFixedLength()
             .IsRequired();
 
+        builder.Property(r => r.ExternalCardReference).HasMaxLength(32);
         builder.Property(r => r.Reason).HasMaxLength(500).IsRequired();
         builder.Property(r => r.Method).HasConversion<string>().HasMaxLength(20).IsRequired();
 

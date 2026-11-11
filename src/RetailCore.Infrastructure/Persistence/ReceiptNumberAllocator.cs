@@ -21,7 +21,7 @@ public sealed class ReceiptNumberAllocator(RetailCoreDbContext context) : IRecei
         TerminalId terminalId,
         CancellationToken cancellationToken = default)
     {
-        var counter = await context.ReceiptCounters
+        var counter = context.ReceiptCounters.Local.FirstOrDefault(c => c.TerminalId == terminalId) ?? await context.ReceiptCounters
             .FirstOrDefaultAsync(c => c.TerminalId == terminalId, cancellationToken)
             .ConfigureAwait(false);
 
