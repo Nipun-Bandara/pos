@@ -86,7 +86,7 @@ Require an original bill. Load previously returned quantities and prevent excess
 Use original charged prices, including discounts; do not reprice the items the customer kept.
 Track actual prior refund amounts so repeated partial refunds cannot accumulate rounding
 errors or exceed what was collected. Record saleable vs damaged disposition; milestone 03 posting now respects that disposition.
-The actual return/exchange application workflow remains milestone 06.
+Milestone 06 now wires the actual return/exchange application workflow in source.
 
 An exchange links the original bill, a return, a replacement sale and the net settlement:
 replacement total minus return credit. Positive means collect, negative means refund, zero
@@ -203,3 +203,31 @@ calculates customer savings from original normal prices and line totals, excludi
 rounding. Xprinter 80 mm paper is known; exact driver/model and imageable width remain
 unverified. Preserve renderer versions when introducing another layout. Windows and physical acceptance remain gates; see
 [the milestone 05 validation record](docs/implementation/MILESTONE_05.md).
+
+## Milestone 06 return and exchange boundary
+
+`ReturnService` reloads the original sale, all completed refund quantities and actual amounts,
+the open shift and optional current Billing basket in one local write transaction. Original
+collected minor units (including original cash rounding) are apportioned over original lines.
+Partial returns use their original quantities/prices and final remainders use actual prior
+refund amounts. Cash refunds are exact minor units; additional cash collections use the
+configured increment and store their settlement rounding separately.
+
+Owner PIN grants bind a hash of the exact request and preview, including current prices and
+stock revisions. The transaction writes refund, optional replacement, explicit ExchangeCredit
+payment/source attribution, actual tender/refund amounts, receipt counters, converted stock,
+audit, immutable linked document/result and cleared basket together. Credit is fully applied
+or paid out; no customer balance is created. Source allocation handles multiple cash/card
+rows and follows exchange credit through a later return of replacement goods. Drawer totals
+use actual external movement and exclude exchange credit.
+
+Voids require the same open shift, no previous completed return and no replacement basket.
+Their full financial reversal and single SaleVoid stock reversal commit together. Application
+checks and new SQLite triggers prevent ordinary returns after void and void after return.
+Completed refund rows/lines and linked return/print records have immutability guards. New
+nullable settlement fields preserve the legacy Method/Total interpretation for old refunds.
+
+Version 3 Sinhala documents link original and replacement receipt numbers and reuse the
+Windows renderer/adapter. Separate append-only print attempts and outcomes keep printer
+retries outside financial writes. Windows runtime and physical validation remain outstanding;
+see [milestone 06 validation notes](docs/implementation/MILESTONE_06.md).
