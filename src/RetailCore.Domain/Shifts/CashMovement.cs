@@ -76,6 +76,8 @@ public sealed class CashMovement : Entity<CashMovementId>, IBelongsToShop
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(reason);
 
+        if (!Enum.IsDefined(kind)) throw new DomainException("Invalid cash movement kind.");
+
         if (!amount.IsPositive)
         {
             throw new DomainException("A cash movement must be more than zero.");

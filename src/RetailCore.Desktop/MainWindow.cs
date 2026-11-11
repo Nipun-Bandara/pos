@@ -201,7 +201,7 @@ public sealed partial class MainWindow : Window
         }
         else if (_vm.Section == "Reports")
         {
-            dock.Children.Add(BillHistoryView());
+            dock.Children.Add(TradingView());
         }
         else if (_vm.Section == "Settings" && _vm.IsOwner)
         {

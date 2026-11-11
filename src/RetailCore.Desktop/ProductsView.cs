@@ -11,6 +11,7 @@ namespace RetailCore.Desktop;
 
 public sealed partial class MainWindow
 {
+    private static readonly string[] ProductExportColumns=["Sku","SinhalaName","EnglishName","ReceiptName","Barcode","CurrentCategory","Cost","NormalPrice","PriceBands","StockBalance","Unit","BaseUnit"];
     private ScrollViewer ProductsView()
     {
         var data = _vm.CatalogueData!;
@@ -33,6 +34,20 @@ public sealed partial class MainWindow
         table.Columns.Add(new DataGridCheckBoxColumn { Header = Texts.Get("Active"), Binding = new Binding("Active"), SortMemberPath = "Active" });
         System.Windows.Automation.AutomationProperties.SetAutomationId(table, "ProductsTable");
         panel.Children.Add(table);
+        foreach(var (key,filtered,format,prices) in new[]{("ExportAllCSV",false,"CSV",false),("ExportFilteredCSV",true,"CSV",false),("ExportAllXLSX",false,"XLSX",false),("ExportFilteredXLSX",true,"XLSX",false),("PriceListPDF",true,"PDF",true)})
+            panel.Children.Add(Button(key,async()=>
+            {
+                var current=await _vm.Catalogue.LoadAsync(); // Recheck authentication and export the current saved catalogue.
+                var ids=filtered?view.Cast<ProductRow>().Select(p=>p.Product.Id).ToHashSet():current.Products.Select(p=>p.Product.Id).ToHashSet();
+                var rows=current.Products.Where(p=>ids.Contains(p.Product.Id)).Select(p=>prices
+                    ?new object?[]{p.Sku,p.Product.ReceiptName,p.Barcode,p.NormalPrice,p.Bands,Texts.Get("Unit"+p.Product.Unit)}
+                    :new object?[]{p.Sku,p.SinhalaName,p.EnglishName,p.Product.ReceiptName,p.Barcode,p.Category,p.Cost,p.NormalPrice,p.Bands,p.Stock,Texts.Get("Unit"+p.Product.Unit),Texts.Get("Unit"+p.StockUnit)}).ToArray();
+                var local=await _vm.Receipts.SettingsAsync();
+                var context=$"{Texts.Get("LocalDate")}: {local.Today:yyyy-MM-dd} · {current.Currency} · {Texts.Get(filtered?"FilteredProducts":"AllProducts")}: {(filtered?search.Text: string.Empty)}";
+                await SaveExportAsync(new RetailCore.Application.Reporting.ReportTable(Texts.Get(prices?"PriceListPDF":"Products"),context,
+                    prices?new[]{Texts.Get("Sku"),Texts.Get("ReceiptName"),Texts.Get("Barcode"),Texts.Get("NormalPrice"),Texts.Get("PriceBands"),Texts.Get("Unit")}:ProductExportColumns.Select(Texts.Get).ToArray(),rows),format);
+            }));
+
         panel.Children.Add(new TextBlock { Text = Texts.Get("CatalogueHelp"), TextWrapping = TextWrapping.Wrap });
         // Owners edit; every application command independently rechecks authority.
         var editor = new StackPanel { IsEnabled = _vm.IsOwner };

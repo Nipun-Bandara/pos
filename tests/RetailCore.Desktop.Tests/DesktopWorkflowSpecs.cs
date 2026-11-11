@@ -46,7 +46,7 @@ public sealed class DesktopWorkflowSpecs
         Texts.Use("en");
         var services = new ServiceCollection().AddLocalFoundation(Path.Combine(path, "till.db"));
         await using var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
-        var vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>(), provider.GetRequiredService<RetailCore.Application.Checkout.BillingService>(), provider.GetRequiredService<RetailCore.Application.Receipts.ReceiptService>(), provider.GetRequiredService<RetailCore.Application.Returns.ReturnService>());
+        var vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>(), provider.GetRequiredService<RetailCore.Application.Checkout.BillingService>(), provider.GetRequiredService<RetailCore.Application.Receipts.ReceiptService>(), provider.GetRequiredService<RetailCore.Application.Returns.ReturnService>(), provider.GetRequiredService<RetailCore.Application.Reporting.CashService>(), provider.GetRequiredService<RetailCore.Application.Reporting.ReportService>());
         var window = new MainWindow(vm);
         try
         {
@@ -104,7 +104,7 @@ public sealed class DesktopWorkflowSpecs
             var ownerId = vm.Current!.Id;
             window.Close();
             // Reopen the actual window and sign in against the same database with a new session.
-            vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>(), provider.GetRequiredService<RetailCore.Application.Checkout.BillingService>(), provider.GetRequiredService<RetailCore.Application.Receipts.ReceiptService>(), provider.GetRequiredService<RetailCore.Application.Returns.ReturnService>());
+            vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>(), provider.GetRequiredService<RetailCore.Application.Checkout.BillingService>(), provider.GetRequiredService<RetailCore.Application.Receipts.ReceiptService>(), provider.GetRequiredService<RetailCore.Application.Returns.ReturnService>(), provider.GetRequiredService<RetailCore.Application.Reporting.CashService>(), provider.GetRequiredService<RetailCore.Application.Reporting.ReportService>());
             window = new MainWindow(vm);
             window.Show();
             await UntilAsync(() => vm.Screen == "Login" && !vm.Busy);
@@ -134,6 +134,7 @@ public sealed class DesktopWorkflowSpecs
             Click(window, "Stock"); await UntilAsync(() => vm.Section == "Stock" && !vm.Busy);
             (await vm.Stock.LoadAsync()).Products.Single(p => p.Sku == "RICE").Balance.ShouldBe(47.50m);
             Capture(window, "stock-si.png");
+            await ExerciseReportsAsync(window,vm);
             Click(window, "SignOut");
             await UntilAsync(() => vm.Screen == "Login" && !vm.Busy);
             users = Find<ComboBox>(window, "LoginUser");
@@ -163,6 +164,20 @@ public sealed class DesktopWorkflowSpecs
             Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
             Directory.Delete(path, true);
         }
+    }
+
+    private static async Task ExerciseReportsAsync(Window window,MainViewModel vm)
+    {
+        Click(window,"Reports");await UntilAsync(()=>vm.Section=="Reports" && !vm.Busy);
+        var tabs=Descendants(window).OfType<TabControl>().Single();tabs.SelectedIndex=2;await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+        Find<ComboBox>(window,"ReportKind").SelectedIndex=0;Click(window,"LoadReport");await UntilAsync(()=>!vm.Busy);
+        Find<DataGrid>(window,"TradingReportTable").Items.Count.ShouldBe(1);Capture(window,"trading-report-si.png");
+        var table=new RetailCore.Application.Reporting.ReportTable("සිංහල වාර්තාව","2026-11-09 · Asia/Colombo · LKR",["කේතය","නම","මිල"],
+            Enumerable.Range(0,80).Select(i=>new object?[]{"001234", "තේ පැකට් සහ දිගු සිංහල භාණ්ඩ නම "+i,100.25m}).ToArray());
+        var bytes=ReportPdf.Render(table);System.Text.Encoding.ASCII.GetString(bytes.Take(8).ToArray()).ShouldBe("%PDF-1.4");
+        var directory=Path.Combine(AppContext.BaseDirectory,"artifacts");Directory.CreateDirectory(directory);File.WriteAllBytes(Path.Combine(directory,"sinhala-report.pdf"),bytes);
+        File.WriteAllBytes(Path.Combine(directory,"sinhala-report.xlsx"),RetailCore.Application.Reporting.TableExport.Xlsx(table));
+        File.WriteAllBytes(Path.Combine(directory,"sinhala-report.csv"),RetailCore.Application.Reporting.TableExport.Csv(table));
     }
 
     private static async Task ExerciseReturnsAsync(Window window,MainViewModel vm)

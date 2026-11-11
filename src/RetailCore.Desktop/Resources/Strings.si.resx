@@ -496,4 +496,312 @@
 <data name="CardRefundApprovalRequired" xml:space="preserve"><value>පෙන්වන නිශ්චිත කාඩ්පත් ආපසු ගෙවීම බාහිරව අනුමත කර සම්පූර්ණ කිරීමට පෙර තහවුරු කරන්න.</value></data>
 <data name="InsufficientDrawer" xml:space="preserve"><value>මෙම ආපසු ගෙවීමට විවෘත ලාච්චුවේ අපේක්ෂිත මුදල් ප්‍රමාණවත් නැත. ඉදිරියට යාමට පෙර ආරම්භක මුදල හා ලාච්චු මුදල් පරීක්ෂා කරන්න.</value></data>
 <data name="ReturnPrintHistory" xml:space="preserve"><value>යළි උත්සාහයට පෙර මුද්‍රණ උත්සාහ පරීක්ෂා කරන්න</value></data>
+<data name="TradingCash" xml:space="preserve">
+    <value>ලාච්චුවේ මුදල්</value>
+  </data>
+<data name="TradingCashHelp" xml:space="preserve">
+    <value>අපේක්ෂිත ශේෂය බැලීමට පෙර ගණන් කළ මුදල ඇතුළත් කරන්න. සෑම මුදල් මාරුවකටම හෝ වසා දැමීමකටම හේතුවක් සහ හිමිකරුගේ අනුමැතිය අවශ්‍යය.</value>
+  </data>
+<data name="CashCountOrAmount" xml:space="preserve">
+    <value>ගණන් කළ මුදල / මාරු කරන මුදල</value>
+  </data>
+<data name="CashPayIn" xml:space="preserve">
+    <value>මුදල් ඇතුළත් කිරීම</value>
+  </data>
+<data name="CashPayOut" xml:space="preserve">
+    <value>මුදල් පිටතට ගැනීම</value>
+  </data>
+<data name="CloseShift" xml:space="preserve">
+    <value>වැඩ මුරය වසන්න</value>
+  </data>
+<data name="TradingReports" xml:space="preserve">
+    <value>වෙළඳ වාර්තා</value>
+  </data>
+<data name="TradingReportHelp" xml:space="preserve">
+    <value>දේශීය දින දෙකම ඇතුළත් වේ. ආපසු භාරගැනීම් හා ප්‍රතිස්ථාපන එක් වරක් පමණක් ගණනය වේ; පියවීම් බාහිර මුදල් පමණි. දළ ලාභය මුල් පිරිවැය හා ආපසු භාරගත් ද්‍රව්‍යවල පිරිවැය ආපසු හැරවීම මත ඇස්තමේන්තුවකි. නාස්තිය වෙනමය. තොග අවසාන දිනට වන අතර වටිනාකම වත්මන් මූලික ඒකක පිරිවැයටය. පැරණි අලෙවියන්ගේ කාණ්ඩය නොදනී. කාණ්ඩ නාම වත්මන් නාමය. වැඩ මුර පේළි කාලය තුළ ඇරඹූ හෝ වැසූ සම්පූර්ණ මුර වේ.</value>
+  </data>
+<data name="TradingSales" xml:space="preserve">
+    <value>අලෙවි හා ඓතිහාසික ලාභය</value>
+  </data>
+<data name="TradingProducts" xml:space="preserve">
+    <value>භාණ්ඩ අලෙවි</value>
+  </data>
+<data name="TradingCategories" xml:space="preserve">
+    <value>කාණ්ඩ අලෙවි</value>
+  </data>
+<data name="TradingSettlement" xml:space="preserve">
+    <value>සැබෑ මුදල්/කාඩ් පියවීම්</value>
+  </data>
+<data name="TradingShifts" xml:space="preserve">
+    <value>වැඩ මුර සැසඳීම</value>
+  </data>
+<data name="TradingStock" xml:space="preserve">
+    <value>තොග ශේෂය හා වටිනාකම</value>
+  </data>
+<data name="TradingMovements" xml:space="preserve">
+    <value>තොග චලන ඉතිහාසය</value>
+  </data>
+<data name="TradingLowStock" xml:space="preserve">
+    <value>අඩු තොග</value>
+  </data>
+<data name="TradingAudit" xml:space="preserve">
+    <value>වරප්‍රසාදිත වෙනස්කම් ඉතිහාසය</value>
+  </data>
+<data name="GrossSales" xml:space="preserve">
+    <value>මුල් සාමාන්‍ය මිලට දළ අලෙවි</value>
+  </data>
+<data name="ExplicitDiscounts" xml:space="preserve">
+    <value>ප්‍රමාණ, අතින් දුන් හා සටහන් කළ වට්ටම්</value>
+  </data>
+<data name="ReturnedValue" xml:space="preserve">
+    <value>ආපසු භාරගත් වටිනාකම</value>
+  </data>
+<data name="NetSales" xml:space="preserve">
+    <value>බදු අඩු කිරීමට පෙර ශුද්ධ අලෙවි</value>
+  </data>
+<data name="NetTax" xml:space="preserve">
+    <value>ශුද්ධ බදු</value>
+  </data>
+<data name="HistoricalCost" xml:space="preserve">
+    <value>ආපසු භාරගැනීම් පසු මුල් පිරිවැය</value>
+  </data>
+<data name="EstimatedProfit" xml:space="preserve">
+    <value>ඇස්තමේන්තුගත දළ ලාභය</value>
+  </data>
+<data name="ReturnRounding" xml:space="preserve">
+    <value>ආපසු ගෙවූ මුදල් වටකිරීම</value>
+  </data>
+<data name="CurrentCategory" xml:space="preserve">
+    <value>කාණ්ඩය (වත්මන් නම)</value>
+  </data>
+<data name="SoldQuantity" xml:space="preserve">
+    <value>අලෙවි කළ ප්‍රමාණය</value>
+  </data>
+<data name="ReturnedQuantity" xml:space="preserve">
+    <value>ආපසු භාරගත් ප්‍රමාණය</value>
+  </data>
+<data name="CashCollected" xml:space="preserve">
+    <value>ලැබුණු මුදල් (ඉතිරි මුදල් ඉවත් කර)</value>
+  </data>
+<data name="CardCollected" xml:space="preserve">
+    <value>ලැබුණු කාඩ් මුදල්</value>
+  </data>
+<data name="CashRefunded" xml:space="preserve">
+    <value>ආපසු ගෙවූ මුදල්</value>
+  </data>
+<data name="CardRefunded" xml:space="preserve">
+    <value>බාහිර කාඩ් ආපසු ගෙවීම්</value>
+  </data>
+<data name="ExchangeCredit" xml:space="preserve">
+    <value>භාවිත කළ හුවමාරු බැර (මුදල් නොවේ)</value>
+  </data>
+<data name="NetDrawerMovement" xml:space="preserve">
+    <value>ශුද්ධ ලාච්චු චලනය</value>
+  </data>
+<data name="ShiftId" xml:space="preserve">
+    <value>වැඩ මුර යොමුව</value>
+  </data>
+<data name="OpenedLocal" xml:space="preserve">
+    <value>ඇරඹූ වේලාව (දේශීය)</value>
+  </data>
+<data name="ClosedLocal" xml:space="preserve">
+    <value>වැසූ වේලාව (දේශීය)</value>
+  </data>
+<data name="ExpectedCash" xml:space="preserve">
+    <value>අපේක්ෂිත මුදල්</value>
+  </data>
+<data name="CountedCash" xml:space="preserve">
+    <value>ගණන් කළ මුදල්</value>
+  </data>
+<data name="CashVariance" xml:space="preserve">
+    <value>ගණන් කළ මුදල හා අපේක්ෂිත මුදල අතර වෙනස</value>
+  </data>
+<data name="LocalDate" xml:space="preserve">
+    <value>දේශීය දිනය/වේලාව</value>
+  </data>
+<data name="AuditAction" xml:space="preserve">
+    <value>ක්‍රියාව</value>
+  </data>
+<data name="PerformedBy" xml:space="preserve">
+    <value>සිදු කළේ</value>
+  </data>
+<data name="EntityId" xml:space="preserve">
+    <value>වාර්තා යොමුව</value>
+  </data>
+<data name="MovementKind" xml:space="preserve">
+    <value>චලනය</value>
+  </data>
+<data name="RecordedUnitCost" xml:space="preserve">
+    <value>වත්මන් සටහන් කළ ඒකක පිරිවැය</value>
+  </data>
+<data name="EstimatedStockValue" xml:space="preserve">
+    <value>ඇස්තමේන්තුගත තොග වටිනාකම</value>
+  </data>
+<data name="LoadReport" xml:space="preserve">
+    <value>වාර්තාව පෙන්වන්න</value>
+  </data>
+<data name="ExportCSV" xml:space="preserve">
+    <value>CSV ගොනුවක් සුරකින්න</value>
+  </data>
+<data name="ExportXLSX" xml:space="preserve">
+    <value>Excel ගොනුවක් සුරකින්න</value>
+  </data>
+<data name="ExportPDF" xml:space="preserve">
+    <value>PDF ගොනුවක් සුරකින්න</value>
+  </data>
+<data name="ExportSaved" xml:space="preserve">
+    <value>ගොනුව සුරකින ලදී.</value>
+  </data>
+<data name="ReportPage" xml:space="preserve">
+    <value>පිටුව</value>
+  </data>
+<data name="ExportAllCSV" xml:space="preserve">
+    <value>සියලු භාණ්ඩ CSV වෙත</value>
+  </data>
+<data name="ExportFilteredCSV" xml:space="preserve">
+    <value>තේරූ භාණ්ඩ CSV වෙත</value>
+  </data>
+<data name="ExportAllXLSX" xml:space="preserve">
+    <value>සියලු භාණ්ඩ Excel වෙත</value>
+  </data>
+<data name="ExportFilteredXLSX" xml:space="preserve">
+    <value>තේරූ භාණ්ඩ Excel වෙත</value>
+  </data>
+<data name="PriceListPDF" xml:space="preserve">
+    <value>තේරූ PDF මිල ලැයිස්තුව</value>
+  </data>
+<data name="AllProducts" xml:space="preserve">
+    <value>සියලු භාණ්ඩ</value>
+  </data>
+<data name="FilteredProducts" xml:space="preserve">
+    <value>තේරූ භාණ්ඩ</value>
+  </data>
+<data name="InvalidCashCommand" xml:space="preserve">
+    <value>වලංගු මුදල් ගණනක් හෝ ධන මුදල් මාරුවක් සහ අකුරු 500කට නොවැඩි හේතුවක් ඇතුළත් කරන්න.</value>
+  </data>
+<data name="CashReviewChanged" xml:space="preserve">
+    <value>වැඩ මුරය හෝ ලාච්චු ශේෂය වෙනස් වී ඇත. නැවත පරීක්ෂා කර අනුමැතිය ලබාගන්න.</value>
+  </data>
+<data name="InsufficientDrawerCash" xml:space="preserve">
+    <value>මෙම මුදල පිටතට ගැනීමට ලාච්චුවේ අපේක්ෂිත මුදල ප්‍රමාණවත් නොවේ.</value>
+  </data>
+<data name="AuditSaleVoided" xml:space="preserve">
+    <value>අලෙවිය අවලංගු කළා</value>
+  </data>
+<data name="AuditSaleLineVoided" xml:space="preserve">
+    <value>පේළිය අවලංගු කළා</value>
+  </data>
+<data name="AuditDiscountGiven" xml:space="preserve">
+    <value>වට්ටම අනුමත කළා</value>
+  </data>
+<data name="AuditPriceOverridden" xml:space="preserve">
+    <value>මිල වෙනස් කළා</value>
+  </data>
+<data name="AuditRefundIssued" xml:space="preserve">
+    <value>ආපසු ගෙවූවා</value>
+  </data>
+<data name="AuditDrawerOpened" xml:space="preserve">
+    <value>ලාච්චුව ඇරියා</value>
+  </data>
+<data name="AuditCashMovementRecorded" xml:space="preserve">
+    <value>මුදල් මාරු කළා</value>
+  </data>
+<data name="AuditShiftOpened" xml:space="preserve">
+    <value>වැඩ මුරය ඇරඹුවා</value>
+  </data>
+<data name="AuditShiftClosed" xml:space="preserve">
+    <value>වැඩ මුරය වැසුවා</value>
+  </data>
+<data name="AuditStockAdjusted" xml:space="preserve">
+    <value>තොගය සකස් කළා</value>
+  </data>
+<data name="AuditUserSignedIn" xml:space="preserve">
+    <value>පිවිසුණා</value>
+  </data>
+<data name="AuditUserLockedOut" xml:space="preserve">
+    <value>පිවිසුම අවහිර කළා</value>
+  </data>
+<data name="AuditManagerOverrideUsed" xml:space="preserve">
+    <value>හිමිකරු අනුමැතිය භාවිත කළා</value>
+  </data>
+<data name="AuditProductPriceChanged" xml:space="preserve">
+    <value>භාණ්ඩ මිල වෙනස් කළා</value>
+  </data>
+<data name="AuditShopConfigured" xml:space="preserve">
+    <value>වෙළඳසැල සැකසුවා</value>
+  </data>
+<data name="AuditShopSettingsChanged" xml:space="preserve">
+    <value>වෙළඳසැල් සැකසුම් වෙනස් කළා</value>
+  </data>
+<data name="AuditUserChanged" xml:space="preserve">
+    <value>පරිශීලක වෙනස් කළා</value>
+  </data>
+<data name="AuditSessionLocked" xml:space="preserve">
+    <value>සැසිය අගුලු දැමුවා</value>
+  </data>
+<data name="AuditLanguageChanged" xml:space="preserve">
+    <value>භාෂාව වෙනස් කළා</value>
+  </data>
+<data name="AuditProductChanged" xml:space="preserve">
+    <value>භාණ්ඩය වෙනස් කළා</value>
+  </data>
+<data name="AuditCategoryChanged" xml:space="preserve">
+    <value>කාණ්ඩය වෙනස් කළා</value>
+  </data>
+<data name="AuditStockReceived" xml:space="preserve">
+    <value>තොගය ලැබුණා</value>
+  </data>
+<data name="AuditStockConfigurationChanged" xml:space="preserve">
+    <value>තොග සැකසුම් වෙනස් කළා</value>
+  </data>
+<data name="AuditStockCounted" xml:space="preserve">
+    <value>තොගය ගණන් කළා</value>
+  </data>
+<data name="AuditNegativeStockApproved" xml:space="preserve">
+    <value>ඍණ තොගය අනුමත කළා</value>
+  </data>
+<data name="AuditSaleCompleted" xml:space="preserve">
+    <value>අලෙවිය සම්පූර්ණ කළා</value>
+  </data>
+<data name="AuditReceiptPrintRequested" xml:space="preserve">
+    <value>මුද්‍රණය ඉල්ලුවා</value>
+  </data>
+<data name="AuditReceiptPrintFinished" xml:space="preserve">
+    <value>මුද්‍රණය අවසන් කළා</value>
+  </data>
+<data name="AuditReturnCompleted" xml:space="preserve">
+    <value>ආපසු භාරගැනීම/හුවමාරුව සම්පූර්ණ කළා</value>
+  </data>
+<data name="MovementSale" xml:space="preserve">
+    <value>අලෙවිය</value>
+  </data>
+<data name="MovementRefund" xml:space="preserve">
+    <value>ආපසු භාරගැනීම</value>
+  </data>
+<data name="MovementSaleVoided" xml:space="preserve">
+    <value>අවලංගු කිරීම ආපසු හැරවීම</value>
+  </data>
+<data name="MovementGoodsReceived" xml:space="preserve">
+    <value>තොග ලැබීම</value>
+  </data>
+<data name="MovementAdjustment" xml:space="preserve">
+    <value>සංශෝධනය</value>
+  </data>
+<data name="MovementWastage" xml:space="preserve">
+    <value>නාස්තිය</value>
+  </data>
+<data name="MovementStockTake" xml:space="preserve">
+    <value>තොග ගණනය</value>
+  </data>
+<data name="MovementTransfer" xml:space="preserve">
+    <value>මාරු කිරීම</value>
+  </data>
+<data name="MovementOpeningBalance" xml:space="preserve">
+    <value>ආරම්භක ශේෂය</value>
+  </data>
+<data name="UnclassifiedCategory" xml:space="preserve"><value>වර්ගීකරණය නොකළ (මුල් කාණ්ඩය නොදනී)</value></data>
+<data name="Reason" xml:space="preserve"><value>හේතුව</value></data>
+<data name="Reference" xml:space="preserve"><value>යොමුව</value></data>
+<data name="ReorderLevel" xml:space="preserve"><value>නැවත ඇණවුම් සීමාව</value></data>
+<data name="TradingCashHistory" xml:space="preserve"><value>මුදල් ඇතුළත්/පිටතට ගැනීම් ඉතිහාසය</value></data>
 </root>

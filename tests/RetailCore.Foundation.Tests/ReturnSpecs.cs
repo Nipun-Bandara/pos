@@ -101,6 +101,8 @@ public sealed partial class FoundationSpecs
             total+=(await Returns(f).CompleteAsync(r.Draft,r.Preview.Hash,r.Ticket)).CardPayoutMinor;
         }
         total.ShouldBe(5);(await Billing(f).LoadAsync()).Shift!.ExpectedCash.ShouldBe(0);
+        var report=(await Reports(f).LoadAsync("TradingSales",Day)).Rows.Single();report[2].ShouldBe(.05m);report[3].ShouldBe(0m);report[5].ShouldBe(0m);report[6].ShouldBe(0m);
+        (await Reports(f).LoadAsync("TradingSettlement",Day)).Rows.Single()[3].ShouldBe(.05m);
         (await Returns(f).LoadAsync(original)).Lines.Single().Remaining.ShouldBe(0);
     }
     [Fact]
@@ -108,6 +110,7 @@ public sealed partial class FoundationSpecs
     {
         await using var f=new LocalFixture();await f.SetupAsync();var p=await BillingProduct(f);await Billing(f).OpenShiftAsync(Guid.NewGuid(),1000);var original=await CompleteReceiptBill(f);
         var r=await ReviewReturn(f,(await FullReturn(f,original)) with{Void=true});var result=await Returns(f).CompleteAsync(r.Draft,r.Preview.Hash,r.Ticket);
+        var trading=(await Reports(f).LoadAsync("TradingSales",Day)).Rows.Single();trading[3].ShouldBe(0m);trading[5].ShouldBe(0m);
         result.IsVoid.ShouldBeTrue();result.CashPayoutMinor.ShouldBe(10000);(await Billing(f).LoadAsync()).Shift!.ExpectedCash.ShouldBe(1000);
         (await Stock(f).LoadAsync()).Products.Single(p2=>p2.Id==p).Balance.ShouldBe(100);
         await Returns(f).CompleteAsync(r.Draft,r.Preview.Hash,r.Ticket);

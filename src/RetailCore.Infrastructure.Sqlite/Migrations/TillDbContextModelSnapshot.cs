@@ -742,6 +742,9 @@ namespace RetailCore.Infrastructure.Sqlite.Migrations
                     b.Property<int?>("AppliedPriceBand")
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid?>("CategoryIdSnapshot")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(200)

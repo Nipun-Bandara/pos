@@ -13,6 +13,15 @@ public class ShiftSpecs
     private readonly TestShop _shop = new();
 
     [Fact]
+    public void Undefined_cash_movement_directions_are_rejected_without_changing_the_drawer()
+    {
+        var shift=OpenShift(100m);
+        Should.Throw<DomainException>(()=>shift.RecordCashMovement((CashMovementKind)999,_shop.Rupees(10),"reason",_shop.CashierId,TestShop.Now));
+        shift.CashMovements.ShouldBeEmpty();
+    }
+
+
+    [Fact]
     public void A_shift_opens_with_a_counted_float()
     {
         // CSH-01.

@@ -6,8 +6,10 @@ using RetailCore.Domain.Security;
 
 namespace RetailCore.Desktop;
 
-public sealed class MainViewModel(FoundationService service, LocalSession session, RetailCore.Application.Catalogue.CatalogueService catalogue, RetailCore.Application.Inventory.StockService stock, RetailCore.Application.Checkout.BillingService billing, RetailCore.Application.Receipts.ReceiptService receipts, RetailCore.Application.Returns.ReturnService returns) : INotifyPropertyChanged
+public sealed class MainViewModel(FoundationService service, LocalSession session, RetailCore.Application.Catalogue.CatalogueService catalogue, RetailCore.Application.Inventory.StockService stock, RetailCore.Application.Checkout.BillingService billing, RetailCore.Application.Receipts.ReceiptService receipts, RetailCore.Application.Returns.ReturnService returns, RetailCore.Application.Reporting.CashService cash, RetailCore.Application.Reporting.ReportService reports) : INotifyPropertyChanged
 {
+    public RetailCore.Application.Reporting.CashService Cash { get; } = cash;
+    public RetailCore.Application.Reporting.ReportService Reports { get; } = reports;
     public RetailCore.Application.Returns.ReturnService ReturnsService { get; } = returns;
     public RetailCore.Application.Returns.ReturnBill? ReturnBill { get; private set; }
     public async Task FindReturnBillAsync(string number)
