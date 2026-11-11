@@ -61,7 +61,8 @@ public class RefundSpecs
             _shop.ManagerId,
             PaymentMethod.Cash,
             TestShop.Now,
-            new Dictionary<SaleLineId, Quantity> { [lineId] = Quantity.Of(2) });
+            new Dictionary<SaleLineId, Quantity> { [lineId] = Quantity.Of(2) },
+            alreadyRefundedAmounts: new Dictionary<SaleLineId,long> { [lineId] = 20000 });
 
         Should.Throw<DomainException>(() => second.AddLine(lineId, Quantity.Of(2)));
 
@@ -92,14 +93,14 @@ public class RefundSpecs
     [Fact]
     public void Refunding_a_line_in_pieces_gives_back_exactly_what_was_paid()
     {
-        // Three units charged at 10.00 total do not divide evenly. Refunding one at a time
-        // must still return 10.00 in the end, not 9.99 or 10.01.
+        // The line is 9.99 and cash collected is 10.00 after rounding. Three returns
+        // must reverse the actual 10.00 collected, using recorded prior amounts.
         var sale = _shop.StartSale();
         var line = sale.AddLine(_shop.Item(3.33m), Quantity.Of(3), _shop.StandardVat);
         sale.AddCashPayment(_shop.Rupees(10.00m), TestShop.Now);
         sale.Complete(TestShop.NextReceipt(), TestShop.Now);
 
-        var charged = line.LineTotal;
+        var charged = sale.AmountSettled;
         var refundedSoFar = Money.Zero(TestShop.Currency);
         var quantityRefunded = Quantity.Zero;
 
@@ -113,7 +114,8 @@ public class RefundSpecs
                 _shop.ManagerId,
                 PaymentMethod.Cash,
                 TestShop.Now,
-                new Dictionary<SaleLineId, Quantity> { [line.Id] = quantityRefunded });
+                new Dictionary<SaleLineId, Quantity> { [line.Id] = quantityRefunded },
+                alreadyRefundedAmounts: new Dictionary<SaleLineId,long> { [line.Id] = refundedSoFar.MinorUnits });
 
             refund.AddLine(line.Id, Quantity.One);
             refundedSoFar += refund.Total;

@@ -1,4 +1,5 @@
 using RetailCore.Domain.Common;
+using RetailCore.Domain.Catalogue;
 using RetailCore.Domain.Monetary;
 
 namespace RetailCore.Domain.Sales;
@@ -24,6 +25,26 @@ public sealed class Refund : AggregateRoot<RefundId>, IBelongsToShop
     private readonly List<RefundLine> _lines = [];
     private readonly Sale? _originalSale;
     private readonly Dictionary<SaleLineId, Quantity> _alreadyRefunded = [];
+    private readonly Dictionary<SaleLineId, long> _alreadyAmounts = [];
+    public long? CashCreditMinor { get; private set; }
+    public long? CardCreditMinor { get; private set; }
+    public long? CashPaidMinor { get; private set; }
+    public long? CardPaidMinor { get; private set; }
+    public long ExchangeCreditMinor { get; private set; }
+    public SaleId? ReplacementSaleId { get; private set; }
+    public bool IsVoidReversal { get; private set; }
+    public string? ExternalCardReference { get; private set; }
+
+    public void SetSettlement(long cashCredit, long cardCredit, long cashPaid, long cardPaid, SaleId? replacement, string? externalReference)
+    {
+        RequireOpen();
+        if (cashCredit < 0 || cardCredit < 0 || cashPaid < 0 || cardPaid < 0 || cashPaid > cashCredit || cardPaid > cardCredit
+            || checked(cashCredit+cardCredit) != Total.MinorUnits || (checked(cashPaid+cardPaid)<Total.MinorUnits && replacement is null) || !global::RetailCore.Domain.Sales.ExternalCardReference.IsValid(externalReference))
+            throw new DomainException("InvalidReturnSettlement");
+        Method=cashCredit==0 && cardCredit>0?PaymentMethod.Card:PaymentMethod.Cash;
+        CashCreditMinor=cashCredit; CardCreditMinor=cardCredit; CashPaidMinor=cashPaid; CardPaidMinor=cardPaid;
+        ExchangeCreditMinor=checked(Total.MinorUnits-cashPaid-cardPaid); ReplacementSaleId=replacement; ExternalCardReference=externalReference;
+    }
 
     private Refund(
         RefundId id,
@@ -121,7 +142,7 @@ public sealed class Refund : AggregateRoot<RefundId>, IBelongsToShop
         PaymentMethod method,
         DateTimeOffset createdAt,
         IReadOnlyDictionary<SaleLineId, Quantity>? alreadyRefunded = null,
-        RefundId? id = null)
+        RefundId? id = null, IReadOnlyDictionary<SaleLineId, long>? alreadyRefundedAmounts = null)
     {
         ArgumentNullException.ThrowIfNull(originalSale);
         ArgumentException.ThrowIfNullOrWhiteSpace(reason);
@@ -132,7 +153,7 @@ public sealed class Refund : AggregateRoot<RefundId>, IBelongsToShop
                 $"Receipt {originalSale.ReceiptNumber} is {originalSale.Status}, so it cannot be refunded.");
         }
 
-        return new Refund(
+        var refund = new Refund(
             id ?? RefundId.New(),
             originalSale,
             shiftId,
@@ -142,6 +163,19 @@ public sealed class Refund : AggregateRoot<RefundId>, IBelongsToShop
             method,
             createdAt,
             alreadyRefunded ?? new Dictionary<SaleLineId, Quantity>());
+        var entitlements = ReturnAmounts.Entitlements(originalSale);
+        foreach (var (line, quantity) in refund._alreadyRefunded)
+        {
+            if (quantity.Thousandths < 0 || !entitlements.ContainsKey(line)) throw new DomainException("InvalidReturnHistory");
+            if (quantity.IsPositive && (alreadyRefundedAmounts is null || !alreadyRefundedAmounts.ContainsKey(line)))
+                throw new DomainException("ActualRefundAmountsRequired");
+        }
+        foreach (var (line, amount) in alreadyRefundedAmounts ?? new Dictionary<SaleLineId,long>())
+        {
+            if (amount < 0 || !entitlements.TryGetValue(line,out var cap) || amount > cap) throw new DomainException("InvalidReturnHistory");
+            refund._alreadyAmounts[line]=amount;
+        }
+        return refund;
     }
 
     /// <summary>
@@ -187,7 +221,10 @@ public sealed class Refund : AggregateRoot<RefundId>, IBelongsToShop
                 $"Only {remaining} of '{originalLine.Description}' is left to refund, but {quantity} was asked for.");
         }
 
-        var amount = AmountFor(originalLine, quantity, remaining, previouslyRefunded);
+        if (!originalLine.Unit.AllowsFractionalQuantity() && !quantity.IsWholeUnits) throw new DomainException("InvalidReturnQuantity");
+        var cap = ReturnAmounts.Entitlements(sale)[originalLine.Id];
+        var left = checked(cap - _alreadyAmounts.GetValueOrDefault(originalLineId));
+        var amount = Money.FromMinor(quantity == remaining ? left : Math.Min(left,ReturnAmounts.Share(cap,quantity.Thousandths,originalLine.Quantity.Thousandths)),sale.Currency);
         var line = RefundLine.Create(Id, ShopId, originalLine, quantity, amount, disposition: disposition);
 
         _lines.Add(line);
@@ -218,6 +255,8 @@ public sealed class Refund : AggregateRoot<RefundId>, IBelongsToShop
             throw new DomainException("There is nothing on this refund.");
         }
 
+        if (CashCreditMinor is { } cash && (checked(cash+CardCreditMinor!.Value)!=Total.MinorUnits
+            || checked(CashPaidMinor!.Value+CardPaidMinor!.Value+ExchangeCreditMinor)!=Total.MinorUnits)) throw new DomainException("InvalidReturnSettlement");
         ReceiptNumber = receiptNumber;
         CompletedAt = at;
 
@@ -231,41 +270,20 @@ public sealed class Refund : AggregateRoot<RefundId>, IBelongsToShop
             Total,
             Reason,
             AuthorisedBy,
-            [.. _lines.Select(l => new SoldItem(l.ProductId, l.Quantity, l.StockProductId, l.StockFactorThousandths,
+            IsVoidReversal ? [] : [.. _lines.Select(l => new SoldItem(l.ProductId, l.Quantity, l.StockProductId, l.StockFactorThousandths,
                 l.StockBaseUnit ?? RetailCore.Domain.Catalogue.UnitOfMeasure.Each,
                 l.CostCurrency is null ? null : Money.FromMinor(l.UnitCostMinor, Monetary.Currency.FromCode(l.CostCurrency)),
                 l.Disposition == ReturnDisposition.Saleable))],
             at));
     }
 
-    /// <summary>
-    /// What to give back for part of a line.
-    /// </summary>
-    /// <remarks>
-    /// Pro-rated from the amount actually charged, so discounts carry through. The final
-    /// outstanding quantity gets whatever is left rather than its own rounded share, which
-    /// guarantees that refunding a line in pieces returns exactly what was paid for it and
-    /// never a minor unit more or less. RET-03.
-    /// </remarks>
-    private static Money AmountFor(
-        SaleLine originalLine,
-        Quantity quantity,
-        Quantity remaining,
-        Quantity previouslyRefunded)
+    public void CompleteVoidReversal(Sale original, ReceiptNumber receiptNumber, DateTimeOffset at)
     {
-        var lineTotal = originalLine.LineTotal;
-
-        if (quantity == remaining)
-        {
-            // Refunding everything that is left: hand back the charge less what has gone already.
-            var alreadyGivenBack = previouslyRefunded.IsZero
-                ? Money.Zero(lineTotal.Currency)
-                : lineTotal.MultiplyBy(previouslyRefunded.Value / originalLine.Quantity.Value);
-
-            return lineTotal - alreadyGivenBack;
-        }
-
-        return lineTotal.MultiplyBy(quantity.Value / originalLine.Quantity.Value);
+        if (original.Id != OriginalSaleId || original.Status != SaleStatus.Voided || Total != original.AmountSettled
+            || _alreadyRefunded.Values.Any(q => q.IsPositive)
+            || _lines.Count != original.ActiveLines.Count() || _lines.Any(l => l.Quantity != original.Lines.Single(o => o.Id == l.OriginalSaleLineId).Quantity))
+            throw new DomainException("VoidNotEligible");
+        IsVoidReversal=true; Complete(receiptNumber,at);
     }
 
     private void Recalculate()

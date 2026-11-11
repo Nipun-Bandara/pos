@@ -75,6 +75,9 @@ public sealed class RefundRepository(RetailCoreDbContext context) : IRefundRepos
         return rows.ToDictionary(r => r.LineId, r => Quantity.FromThousandths(r.Thousandths));
     }
 
+    public async Task<IReadOnlyDictionary<SaleLineId,long>> RefundedAmountsAsync(SaleId saleId,CancellationToken cancellationToken=default) =>
+        await context.Refunds.Where(r=>r.OriginalSaleId==saleId && r.CompletedAt!=null).SelectMany(r=>r.Lines).GroupBy(l=>l.OriginalSaleLineId)
+            .Select(g=>new{Id=g.Key,Minor=g.Sum(l=>l.Amount.MinorUnits)}).ToDictionaryAsync(r=>r.Id,r=>r.Minor,cancellationToken).ConfigureAwait(false);
     public void Add(Refund refund) => context.Refunds.Add(refund);
 }
 
@@ -167,7 +170,9 @@ public sealed class ShiftRepository(RetailCoreDbContext context) : IShiftReposit
         var completedSales = context.Sales
             .Where(s => s.ShiftId == shiftId && s.Status == SaleStatus.Completed);
 
-        var tenders = await completedSales
+        var monetarySales = context.Sales.Where(s => s.ShiftId == shiftId && (s.Status == SaleStatus.Completed
+            || (s.Status == SaleStatus.Voided && context.Refunds.Any(r => r.OriginalSaleId == s.Id && r.IsVoidReversal && r.CompletedAt != null))));
+        var tenders = await monetarySales
             .SelectMany(s => s.Payments)
             .GroupBy(p => p.Method)
             .Select(g => new { Method = g.Key, Minor = g.Sum(p => p.Amount.MinorUnits) })
@@ -176,12 +181,11 @@ public sealed class ShiftRepository(RetailCoreDbContext context) : IShiftReposit
 
         // Payment.Amount already excludes change. Tendered minus change equals Amount.
         var cashSales = tenders.Where(t => t.Method == PaymentMethod.Cash).Sum(t => t.Minor);
-        var nonCashSales = tenders.Where(t => t.Method != PaymentMethod.Cash).Sum(t => t.Minor);
+        var nonCashSales = tenders.Where(t => t.Method is not (PaymentMethod.Cash or PaymentMethod.ExchangeCredit)).Sum(t => t.Minor);
 
         var refunds = await context.Refunds
             .Where(r => r.ShiftId == shiftId && r.CompletedAt != null)
-            .GroupBy(r => r.Method)
-            .Select(g => new { Method = g.Key, Minor = g.Sum(r => r.Total.MinorUnits) })
+            .Select(r => new { r.Method, Minor = r.Total.MinorUnits, r.CashPaidMinor, r.CardPaidMinor })
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
@@ -202,9 +206,9 @@ public sealed class ShiftRepository(RetailCoreDbContext context) : IShiftReposit
 
         return new ShiftSalesSummary(
             Money.FromMinor(cashSales, currency),
-            Money.FromMinor(refunds.Where(r => r.Method == PaymentMethod.Cash).Sum(r => r.Minor), currency),
+            Money.FromMinor(refunds.Sum(r => r.CashPaidMinor ?? (r.Method == PaymentMethod.Cash ? r.Minor : 0)), currency),
             Money.FromMinor(nonCashSales, currency),
-            Money.FromMinor(refunds.Where(r => r.Method != PaymentMethod.Cash).Sum(r => r.Minor), currency),
+            Money.FromMinor(refunds.Sum(r => r.CardPaidMinor ?? (r.Method != PaymentMethod.Cash ? r.Minor : 0)), currency),
             saleCount,
             refundCount,
             Money.FromMinor(totals.Sum(t => t.MinorUnits), currency),

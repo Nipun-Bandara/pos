@@ -51,6 +51,7 @@ public enum AuditAction
     SaleCompleted = 25,
     ReceiptPrintRequested = 26,
     ReceiptPrintFinished = 27,
+    ReturnCompleted = 28,
 }
 
 /// <summary>

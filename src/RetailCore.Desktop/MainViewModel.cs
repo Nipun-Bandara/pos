@@ -6,8 +6,19 @@ using RetailCore.Domain.Security;
 
 namespace RetailCore.Desktop;
 
-public sealed class MainViewModel(FoundationService service, LocalSession session, RetailCore.Application.Catalogue.CatalogueService catalogue, RetailCore.Application.Inventory.StockService stock, RetailCore.Application.Checkout.BillingService billing, RetailCore.Application.Receipts.ReceiptService receipts) : INotifyPropertyChanged
+public sealed class MainViewModel(FoundationService service, LocalSession session, RetailCore.Application.Catalogue.CatalogueService catalogue, RetailCore.Application.Inventory.StockService stock, RetailCore.Application.Checkout.BillingService billing, RetailCore.Application.Receipts.ReceiptService receipts, RetailCore.Application.Returns.ReturnService returns) : INotifyPropertyChanged
 {
+    public RetailCore.Application.Returns.ReturnService ReturnsService { get; } = returns;
+    public RetailCore.Application.Returns.ReturnBill? ReturnBill { get; private set; }
+    public async Task FindReturnBillAsync(string number)
+    {
+        ReturnBill=await ReturnsService.FindAsync(number);Approvers=await Service.ApproversAsync();Notify(nameof(Screen));
+    }
+    public async Task RefreshReturnBillAsync()
+    {
+        if(ReturnBill is not null)ReturnBill=await ReturnsService.LoadAsync(ReturnBill.Id);
+        Notify(nameof(Screen));
+    }
     public RetailCore.Application.Receipts.ReceiptService Receipts { get; } = receipts;
     public IReadOnlyList<RetailCore.Application.Receipts.BillSummary> Bills { get; private set; } = [];
     public RetailCore.Application.Receipts.BillDetail? SelectedBill { get; private set; }
@@ -94,6 +105,7 @@ public sealed class MainViewModel(FoundationService service, LocalSession sessio
             Users = await Service.UsersAsync();
         }
 
+        if (section == "Returns") Approvers = await Service.ApproversAsync();
         if (section == "Billing") { BillingState = await Billing.LoadAsync(); Approvers = await Service.ApproversAsync(); }
         if (section == "Reports")
         {
@@ -129,7 +141,7 @@ public sealed class MainViewModel(FoundationService service, LocalSession sessio
         if (Current is null || Session.IsLocked) { return; }
         Service.Lock();
         BillingState = null;
-        Bills = []; SelectedBill = null; ReceiptSettings = null;
+        Bills = []; SelectedBill = null; ReceiptSettings = null; ReturnBill = null;
         Approvers = [];
         StockData = null;
         CatalogueData = null;
@@ -146,7 +158,7 @@ public sealed class MainViewModel(FoundationService service, LocalSession sessio
         Service.SignOut();
         Current = null;
         BillingState = null;
-        Bills = []; SelectedBill = null; ReceiptSettings = null;
+        Bills = []; SelectedBill = null; ReceiptSettings = null; ReturnBill = null;
         Approvers = [];
         StockData = null;
         CatalogueData = null;

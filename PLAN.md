@@ -36,8 +36,10 @@ Billing, opening float, historical snapshots and atomic stock/payment settlement
 Windows acceptance is pending. See [validation notes](docs/implementation/MILESTONE_04.md).
 Milestone 05 adds saved-bill lookup, original receipt snapshots and provisional Sinhala
 preview/print/retry in source, now using the supplied sample as version 2; Windows runtime and physical printer acceptance
-are outstanding. See [validation notes](docs/implementation/MILESTONE_05.md). Exchange workflows
-and backup/export remain unimplemented. Tenant/outbox infrastructure is legacy
+are outstanding. See [validation notes](docs/implementation/MILESTONE_05.md). Milestone 06 adds
+partial returns, eligible voids, atomic exchanges and linked Sinhala documents in source;
+Windows and physical acceptance remain pending. See [validation notes](docs/implementation/MILESTONE_06.md).
+Backup/export and close-day/reporting screens remain later milestones. Tenant/outbox infrastructure is legacy
 scope. Earlier documents reported passing tests; current build/test status must be verified
 in the implementation environment rather than carried forward as a guarantee.
 

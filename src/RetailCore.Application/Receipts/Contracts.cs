@@ -13,13 +13,31 @@ public sealed record ReceiptDocument(int Version, Guid SaleId, string Number, Da
     string LocalTime, string TimeZone, string ShopName, string? Address, string? Telephone, string? TaxRegistration,
     string? Footer, string Cashier, string Currency, IReadOnlyList<ReceiptLine> Lines,
     IReadOnlyList<ReceiptPayment> Payments, long GrossMinor, long DiscountMinor, long NetMinor, long TaxMinor,
-    long TotalMinor, long RoundingMinor, long PaidMinor, long ChangeMinor, bool LegacyHeader)
+    long TotalMinor, long RoundingMinor, long PaidMinor, long ChangeMinor, bool LegacyHeader,
+    string Kind = "Sale", string? OriginalNumber = null, string? ReplacementNumber = null, long ReturnCreditMinor = 0,
+    long CashPayoutMinor = 0, long CardPayoutMinor = 0, string? Reason = null,
+    IReadOnlyList<RetailCore.Application.Returns.ReceiptReturnLine>? Returned = null)
 {
     public static string TemplateFor(int version) => version switch
     {
-        1 => "provisional-si-v1", 2 => "owner-sample-si-v2",
+        1 => "provisional-si-v1", 2 => "owner-sample-si-v2", 3 => "return-exchange-si-v3",
         _ => throw new InvalidOperationException("Unsupported receipt snapshot version."),
     };
+    public static ReceiptDocument ForReturn(Guid id,string number,Sale original,Shop shop,string actor,DateTimeOffset at,
+        Refund refund,Sale? replacement,long collected,long rounding,long tendered,long change)
+    {
+        var header=Capture(original,shop,actor);
+        var local=TimeZoneInfo.ConvertTime(at,TimeZoneInfo.FindSystemTimeZoneById(shop.TimeZoneId));
+        return header with { Version=3,SaleId=id,Number=number,CompletedAt=at,LocalTime=local.ToString("yyyy-MM-dd HH:mm:ss zzz",System.Globalization.CultureInfo.InvariantCulture),
+            Lines=replacement is null?[]:Capture(replacement,shop,actor).Lines,Payments=replacement is null?[]:Capture(replacement,shop,actor).Payments,
+            GrossMinor=replacement?.GrossAmount.MinorUnits??0,NetMinor=replacement?.NetTotal.MinorUnits??0,TaxMinor=replacement?.TaxTotal.MinorUnits??0,
+            TotalMinor=replacement?.Total.MinorUnits??0,DiscountMinor=replacement?.DiscountTotal.MinorUnits??0,
+            RoundingMinor=rounding,PaidMinor=collected,ChangeMinor=change,Kind=refund.IsVoidReversal?"Void":replacement is null?"Return":"Exchange",
+            OriginalNumber=original.ReceiptNumber!.Value.ToString(),ReplacementNumber=replacement?.ReceiptNumber?.ToString(),ReturnCreditMinor=refund.Total.MinorUnits,
+            CashPayoutMinor=refund.CashPaidMinor??0,CardPayoutMinor=refund.CardPaidMinor??0,Reason=refund.Reason,
+            Returned=refund.Lines.Select(l=>new RetailCore.Application.Returns.ReceiptReturnLine(original.Lines.Single(o=>o.Id==l.OriginalSaleLineId).ReceiptNameSnapshot??l.Description,
+                l.Quantity.Thousandths,ReceiptLayout.Label("Unit"+original.Lines.Single(o=>o.Id==l.OriginalSaleLineId).Unit),l.Amount.MinorUnits,l.Disposition==ReturnDisposition.Saleable)).ToArray() };
+    }
     public static ReceiptDocument Capture(Sale sale, Shop shop, string cashier, bool legacy = false)
     {
         if (sale.ReceiptNumber is null || sale.CompletedAt is null || sale.IsEditable)
@@ -46,7 +64,8 @@ public sealed record PrintAttempt(Guid Id, Guid SaleId, Guid ActorId, DateTimeOf
     int PrintableWidthMillimeters, bool IsCopy, string DocumentHash);
 public sealed record PrintOutcome(Guid AttemptId, DateTimeOffset At, string Status);
 public sealed record PrintHistory(PrintAttempt Attempt, PrintOutcome? Outcome);
-public sealed record BillDetail(ReceiptDocument Receipt, SaleStatus Status, IReadOnlyList<PrintHistory> Prints);
+public sealed record BillDetail(ReceiptDocument Receipt, SaleStatus Status, IReadOnlyList<PrintHistory> Prints, IReadOnlyList<RetailCore.Application.Returns.ReturnResult>? Returns = null);
+public sealed record ReturnPrintInfo(ReceiptDocument Document,IReadOnlyList<PrintHistory> Prints);
 public sealed record PrintPayload(ReceiptDocument Receipt, PrintAttempt Attempt, SaleStatus Status);
 public sealed record ReceiptSettings(int PrintableWidthMillimeters, string? Printer, DateOnly Today);
 public sealed record PrintResult(Guid AttemptId, string Status);

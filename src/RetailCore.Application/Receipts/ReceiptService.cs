@@ -52,7 +52,7 @@ public sealed class ReceiptService(ILocalTransactions transactions, FoundationSe
                 receipt = ReceiptDocument.Capture(sale, shop, users.SingleOrDefault(u => u.Id == sale.CashierId)?.DisplayName ?? "", true);
                 store.AddReceipt(shop.Id, receipt);
             }
-            return new BillDetail(receipt, sale.Status, await store.PrintsAsync(shop.Id, sale.Id.Value, ct).ConfigureAwait(false));
+            return new BillDetail(receipt, sale.Status, await store.PrintsAsync(shop.Id, sale.Id.Value, ct).ConfigureAwait(false),await store.ReturnsAsync(shop.Id,sale.Id.Value,ct).ConfigureAwait(false));
         }, cancellationToken);
 
     public async Task<PrintResult> PrintAsync(Guid saleId, Guid attemptId, IReceiptPrinter printer, CancellationToken cancellationToken = default)
@@ -111,6 +111,61 @@ public sealed class ReceiptService(ILocalTransactions transactions, FoundationSe
             return true;
         }, CancellationToken.None).ConfigureAwait(false);
         return new PrintResult(attemptId, status);
+    }
+
+    public Task<ReturnPrintInfo> ReturnInfoAsync(Guid id,CancellationToken cancellationToken=default)=>transactions.ReadAsync(async(store,ct)=>
+    {
+        var actor=await foundation.RequireUserAsync(store,false,ct).ConfigureAwait(false);
+        var result=await store.ReturnAsync(actor.ShopId,id,ct).ConfigureAwait(false)??throw new FoundationException("BillNotFound");
+        return new ReturnPrintInfo(result.Document,await store.ReturnPrintsAsync(actor.ShopId,id,ct).ConfigureAwait(false));
+    },cancellationToken);
+    public async Task<PrintResult> PrintReturnAsync(Guid id,Guid attemptId,IReceiptPrinter printer,CancellationToken cancellationToken=default)
+    {
+        if(attemptId==Guid.Empty)throw new FoundationException("PrintConflict");
+        var version=session.Version;
+        var payload=await transactions.WriteAsync(async(store,ct)=>
+        {
+            var actor=await foundation.RequireUserAsync(store,false,ct).ConfigureAwait(false);
+            if(session.Version!=version)throw new FoundationException("SignInRequired");
+            var result=await store.ReturnAsync(actor.ShopId,id,ct).ConfigureAwait(false)??throw new FoundationException("BillNotFound");
+            var prior=await store.ReturnPrintAsync(actor.ShopId,attemptId,ct).ConfigureAwait(false);
+            if(prior is not null)
+            {
+                if(prior.SaleId!=id || prior.ActorId!=actor.Id.Value)throw new FoundationException("PrintConflict");
+                return (PrintPayload?)null;
+            }
+            var shop=(await store.ShopsAsync(ct).ConfigureAwait(false)).Single();
+            if(string.IsNullOrWhiteSpace(shop.PrinterName))throw new FoundationException("PrinterNotConfigured");
+            _=BillBarcode.Encode(result.Number);
+            var history=await store.ReturnPrintsAsync(shop.Id,id,ct).ConfigureAwait(false);
+            var hash=Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(result.Document))));
+            var attempt=new PrintAttempt(attemptId,id,actor.Id.Value,clock.UtcNow,shop.PrinterName,shop.PaperWidthMillimeters,history.Count>0,hash);
+            store.AddReturnPrint(shop.Id,attempt);
+            store.Audit(AuditEntry.Record(shop.Id,AuditAction.ReceiptPrintRequested,"Return",id,clock.UtcNow,actor.Id,
+                detailsJson:JsonSerializer.Serialize(new {attempt.Id,attempt.IsCopy,attempt.Printer,hash})));
+            return new PrintPayload(result.Document,attempt,SaleStatus.Completed);
+        },cancellationToken).ConfigureAwait(false);
+        if(payload is null)return new(attemptId,"PrintAlreadyRequested");
+        string status;
+        try
+        {
+            await transactions.ReadAsync(async(store,ct)=>
+            {
+                await foundation.RequireUserAsync(store,false,ct).ConfigureAwait(false);
+                if(session.Version!=version)throw new FoundationException("SignInRequired");return true;
+            },cancellationToken).ConfigureAwait(false);
+            await printer.SendAsync(payload,cancellationToken).ConfigureAwait(false);status="PrintSpoolAccepted";
+        }
+        catch(FoundationException ex)when(ex.Key=="PrinterWidthUnsupported"){status=ex.Key;}
+        catch(Exception){status="PrintFailed";}
+        await transactions.WriteAsync(async(store,ct)=>
+        {
+            var shop=(await store.ShopsAsync(ct).ConfigureAwait(false)).Single();
+            store.AddReturnPrintOutcome(new(attemptId,clock.UtcNow,status));
+            store.Audit(AuditEntry.Record(shop.Id,AuditAction.ReceiptPrintFinished,"Return",id,clock.UtcNow,new UserId(payload.Attempt.ActorId),
+                detailsJson:JsonSerializer.Serialize(new {attemptId,status})));return true;
+        },CancellationToken.None).ConfigureAwait(false);
+        return new(attemptId,status);
     }
 
     private static string Normalize(string number)

@@ -79,7 +79,7 @@ of four bands; additional bands are not required for version 1.
 
 Milestone 03 implements receiving, conversions, counts, history and guarded posting in source.
 Windows runtime acceptance remains pending; see [validation notes](docs/implementation/MILESTONE_03.md).
-Billing completion and actual returns remain milestones 04 and 06.
+Milestones 04 and 06 wire actual billing, return and exchange stock effects in source.
 
 | ID | Feature | Priority | Status |
 |---|---|---|---|
@@ -100,9 +100,14 @@ be positive and snapshotted on movements; do not double-count a bag and its cont
 Expiry belongs to a delivery batch, not a single date on the product. If expiry tracking is
 enabled, stock issues/returns must identify the affected batch, allowing a default allocation
 and correction. Full automatic FEFO optimization and recall management are later features.
-Milestone 03 posting distinguishes saleable/damaged returns; the actual return workflow is milestone 06.
+Milestone 03 posting distinguishes saleable/damaged returns; milestone 06 wires the actual return workflow in source.
 
 ## 4. Returns and exchanges
+
+Milestone 06 adds bill-linked partial returns, owner-approved voids and atomic exchanges in
+source, with explicit exchange-credit and actual cash/card settlement records. Linked Sinhala
+return receipts support safe print retries. Windows runtime and physical acceptance remain
+pending; see [validation notes](docs/implementation/MILESTONE_06.md).
 
 | ID | Feature | Priority | Status |
 |---|---|---|---|
@@ -110,11 +115,11 @@ Milestone 03 posting distinguishes saleable/damaged returns; the actual return w
 | RET-02 | Return selected items/quantities from a completed bill | Must | Foundation |
 | RET-03 | Block quantities beyond the unreturned quantity; use original paid prices | Must | Foundation |
 | RET-04 | Owner-authorized void with reason; preserve original financial records | Must | Foundation |
-| RET-05 | Owner approval and reason for returns/exchanges | Must | Planned |
-| RET-06 | Choose saleable restock or damaged/non-saleable disposition | Must | Planned |
-| RET-08 | Exchange returned items for new products in one linked workflow | Must | Planned |
-| RET-09 | Collect positive difference, refund negative difference, or settle zero | Must | Planned |
-| RET-10 | Print Sinhala return/exchange receipt linked to original bill and replacement sale | Must | Planned |
+| RET-05 | Owner approval and reason for returns/exchanges | Must | Foundation |
+| RET-06 | Choose saleable restock or damaged/non-saleable disposition | Must | Foundation |
+| RET-08 | Exchange returned items for new products in one linked workflow | Must | Foundation |
+| RET-09 | Collect positive difference, refund negative difference, or settle zero | Must | Foundation |
+| RET-10 | Print Sinhala return/exchange receipt linked to original bill and replacement sale | Must | Foundation |
 
 Return credit is the amount actually paid for returned goods, including original discounts.
 A partial return does not reprice the remaining original purchase. Replacement goods use
@@ -133,7 +138,7 @@ preview/Windows printing adapter and audited reprint recovery in source. The sup
 sample layout is implemented as version 2; Windows execution and actual printer acceptance
 remain outstanding; see
 [validation notes](docs/implementation/MILESTONE_05.md). Foundation does not mean accepted
-physical output. Linked returns remain milestone 06.
+physical output. Milestone 06 adds linked returns in source.
 
 | ID | Feature | Priority | Status |
 |---|---|---|---|

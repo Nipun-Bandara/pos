@@ -100,4 +100,5 @@
   </data>
   <data name="Voided" xml:space="preserve"><value>අවලංගු කළ බිල්පත</value></data>
   <data name="PaymentShopCredit" xml:space="preserve"><value>පැරණි ණය ගෙවීම</value></data>
+<data name="PaymentExchangeCredit" xml:space="preserve"><value>හුවමාරුවේ භාණ්ඩ වටිනාකම</value></data>
 </root>

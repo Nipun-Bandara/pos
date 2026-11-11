@@ -81,6 +81,7 @@ public sealed partial class MainWindow : Window
         if (_billingUiSession != _vm.Session.Version)
         {
             _billingUiSession = _vm.Session.Version;
+            ResetReturnEditor();
             _billingTenderText = "0"; _billingSearch = ""; _billingCategory = null; _billingSelectedLine = null;
         }
         Title = Texts.Get("AppTitle");
@@ -193,6 +194,10 @@ public sealed partial class MainWindow : Window
         if (_vm.Section == "Billing")
         {
             dock.Children.Add(BillingView());
+        }
+        else if (_vm.Section == "Returns")
+        {
+            dock.Children.Add(ReturnsView());
         }
         else if (_vm.Section == "Reports")
         {
