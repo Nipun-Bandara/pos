@@ -61,6 +61,9 @@ public sealed partial class MainWindow
                 ("Unit", "Unit", "Unit"), ("Cost", "Cost", null), ("NormalPrice", "Normal", null), ("TierPrice", "Tier", null), ("QualifiedBand", "Band", null),
                 ("BillTaxCode", "TaxCode", null), ("BillTaxCategory", "TaxCategory", "BillTax"), ("BillTaxRate", "TaxRate", null),
                 ("BillTax", "Tax", null), ("DiscountReason", "ManualReason", null)));
+            panel.Children.Add(Button("ReturnThisBill", async () => { await _vm.NavigateAsync("Returns"); await _vm.FindReturnBillAsync(d.Number); }));
+            if(detail.Returns is { Count: >0 } linked)
+                panel.Children.Add(StockTable(linked.Select(r=>new {r.Number,Credit=ReceiptLayout.Amount(r.CreditMinor,d.Currency),r.ReplacementNumber}),"BillReturns",("BillNumber","Number",null),("ReturnCredit","Credit",null),("ReplacementBill","ReplacementNumber",null)));
             panel.Children.Add(Button("PreviewReceipt", () =>
             {
                 var document = ReceiptRenderer.Render(d, settings.PrintableWidthMillimeters, detail.Prints.Count > 0, detail.Status);

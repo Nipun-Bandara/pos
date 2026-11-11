@@ -31,7 +31,7 @@ public partial class App : System.Windows.Application, IDisposable
                 _services.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(),
                 _services.GetRequiredService<RetailCore.Application.Inventory.StockService>(),
                 _services.GetRequiredService<RetailCore.Application.Checkout.BillingService>(),
-                _services.GetRequiredService<RetailCore.Application.Receipts.ReceiptService>());
+                _services.GetRequiredService<RetailCore.Application.Receipts.ReceiptService>(), _services.GetRequiredService<RetailCore.Application.Returns.ReturnService>());
             MainWindow = new MainWindow(vm);
             MainWindow.Show();
         }

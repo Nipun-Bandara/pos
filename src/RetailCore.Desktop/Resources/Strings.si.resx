@@ -456,4 +456,44 @@
   <data name="BillTaxZeroRated" xml:space="preserve"><value>ශුන්‍ය බදු</value></data>
   <data name="BillTaxStandard" xml:space="preserve"><value>සාමාන්‍ය බදු</value></data>
   <data name="SampleReceipt" xml:space="preserve"><value>ලබා දුන් නියැදි බිල්පත අනුව — සැබෑ මුද්‍රණ පරීක්ෂාව අවශ්‍යයි</value></data>
+<data name="ReturnHelp" xml:space="preserve"><value>මුල් බිල්පත සොයා ආපසු භාරදෙන ප්‍රමාණ හා විකිණිය හැකි/හානි වූ තත්ත්වය තෝරන්න. නව භාණ්ඩ Billing තුළ ඇතුළත් කර මෙහි එන්න. පෙරදසුන සහ හිමිකරුගේ PIN අනුමැතිය අවශ්‍යයි. මුල් මුදල්/කාඩ්පත් ක්‍රමයට ආපසු ගෙවයි; මුදල් ආපසු ගෙවීම් යළි වට නොකරයි.</value></data>
+<data name="ReturnBillLookup" xml:space="preserve"><value>මුල් බිල් අංකය ස්කෑන් කරන්න / ඇතුළත් කරන්න</value></data>
+<data name="FindReturnBill" xml:space="preserve"><value>මුල් බිල්පත සොයන්න</value></data>
+<data name="ReturnRemaining" xml:space="preserve"><value>ඉතිරි ප්‍රමාණය</value></data>
+<data name="ReturnCreditRemaining" xml:space="preserve"><value>ඉතිරි මුල් වටිනාකම</value></data>
+<data name="ReturnQuantity" xml:space="preserve"><value>ආපසු භාරදෙන ප්‍රමාණය</value></data>
+<data name="ReturnDisposition" xml:space="preserve"><value>තොග තත්ත්වය</value></data>
+<data name="DispositionSaleable" xml:space="preserve"><value>විකිණිය හැකි — තොගයට එක් කරන්න</value></data>
+<data name="DispositionDamaged" xml:space="preserve"><value>හානි වූ — තොගයට එක් නොකරන්න</value></data>
+<data name="ReturnReason" xml:space="preserve"><value>ආපසු භාරගැනීමේ / හුවමාරු / අවලංගු හේතුව</value></data>
+<data name="ExchangeUseBasket" xml:space="preserve"><value>වත්මන් Billing භාණ්ඩ සමඟ හුවමාරු කරන්න</value></data>
+<data name="EditReplacementBasket" xml:space="preserve"><value>නව භාණ්ඩ Billing තුළ සංස්කරණය කරන්න</value></data>
+<data name="VoidOriginalBill" xml:space="preserve"><value>මුල් සම්පූර්ණ බිල්පත අවලංගු කරන්න (එකම විවෘත සේවා වාරය, පෙර ආපසු භාරගැනීම් නැති විට)</value></data>
+<data name="ReturnCashTendered" xml:space="preserve"><value>අමතර අයකිරීමට ලැබුණු මුදල</value></data>
+<data name="ExternalCardRefundApproved" xml:space="preserve"><value>පෙන්වන නිශ්චිත කාඩ්පත් ආපසු ගෙවීම බාහිර යන්ත්‍රයෙන් අනුමතයි</value></data>
+<data name="PreviewReturn" xml:space="preserve"><value>ආපසු භාරගැනීම / හුවමාරු පෙරදසුන</value></data>
+<data name="CompleteReturn" xml:space="preserve"><value>අනුමත කර සම්පූර්ණ කරන්න</value></data>
+<data name="ReturnCredit" xml:space="preserve"><value>මුල් ආපසු ලැබිය යුතු වටිනාකම</value></data>
+<data name="ReplacementTotal" xml:space="preserve"><value>නව භාණ්ඩ එකතුව</value></data>
+<data name="ReturnCollect" xml:space="preserve"><value>අමතර අයකිරීම</value></data>
+<data name="ReturnCashPayout" xml:space="preserve"><value>මුදලින් ආපසු ගෙවීම</value></data>
+<data name="ReturnCardPayout" xml:space="preserve"><value>බාහිර කාඩ්පත් ආපසු ගෙවීම</value></data>
+<data name="ReturnReviewHelp" xml:space="preserve"><value>ප්‍රමාණ, තත්ත්වය, මිල, වටකිරීම හා ගෙවීම් සමාලෝචනය කරන්න. වෙනසකදී නැවත පෙරදසුන හා අනුමැතිය අවශ්‍යයි. හුවමාරු වටිනාකම මුදල්/කාඩ්පත් ගෙවීමක් නොවේ.</value></data>
+<data name="ReturnSaved" xml:space="preserve"><value>ආපසු භාරගැනීම/හුවමාරුව සුරැකිණි. පහත සම්බන්ධ ලේඛනය මුද්‍රණය කරන්න; මුද්‍රණය ගෙවීම් නැවත සිදු නොකරයි.</value></data>
+<data name="ReturnHistory" xml:space="preserve"><value>සුරැකි ආපසු භාරගැනීම් / හුවමාරු</value></data>
+<data name="ReplacementBill" xml:space="preserve"><value>නව බිල්පත</value></data>
+<data name="PreviewReturnReceipt" xml:space="preserve"><value>සම්බන්ධ සිංහල ආපසු භාරගැනීමේ බිල් පෙරදසුන</value></data>
+<data name="PrintReturnReceipt" xml:space="preserve"><value>ආපසු භාරගැනීමේ ලේඛනය මුද්‍රණය කරන්න / පෙර උත්සාහයක් ඇත්නම් පිටපතක් ලෙස යළි මුද්‍රණය කරන්න</value></data>
+<data name="ReturnThisBill" xml:space="preserve"><value>මෙම බිල්පතේ භාණ්ඩ ආපසු භාරගන්න / හුවමාරු කරන්න</value></data>
+<data name="InvalidReturn" xml:space="preserve"><value>හේතුවක් සහ වලංගු ප්‍රමාණ/ගෙවීම් දත්ත ඇතුළත් කරන්න. කාඩ් යොමු කේත කෙටි අනන්‍යතා විය යුතුය; කාඩ් අංක/PIN නොයොදන්න.</value></data>
+<data name="InvalidReturnQuantity" xml:space="preserve"><value>තෝරාගත් ප්‍රමාණ හා ඉතිරි වටිනාකම පරීක්ෂා කරන්න. ඒකක භාණ්ඩ භාග කළ නොහැක; බර දශම තුනක් දක්වා පමණි. මුල් බිල්පත යළි පූරණය කරන්න.</value></data>
+<data name="InvalidReturnHistory" xml:space="preserve"><value>පැරණි ප්‍රමාණ හෝ ආපසු ගෙවීම් මුල් අයකළ වටිනාකම ඉක්මවයි. හිමිකරු: මුල් බිල්පත හා පෙර ආපසු භාරගැනීම් සමාලෝචනය කරන්න.</value></data>
+<data name="ReturnChanged" xml:space="preserve"><value>ආපසු භාරගැනීම, භාණ්ඩ, සේවා වාරය හෝ තොගය වෙනස් විය. නැවත පෙරදසුන හා නව හිමිකරු අනුමැතිය ලබාගන්න.</value></data>
+<data name="ReturnNotEligible" xml:space="preserve"><value>වෙළඳසැලේ මුදල් ඒකකයේ සම්පූර්ණ කළ, අවලංගු නොකළ බිල්පතක් පමණක් ආපසු භාරගත හැක.</value></data>
+<data name="VoidNotEligible" xml:space="preserve"><value>අවලංගු කිරීමට මුල් විවෘත සේවා වාරය, පෙර ආපසු භාරගැනීම් නොමැති වීම සහ නව භාණ්ඩ නොමැති වීම අවශ්‍යයි. සුදුසු විට අර්ධ ආපසු භාරගැනීම භාවිත කරන්න.</value></data>
+<data name="SelectReturnItems" xml:space="preserve"><value>අවම වශයෙන් එක් ආපසු භාරදෙන ප්‍රමාණයක් ඇතුළත් කරන්න.</value></data>
+<data name="UnsupportedOriginalTender" xml:space="preserve"><value>මෙම පැරණි බිල්පතේ සහාය නොදක්වන ගෙවීමක් හෝ හුවමාරු මූලාශ්‍ර බෙදීමක් නැත. හිමිකරුගේ සමාලෝචනය අවශ්‍යයි; ආපසු ගෙවීමක් සටහන් නොකෙරිණි.</value></data>
+<data name="CardRefundApprovalRequired" xml:space="preserve"><value>පෙන්වන නිශ්චිත කාඩ්පත් ආපසු ගෙවීම බාහිරව අනුමත කර සම්පූර්ණ කිරීමට පෙර තහවුරු කරන්න.</value></data>
+<data name="InsufficientDrawer" xml:space="preserve"><value>මෙම ආපසු ගෙවීමට විවෘත ලාච්චුවේ අපේක්ෂිත මුදල් ප්‍රමාණවත් නැත. ඉදිරියට යාමට පෙර ආරම්භක මුදල හා ලාච්චු මුදල් පරීක්ෂා කරන්න.</value></data>
+<data name="ReturnPrintHistory" xml:space="preserve"><value>යළි උත්සාහයට පෙර මුද්‍රණ උත්සාහ පරීක්ෂා කරන්න</value></data>
 </root>

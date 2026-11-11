@@ -456,4 +456,44 @@
   <data name="BillTaxZeroRated" xml:space="preserve"><value>Zero rated</value></data>
   <data name="BillTaxStandard" xml:space="preserve"><value>Standard rated</value></data>
   <data name="SampleReceipt" xml:space="preserve"><value>Receipt based on supplied sample — physical printer validation pending</value></data>
+<data name="ReturnHelp" xml:space="preserve"><value>Find the original bill. Enter quantities to return and choose saleable/damaged. Build replacement goods in Billing, then return here. Preview and owner PIN approval are required. Refunds use original cash/card sources; cash refunds are exact and are not rounded again.</value></data>
+<data name="ReturnBillLookup" xml:space="preserve"><value>Scan / enter original bill number</value></data>
+<data name="FindReturnBill" xml:space="preserve"><value>Find original bill</value></data>
+<data name="ReturnRemaining" xml:space="preserve"><value>Remaining quantity</value></data>
+<data name="ReturnCreditRemaining" xml:space="preserve"><value>Remaining original credit</value></data>
+<data name="ReturnQuantity" xml:space="preserve"><value>Quantity to return</value></data>
+<data name="ReturnDisposition" xml:space="preserve"><value>Stock disposition</value></data>
+<data name="DispositionSaleable" xml:space="preserve"><value>Saleable — restock</value></data>
+<data name="DispositionDamaged" xml:space="preserve"><value>Damaged — no restock</value></data>
+<data name="ReturnReason" xml:space="preserve"><value>Return / exchange / void reason</value></data>
+<data name="ExchangeUseBasket" xml:space="preserve"><value>Exchange against current Billing basket</value></data>
+<data name="EditReplacementBasket" xml:space="preserve"><value>Edit replacement goods in Billing</value></data>
+<data name="VoidOriginalBill" xml:space="preserve"><value>Void entire original bill (same open shift, no prior returns)</value></data>
+<data name="ReturnCashTendered" xml:space="preserve"><value>Cash tender for additional collection</value></data>
+<data name="ExternalCardRefundApproved" xml:space="preserve"><value>External terminal has approved the exact card refund shown</value></data>
+<data name="PreviewReturn" xml:space="preserve"><value>Preview return / exchange</value></data>
+<data name="CompleteReturn" xml:space="preserve"><value>Approve and complete</value></data>
+<data name="ReturnCredit" xml:space="preserve"><value>Original return value</value></data>
+<data name="ReplacementTotal" xml:space="preserve"><value>Replacement total</value></data>
+<data name="ReturnCollect" xml:space="preserve"><value>Additional collection due</value></data>
+<data name="ReturnCashPayout" xml:space="preserve"><value>Cash refund</value></data>
+<data name="ReturnCardPayout" xml:space="preserve"><value>External card refund</value></data>
+<data name="ReturnReviewHelp" xml:space="preserve"><value>Review quantities, disposition, prices, rounding and settlement. Any change requires another preview and approval. Exchange credit is not a cash/card tender.</value></data>
+<data name="ReturnSaved" xml:space="preserve"><value>Return/exchange saved. Print the linked document below; printing never repeats settlement.</value></data>
+<data name="ReturnHistory" xml:space="preserve"><value>Saved returns / exchanges</value></data>
+<data name="ReplacementBill" xml:space="preserve"><value>Replacement bill</value></data>
+<data name="PreviewReturnReceipt" xml:space="preserve"><value>Preview linked Sinhala return receipt</value></data>
+<data name="PrintReturnReceipt" xml:space="preserve"><value>Print / retry return document as copy when previously attempted</value></data>
+<data name="ReturnThisBill" xml:space="preserve"><value>Return / exchange this bill</value></data>
+<data name="InvalidReturn" xml:space="preserve"><value>Enter a reason and valid quantities/payment information. Card references must be short identifiers, never card numbers or PINs.</value></data>
+<data name="InvalidReturnQuantity" xml:space="preserve"><value>Check selected quantities and remaining value. Whole items cannot be fractional; weights allow three decimals. Refresh the original bill.</value></data>
+<data name="InvalidReturnHistory" xml:space="preserve"><value>Historical quantities or refund amounts exceed the original collected value. Owner: review the original bill and prior returns.</value></data>
+<data name="ReturnChanged" xml:space="preserve"><value>Return, basket, shift or stock changed. Preview again and obtain a new owner approval.</value></data>
+<data name="ReturnNotEligible" xml:space="preserve"><value>Only a completed, unvoided bill in the shop currency can be returned.</value></data>
+<data name="VoidNotEligible" xml:space="preserve"><value>Void requires the original open shift, no previous returns and no replacement basket. Use a partial return where appropriate.</value></data>
+<data name="SelectReturnItems" xml:space="preserve"><value>Enter at least one quantity to return.</value></data>
+<data name="UnsupportedOriginalTender" xml:space="preserve"><value>This legacy bill uses a tender outside supported cash/card or lacks exchange-source allocation. Owner review is required; no refund was posted.</value></data>
+<data name="CardRefundApprovalRequired" xml:space="preserve"><value>Approve the displayed exact card refund externally, then confirm it before completing.</value></data>
+<data name="InsufficientDrawer" xml:space="preserve"><value>Not enough expected cash in the open drawer for this refund. Check opening float and drawer cash before proceeding.</value></data>
+<data name="ReturnPrintHistory" xml:space="preserve"><value>Inspect print attempts before retrying</value></data>
 </root>

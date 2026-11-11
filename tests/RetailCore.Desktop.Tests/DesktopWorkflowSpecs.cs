@@ -46,7 +46,7 @@ public sealed class DesktopWorkflowSpecs
         Texts.Use("en");
         var services = new ServiceCollection().AddLocalFoundation(Path.Combine(path, "till.db"));
         await using var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
-        var vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>(), provider.GetRequiredService<RetailCore.Application.Checkout.BillingService>(), provider.GetRequiredService<RetailCore.Application.Receipts.ReceiptService>());
+        var vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>(), provider.GetRequiredService<RetailCore.Application.Checkout.BillingService>(), provider.GetRequiredService<RetailCore.Application.Receipts.ReceiptService>(), provider.GetRequiredService<RetailCore.Application.Returns.ReturnService>());
         var window = new MainWindow(vm);
         try
         {
@@ -67,6 +67,7 @@ public sealed class DesktopWorkflowSpecs
             await ExerciseStockAsync(window, vm);
             await ExerciseBillingAsync(window, vm);
             await ExerciseReceiptsAsync(window, vm);
+            await ExerciseReturnsAsync(window, vm);
             var language = Descendants(window).OfType<ComboBox>()
                 .Single(c => AutomationProperties.GetName(c) == Texts.Get("Language"));
             language.SelectedIndex = 1;
@@ -103,7 +104,7 @@ public sealed class DesktopWorkflowSpecs
             var ownerId = vm.Current!.Id;
             window.Close();
             // Reopen the actual window and sign in against the same database with a new session.
-            vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>(), provider.GetRequiredService<RetailCore.Application.Checkout.BillingService>(), provider.GetRequiredService<RetailCore.Application.Receipts.ReceiptService>());
+            vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>(), provider.GetRequiredService<RetailCore.Application.Checkout.BillingService>(), provider.GetRequiredService<RetailCore.Application.Receipts.ReceiptService>(), provider.GetRequiredService<RetailCore.Application.Returns.ReturnService>());
             window = new MainWindow(vm);
             window.Show();
             await UntilAsync(() => vm.Screen == "Login" && !vm.Busy);
@@ -120,6 +121,7 @@ public sealed class DesktopWorkflowSpecs
             Click(window, "OpenSavedBill"); await UntilAsync(() => vm.SelectedBill is not null && !vm.Busy);
             vm.SelectedBill!.Receipt.Number.ShouldBe("T1-000004");
             vm.SelectedBill.Prints.Single().Outcome!.Status.ShouldBe("PrintFailed");
+            vm.SelectedBill.Returns!.Single().CreditMinor.ShouldBe(8000);
             Capture(window, "receipt-history-si.png");
             vm.Current!.Language.ShouldBe("si");
             (await vm.Service.ProfileAsync()).Telephone.ShouldBe("0771234567");
@@ -161,6 +163,34 @@ public sealed class DesktopWorkflowSpecs
             Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
             Directory.Delete(path, true);
         }
+    }
+
+    private static async Task ExerciseReturnsAsync(Window window,MainViewModel vm)
+    {
+        Click(window,"Returns");await UntilAsync(()=>vm.Section=="Returns" && !vm.Busy);
+        Find<TextBox>(window,"ReturnBillLookup").Text="T1-000004";Click(window,"FindReturnBill");await UntilAsync(()=>vm.ReturnBill is not null && !vm.Busy);
+        var grid=Find<DataGrid>(window,"ReturnLines");grid.SelectedIndex=0;grid.CurrentCell=new DataGridCellInfo(grid.Items[0],grid.Columns[3]);
+        grid.ScrollIntoView(grid.Items[0],grid.Columns[3]);grid.BeginEdit();window.UpdateLayout();
+        Descendants(grid).OfType<TextBox>().Single().Text="1";grid.CommitEdit(DataGridEditingUnit.Cell,true);grid.CommitEdit(DataGridEditingUnit.Row,true);
+        Find<TextBox>(window,"ReturnReason").Text="Customer returned one item";Click(window,"PreviewReturn");await UntilAsync(()=>!vm.Busy);
+        var approval=window.Dispatcher.InvokeAsync(async()=>
+        {
+            await UntilAsync(()=>window.OwnedWindows.OfType<ApprovalDialog>().Any());var dialog=window.OwnedWindows.OfType<ApprovalDialog>().Single();
+            Find<PasswordBox>(dialog,"Pin").Password="638194";Click(dialog,"Approve");
+        }).Task.Unwrap();
+        Click(window,"CompleteReturn");await approval;await UntilAsync(()=>!vm.Busy);
+        vm.ReturnBill!.History.Single().CreditMinor.ShouldBe(8000);
+        vm.ReturnBill.History.Single().Number.ShouldBe("T1-000005");
+        (await vm.Billing.LoadAsync()).Shift!.ExpectedCash.ShouldBe(1598);
+        Click(window,"PrintReturnReceipt");await UntilAsync(()=>!vm.Busy);vm.Message.ShouldBe(Texts.Get("PrintFailed"));
+        var doc=await vm.Receipts.ReturnInfoAsync(vm.ReturnBill.History.Single().Id);doc.Document.Version.ShouldBe(3);doc.Prints.Single().Outcome!.Status.ShouldBe("PrintFailed");
+        var closePreview=window.Dispatcher.InvokeAsync(async()=>
+        {
+            await UntilAsync(()=>window.OwnedWindows.Cast<Window>().Any());var preview=window.OwnedWindows.Cast<Window>().Single();
+            Capture(preview,"return-receipt-si.png");preview.Close();
+        }).Task.Unwrap();
+        Click(window,"PreviewReturnReceipt");await closePreview;await UntilAsync(()=>!vm.Busy);
+        Capture(window,"returns-linked.png");Click(window,"Billing");await UntilAsync(()=>vm.Section=="Billing" && !vm.Busy);
     }
 
     private static async Task ExerciseReceiptsAsync(Window window, MainViewModel vm)
