@@ -433,6 +433,19 @@ public sealed class Sale : AggregateRoot<SaleId>, IBelongsToShop
         return payment.Change;
     }
 
+    public RefundId? ExchangeRefundId { get; private set; }
+    public long ExchangeCashCreditMinor { get; private set; }
+    public long ExchangeCardCreditMinor { get; private set; }
+    public void ApplyExchangeCredit(RefundId refund, long cashMinor, long cardMinor, DateTimeOffset at)
+    {
+        RequireEditable();
+        var amount = Money.FromMinor(checked(cashMinor+cardMinor),Currency);
+        if (cashMinor < 0 || cardMinor < 0 || !amount.IsPositive || amount > BalanceDue || ExchangeRefundId is not null)
+            throw new DomainException("InvalidExchangeCredit");
+        ExchangeRefundId=refund; ExchangeCashCreditMinor=cashMinor; ExchangeCardCreditMinor=cardMinor;
+        _payments.Add(Payment.Create(Id,ShopId,PaymentMethod.ExchangeCredit,amount,amount,null,at));
+    }
+
     /// <summary>
     /// Takes a non-cash tender. PAY-03, PAY-04, PAY-05.
     /// </summary>
@@ -445,7 +458,7 @@ public sealed class Sale : AggregateRoot<SaleId>, IBelongsToShop
         RequireEditable();
         RequireCurrency(amount);
 
-        if (method == PaymentMethod.Cash)
+        if (method is PaymentMethod.Cash or PaymentMethod.ExchangeCredit)
         {
             throw new DomainException("Use AddCashPayment for cash, so that rounding is applied.");
         }
@@ -483,6 +496,10 @@ public sealed class Sale : AggregateRoot<SaleId>, IBelongsToShop
         var last = _payments[^1];
         _payments.RemoveAt(_payments.Count - 1);
 
+        if (last.Method == PaymentMethod.ExchangeCredit)
+        {
+            ExchangeRefundId=null;ExchangeCashCreditMinor=0;ExchangeCardCreditMinor=0;
+        }
         // Rounding was a consequence of that tender, so it goes with it. Recomputed from
         // scratch rather than subtracted, because several cash tenders may have contributed.
         if (last.Method == PaymentMethod.Cash)
@@ -578,7 +595,7 @@ public sealed class Sale : AggregateRoot<SaleId>, IBelongsToShop
     /// CMP-04 keeps the original rows untouched. Voiding sets a status and raises an event
     /// that puts the stock back (RET-06); it never deletes or edits the sale.
     /// </remarks>
-    public void Void(string reason, UserId authorisedBy, DateTimeOffset at)
+    public void Void(string reason, UserId authorisedBy, DateTimeOffset at, bool hasCompletedReturns = false)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(reason);
 
@@ -587,6 +604,7 @@ public sealed class Sale : AggregateRoot<SaleId>, IBelongsToShop
             throw new DomainException($"Only a completed sale can be voided, and this one is {Status}.");
         }
 
+        if (hasCompletedReturns) throw new DomainException("VoidAfterReturn");
         Status = SaleStatus.Voided;
         VoidReason = reason.Trim();
         VoidedBy = authorisedBy;

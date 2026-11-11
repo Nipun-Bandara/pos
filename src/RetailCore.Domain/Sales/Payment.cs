@@ -22,6 +22,7 @@ public enum PaymentMethod
 
     /// <summary>A voucher or gift note accepted at face value.</summary>
     Voucher = 4,
+    ExchangeCredit = 5,
 }
 
 /// <summary>
