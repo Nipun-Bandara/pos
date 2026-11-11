@@ -252,6 +252,7 @@ public sealed partial class MainWindow
                     + $"{Texts.Get("PaidAmount")}: {Amount(last.PaidMinor)} · {Texts.Get("CashChange")}: {Amount(last.ChangeMinor)} {last.Currency}",
                 FontSize = 22, TextWrapping = TextWrapping.Wrap };
             AutomationProperties.SetAutomationId(saved, "SavedSaleResult"); actions.Children.Add(saved);
+            actions.Children.Add(Button("OpenSavedBill", () => { RequireScansFinished(); return _vm.OpenBillAsync(last.SaleId); }));
             actions.Children.Add(Button("VerifyLastCompletion", async () =>
             {
                 RequireScansFinished();

@@ -55,7 +55,7 @@ jobs:
       - run: dotnet build --no-restore --configuration Release
       - name: File-backed foundation on Windows
         run: dotnet tests/RetailCore.Foundation.Tests/bin/Release/net10.0/RetailCore.Foundation.Tests.dll
-      - name: Real WPF setup, catalogue, stock, cash/card billing, approvals and reopen workflow
+      - name: Real WPF setup, billing, saved bills, receipt preview and print recovery
         run: dotnet tests/RetailCore.Desktop.Tests/bin/Release/net10.0-windows/RetailCore.Desktop.Tests.dll
       - uses: actions/upload-artifact@v4
         if: always()

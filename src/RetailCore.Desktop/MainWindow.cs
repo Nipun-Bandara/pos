@@ -194,6 +194,10 @@ public sealed partial class MainWindow : Window
         {
             dock.Children.Add(BillingView());
         }
+        else if (_vm.Section == "Reports")
+        {
+            dock.Children.Add(BillHistoryView());
+        }
         else if (_vm.Section == "Settings" && _vm.IsOwner)
         {
             dock.Children.Add(SettingsView());
