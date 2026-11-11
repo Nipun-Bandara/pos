@@ -231,3 +231,20 @@ Version 3 Sinhala documents link original and replacement receipt numbers and re
 Windows renderer/adapter. Separate append-only print attempts and outcomes keep printer
 retries outside financial writes. Windows runtime and physical validation remain outstanding;
 see [milestone 06 validation notes](docs/implementation/MILESTONE_06.md).
+
+
+## Milestone 07 reconciliation and export boundary
+
+`CashService` binds owner approvals to the exact reasoned request, shift and expected balance.
+A single local transaction posts the movement or freezes counted/expected cash and variance,
+appends audit and saves an idempotent result. New SQLite triggers preserve cash movement and
+closed-shift evidence. `ReportService` requires an active owner and separates economic turnover
+from external tender/refund movement. Return reversals allocate original value/tax using actual credit boundaries and historical
+cost using quantity boundaries; cash-rounding differences remain separate. New sale lines
+snapshot category association without rewriting historical unknown categories.
+
+Shared typed tables feed UTF-8 CSV, literal-cell XLSX and a Windows WPF Sinhala PDF adapter.
+The latter embeds 192 dpi rendered pages and does not require a PDF printer or recipient fonts.
+Reports identify their local period, timezone, currency and filters. Stock valuation uses current
+recorded base-unit cost and excludes pack aliases. Windows/physical acceptance and export
+limitations are recorded in [milestone 07 validation notes](docs/implementation/MILESTONE_07.md).

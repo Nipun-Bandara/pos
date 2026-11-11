@@ -52,7 +52,7 @@ Milestone 04 connects tiers to Billing; milestone 05 adds provisional receipt re
 | CAT-06 | CSV/Excel product import with preview, validation and duplicate handling | Should | Planned |
 | CAT-07 | Multiple barcodes for a product; preserve leading zeroes | Should | Foundation |
 | CAT-10 | Searchable/sortable product table showing prices, tiers and current stock | Must | Planned |
-| CAT-11 | Export all products or filtered results to Excel/CSV; printable PDF price list | Must | Planned |
+| CAT-11 | Export all products or filtered results to Excel/CSV; printable PDF price list | Must | Foundation |
 | CAT-12 | Sinhala and English product names; Sinhala receipt name required for active products | Must | Planned |
 | PRC-01 | Four total quantity-price bands: normal price plus up to three quantity breaks | Must | Planned |
 | PRC-02 | Automatically apply the highest qualifying band to every unit of that product | Must | Planned |
@@ -157,16 +157,20 @@ Windows print path or validated graphics printing; do not assume printer code-pa
 
 ## 6. Reports and exports
 
+Milestone 07 implements cash closing, trading reports and exports in source. Windows file-opening,
+Sinhala PDF and physical reconciliation checks remain pending; see
+[validation notes](docs/implementation/MILESTONE_07.md).
+
 | ID | Feature | Priority | Status |
 |---|---|---|---|
 | BO-04 | Sales history, bill lookup, item/payment detail and linked returns | Must | Foundation |
 | BO-05 | Simple history of privileged changes | Must | Foundation |
-| BO-06 | Daily/date-range sales: gross, discounts, returns and net sales | Must | Planned |
-| BO-07 | Product/category sales, quantities and top sellers | Must | Planned |
-| BO-08 | Estimated gross profit from historical sale cost, adjusted for returns | Must | Planned |
-| BO-10 | Excel/CSV data export and PDF printable reports | Must | Planned |
-| BO-12 | Stock balance/value at recorded cost, low stock and stock movement reports | Must | Planned |
-| BO-13 | Cash/card totals, refunds and daily drawer reconciliation | Must | Planned |
+| BO-06 | Daily/date-range sales: gross, discounts, returns and net sales | Must | Foundation |
+| BO-07 | Product/category sales, quantities and top sellers | Must | Foundation |
+| BO-08 | Estimated gross profit from historical sale cost, adjusted for returns | Must | Foundation |
+| BO-10 | Excel/CSV data export and PDF printable reports | Must | Foundation |
+| BO-12 | Stock balance/value at recorded cost, low stock and stock movement reports | Must | Foundation |
+| BO-13 | Cash/card totals, refunds and daily drawer reconciliation | Must | Foundation |
 | BO-14 | Near-expiry report for tracked deliveries | Should | Planned |
 
 Reports use selected dates and the shop's local time, clearly distinguish sales from cash
