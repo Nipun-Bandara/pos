@@ -41,7 +41,7 @@ acceptance remains pending; see [validation notes](docs/implementation/MILESTONE
 
 Milestone 02 implements product/category editing, quantity prices and preview in source.
 Windows runtime acceptance remains pending; see [validation notes](docs/implementation/MILESTONE_02.md).
-Milestone 04 connects tiers to Billing; receipt rendering remains milestone 05.
+Milestone 04 connects tiers to Billing; milestone 05 adds provisional receipt rendering pending the actual template/printer.
 
 | ID | Feature | Priority | Status |
 |---|---|---|---|
@@ -128,15 +128,21 @@ atomically. An interrupted exchange must not leave only half the operation commi
 
 ## 5. Receipts and hardware
 
+Milestone 05 adds saved-bill history, frozen receipt snapshots, a provisional Sinhala
+preview/Windows printing adapter and audited reprint recovery in source. The owner's custom
+template, Windows execution and actual printer acceptance remain outstanding; see
+[validation notes](docs/implementation/MILESTONE_05.md). Foundation does not mean accepted
+physical output. Linked returns remain milestone 06.
+
 | ID | Feature | Priority | Status |
 |---|---|---|---|
-| HW-01 | Print Sinhala bill using supplied custom template and one validated Windows printer | Must | Planned |
+| HW-01 | Print Sinhala bill using supplied custom template and one validated Windows printer | Must | Foundation |
 | HW-02 | Open compatible cash drawer through printer | Should | Planned |
 | HW-03 | USB keyboard-mode barcode scanner; manual barcode entry remains available | Must | Planned |
-| HW-04 | Save bill before printing; visible failure and retry without duplicate sale | Must | Planned |
-| HW-05 | Bill preview, sales-history reprint and printed bill barcode | Must | Planned |
+| HW-04 | Save bill before printing; visible failure and retry without duplicate sale | Must | Foundation |
+| HW-05 | Bill preview, sales-history reprint and printed bill barcode | Must | Foundation |
 | HW-06 | Direct integration with one weighing-scale model | Later | Planned |
-| HW-07 | Match actual printer width; first layout depends on supplied template and printer | Must | Planned |
+| HW-07 | Match actual printer width; first layout depends on supplied template and printer | Must | Foundation |
 | HW-09 | Generate internal barcode labels and shelf price tags | Should | Planned |
 
 Manual weight entry is sufficient for version 1. Internal barcodes must be unique and not
@@ -147,7 +153,7 @@ Windows print path or validated graphics printing; do not assume printer code-pa
 
 | ID | Feature | Priority | Status |
 |---|---|---|---|
-| BO-04 | Sales history, bill lookup, item/payment detail and linked returns | Must | Planned |
+| BO-04 | Sales history, bill lookup, item/payment detail and linked returns | Must | Foundation |
 | BO-05 | Simple history of privileged changes | Must | Foundation |
 | BO-06 | Daily/date-range sales: gross, discounts, returns and net sales | Must | Planned |
 | BO-07 | Product/category sales, quantities and top sellers | Must | Planned |
