@@ -747,6 +747,9 @@ namespace RetailCore.Infrastructure.Postgres.Migrations
                     b.Property<int?>("AppliedPriceBand")
                         .HasColumnType("integer");
 
+                    b.Property<Guid?>("CategoryIdSnapshot")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(200)

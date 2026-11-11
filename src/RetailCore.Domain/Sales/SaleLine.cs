@@ -67,11 +67,14 @@ public sealed class SaleLine : Entity<SaleLineId>, IBelongsToShop
     /// <summary>The product name as printed. Snapshotted.</summary>
     public string Description { get; private set; }
 
+    public CategoryId? CategoryIdSnapshot { get; private set; }
+
     public ProductId? StockProductId { get; private set; }
     public long StockFactorThousandths { get; private set; } = 1000;
     public UnitOfMeasure? StockBaseUnit { get; private set; }
     internal void SnapshotStock(Product product)
     {
+        CategoryIdSnapshot = product.CategoryId;
         StockProductId = product.StockBaseProductId ?? product.Id;
         StockFactorThousandths = product.StockFactorThousandths;
         StockBaseUnit = product.StockBaseUnit ?? product.Unit;
