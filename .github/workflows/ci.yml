@@ -61,7 +61,7 @@ jobs:
         if: always()
         with:
           name: windows-ui-previews
-          path: tests/RetailCore.Desktop.Tests/bin/Release/net10.0-windows/artifacts/*.png
+          path: tests/RetailCore.Desktop.Tests/bin/Release/net10.0-windows/artifacts/*
           if-no-files-found: warn
 
   legacy-postgres:

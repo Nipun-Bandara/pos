@@ -496,4 +496,312 @@
 <data name="CardRefundApprovalRequired" xml:space="preserve"><value>Approve the displayed exact card refund externally, then confirm it before completing.</value></data>
 <data name="InsufficientDrawer" xml:space="preserve"><value>Not enough expected cash in the open drawer for this refund. Check opening float and drawer cash before proceeding.</value></data>
 <data name="ReturnPrintHistory" xml:space="preserve"><value>Inspect print attempts before retrying</value></data>
+<data name="TradingCash" xml:space="preserve">
+    <value>Drawer cash</value>
+  </data>
+<data name="TradingCashHelp" xml:space="preserve">
+    <value>Enter the physical cash count before reviewing the expected balance. Every movement or close needs a reason and owner approval.</value>
+  </data>
+<data name="CashCountOrAmount" xml:space="preserve">
+    <value>Counted cash / movement amount</value>
+  </data>
+<data name="CashPayIn" xml:space="preserve">
+    <value>Cash pay-in</value>
+  </data>
+<data name="CashPayOut" xml:space="preserve">
+    <value>Cash pay-out</value>
+  </data>
+<data name="CloseShift" xml:space="preserve">
+    <value>Close shift</value>
+  </data>
+<data name="TradingReports" xml:space="preserve">
+    <value>Trading reports</value>
+  </data>
+<data name="TradingReportHelp" xml:space="preserve">
+    <value>Local dates are inclusive. Turnover includes each return and replacement once; settlement shows external money only. Gross profit is an estimate using original cost, with return cost reversals (including damaged returns); wastage is separate. Stock balances are as of the final date, valued at current recorded base-unit cost. Older sales without a category snapshot are unclassified. Category labels are current. Shift rows cover whole shifts opened or closed in the period.</value>
+  </data>
+<data name="TradingSales" xml:space="preserve">
+    <value>Sales and historical profit</value>
+  </data>
+<data name="TradingProducts" xml:space="preserve">
+    <value>Product sales</value>
+  </data>
+<data name="TradingCategories" xml:space="preserve">
+    <value>Category sales</value>
+  </data>
+<data name="TradingSettlement" xml:space="preserve">
+    <value>Actual cash/card settlement</value>
+  </data>
+<data name="TradingShifts" xml:space="preserve">
+    <value>Shift reconciliation</value>
+  </data>
+<data name="TradingStock" xml:space="preserve">
+    <value>Stock balance and value</value>
+  </data>
+<data name="TradingMovements" xml:space="preserve">
+    <value>Stock movement history</value>
+  </data>
+<data name="TradingLowStock" xml:space="preserve">
+    <value>Low stock</value>
+  </data>
+<data name="TradingAudit" xml:space="preserve">
+    <value>Privileged-change history</value>
+  </data>
+<data name="GrossSales" xml:space="preserve">
+    <value>Gross at original normal prices</value>
+  </data>
+<data name="ExplicitDiscounts" xml:space="preserve">
+    <value>Tier, manual and recorded discounts</value>
+  </data>
+<data name="ReturnedValue" xml:space="preserve">
+    <value>Returned turnover</value>
+  </data>
+<data name="NetSales" xml:space="preserve">
+    <value>Net sales before tax deduction</value>
+  </data>
+<data name="NetTax" xml:space="preserve">
+    <value>Net tax</value>
+  </data>
+<data name="HistoricalCost" xml:space="preserve">
+    <value>Historical cost after returns</value>
+  </data>
+<data name="EstimatedProfit" xml:space="preserve">
+    <value>Estimated gross profit</value>
+  </data>
+<data name="ReturnRounding" xml:space="preserve">
+    <value>Returned cash-rounding adjustment</value>
+  </data>
+<data name="CurrentCategory" xml:space="preserve">
+    <value>Category (current label)</value>
+  </data>
+<data name="SoldQuantity" xml:space="preserve">
+    <value>Sold quantity</value>
+  </data>
+<data name="ReturnedQuantity" xml:space="preserve">
+    <value>Returned quantity</value>
+  </data>
+<data name="CashCollected" xml:space="preserve">
+    <value>Cash applied (change excluded)</value>
+  </data>
+<data name="CardCollected" xml:space="preserve">
+    <value>Card collected</value>
+  </data>
+<data name="CashRefunded" xml:space="preserve">
+    <value>Cash paid back</value>
+  </data>
+<data name="CardRefunded" xml:space="preserve">
+    <value>External card refunds</value>
+  </data>
+<data name="ExchangeCredit" xml:space="preserve">
+    <value>Applied exchange credit (non-tender)</value>
+  </data>
+<data name="NetDrawerMovement" xml:space="preserve">
+    <value>Net drawer movement</value>
+  </data>
+<data name="ShiftId" xml:space="preserve">
+    <value>Shift reference</value>
+  </data>
+<data name="OpenedLocal" xml:space="preserve">
+    <value>Opened (local)</value>
+  </data>
+<data name="ClosedLocal" xml:space="preserve">
+    <value>Closed (local)</value>
+  </data>
+<data name="ExpectedCash" xml:space="preserve">
+    <value>Expected cash</value>
+  </data>
+<data name="CountedCash" xml:space="preserve">
+    <value>Counted cash</value>
+  </data>
+<data name="CashVariance" xml:space="preserve">
+    <value>Counted minus expected</value>
+  </data>
+<data name="LocalDate" xml:space="preserve">
+    <value>Local date/time</value>
+  </data>
+<data name="AuditAction" xml:space="preserve">
+    <value>Action</value>
+  </data>
+<data name="PerformedBy" xml:space="preserve">
+    <value>Performed by</value>
+  </data>
+<data name="EntityId" xml:space="preserve">
+    <value>Record reference</value>
+  </data>
+<data name="MovementKind" xml:space="preserve">
+    <value>Movement</value>
+  </data>
+<data name="RecordedUnitCost" xml:space="preserve">
+    <value>Current recorded unit cost</value>
+  </data>
+<data name="EstimatedStockValue" xml:space="preserve">
+    <value>Estimated stock value</value>
+  </data>
+<data name="LoadReport" xml:space="preserve">
+    <value>Show report</value>
+  </data>
+<data name="ExportCSV" xml:space="preserve">
+    <value>Export CSV</value>
+  </data>
+<data name="ExportXLSX" xml:space="preserve">
+    <value>Export Excel</value>
+  </data>
+<data name="ExportPDF" xml:space="preserve">
+    <value>Export PDF</value>
+  </data>
+<data name="ExportSaved" xml:space="preserve">
+    <value>Export saved.</value>
+  </data>
+<data name="ReportPage" xml:space="preserve">
+    <value>Page</value>
+  </data>
+<data name="ExportAllCSV" xml:space="preserve">
+    <value>All products to CSV</value>
+  </data>
+<data name="ExportFilteredCSV" xml:space="preserve">
+    <value>Filtered products to CSV</value>
+  </data>
+<data name="ExportAllXLSX" xml:space="preserve">
+    <value>All products to Excel</value>
+  </data>
+<data name="ExportFilteredXLSX" xml:space="preserve">
+    <value>Filtered products to Excel</value>
+  </data>
+<data name="PriceListPDF" xml:space="preserve">
+    <value>Filtered PDF price list</value>
+  </data>
+<data name="AllProducts" xml:space="preserve">
+    <value>All products</value>
+  </data>
+<data name="FilteredProducts" xml:space="preserve">
+    <value>Filtered products</value>
+  </data>
+<data name="InvalidCashCommand" xml:space="preserve">
+    <value>Enter a valid non-negative count or positive cash movement, and a reason of at most 500 characters.</value>
+  </data>
+<data name="CashReviewChanged" xml:space="preserve">
+    <value>The shift or drawer balance changed. Review and obtain approval again.</value>
+  </data>
+<data name="InsufficientDrawerCash" xml:space="preserve">
+    <value>The drawer has insufficient expected cash for this pay-out.</value>
+  </data>
+<data name="AuditSaleVoided" xml:space="preserve">
+    <value>Sale voided</value>
+  </data>
+<data name="AuditSaleLineVoided" xml:space="preserve">
+    <value>Line voided</value>
+  </data>
+<data name="AuditDiscountGiven" xml:space="preserve">
+    <value>Discount approved</value>
+  </data>
+<data name="AuditPriceOverridden" xml:space="preserve">
+    <value>Price overridden</value>
+  </data>
+<data name="AuditRefundIssued" xml:space="preserve">
+    <value>Refund issued</value>
+  </data>
+<data name="AuditDrawerOpened" xml:space="preserve">
+    <value>Drawer opened</value>
+  </data>
+<data name="AuditCashMovementRecorded" xml:space="preserve">
+    <value>Cash moved</value>
+  </data>
+<data name="AuditShiftOpened" xml:space="preserve">
+    <value>Shift opened</value>
+  </data>
+<data name="AuditShiftClosed" xml:space="preserve">
+    <value>Shift closed</value>
+  </data>
+<data name="AuditStockAdjusted" xml:space="preserve">
+    <value>Stock adjusted</value>
+  </data>
+<data name="AuditUserSignedIn" xml:space="preserve">
+    <value>Signed in</value>
+  </data>
+<data name="AuditUserLockedOut" xml:space="preserve">
+    <value>Sign-in blocked</value>
+  </data>
+<data name="AuditManagerOverrideUsed" xml:space="preserve">
+    <value>Owner approval used</value>
+  </data>
+<data name="AuditProductPriceChanged" xml:space="preserve">
+    <value>Product price changed</value>
+  </data>
+<data name="AuditShopConfigured" xml:space="preserve">
+    <value>Shop configured</value>
+  </data>
+<data name="AuditShopSettingsChanged" xml:space="preserve">
+    <value>Shop settings changed</value>
+  </data>
+<data name="AuditUserChanged" xml:space="preserve">
+    <value>User changed</value>
+  </data>
+<data name="AuditSessionLocked" xml:space="preserve">
+    <value>Session locked</value>
+  </data>
+<data name="AuditLanguageChanged" xml:space="preserve">
+    <value>Language changed</value>
+  </data>
+<data name="AuditProductChanged" xml:space="preserve">
+    <value>Product changed</value>
+  </data>
+<data name="AuditCategoryChanged" xml:space="preserve">
+    <value>Category changed</value>
+  </data>
+<data name="AuditStockReceived" xml:space="preserve">
+    <value>Stock received</value>
+  </data>
+<data name="AuditStockConfigurationChanged" xml:space="preserve">
+    <value>Stock settings changed</value>
+  </data>
+<data name="AuditStockCounted" xml:space="preserve">
+    <value>Stock counted</value>
+  </data>
+<data name="AuditNegativeStockApproved" xml:space="preserve">
+    <value>Negative stock approved</value>
+  </data>
+<data name="AuditSaleCompleted" xml:space="preserve">
+    <value>Sale completed</value>
+  </data>
+<data name="AuditReceiptPrintRequested" xml:space="preserve">
+    <value>Print requested</value>
+  </data>
+<data name="AuditReceiptPrintFinished" xml:space="preserve">
+    <value>Print finished</value>
+  </data>
+<data name="AuditReturnCompleted" xml:space="preserve">
+    <value>Return/exchange completed</value>
+  </data>
+<data name="MovementSale" xml:space="preserve">
+    <value>Sale</value>
+  </data>
+<data name="MovementRefund" xml:space="preserve">
+    <value>Return</value>
+  </data>
+<data name="MovementSaleVoided" xml:space="preserve">
+    <value>Void reversal</value>
+  </data>
+<data name="MovementGoodsReceived" xml:space="preserve">
+    <value>Receiving</value>
+  </data>
+<data name="MovementAdjustment" xml:space="preserve">
+    <value>Adjustment</value>
+  </data>
+<data name="MovementWastage" xml:space="preserve">
+    <value>Wastage</value>
+  </data>
+<data name="MovementStockTake" xml:space="preserve">
+    <value>Stock count</value>
+  </data>
+<data name="MovementTransfer" xml:space="preserve">
+    <value>Transfer</value>
+  </data>
+<data name="MovementOpeningBalance" xml:space="preserve">
+    <value>Opening balance</value>
+  </data>
+<data name="UnclassifiedCategory" xml:space="preserve"><value>Unclassified (no historical category)</value></data>
+<data name="Reason" xml:space="preserve"><value>Reason</value></data>
+<data name="Reference" xml:space="preserve"><value>Reference</value></data>
+<data name="ReorderLevel" xml:space="preserve"><value>Reorder threshold</value></data>
+<data name="TradingCashHistory" xml:space="preserve"><value>Cash pay-in/out history</value></data>
 </root>
