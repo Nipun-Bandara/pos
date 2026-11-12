@@ -116,7 +116,7 @@ public sealed class ReportService(ILocalTransactions transactions, FoundationSer
             columns = ["LocalDate", "AuditAction", "PerformedBy", "ApprovedBy", "Reason", "EntityId"];
             var users = await store.UsersAsync(shop.Id, ct).ConfigureAwait(false);
             foreach (var a in data.Audit.Where(a => InPeriod(a.OccurredAt)).OrderBy(a => a.OccurredAt))
-                rows.Add([Local(a.OccurredAt), "Audit" + a.Action, users.SingleOrDefault(u => u.Id == a.PerformedBy)?.DisplayName ?? a.PerformedBy?.Value.ToString(), users.SingleOrDefault(u => u.Id == a.AuthorisedBy)?.DisplayName ?? a.AuthorisedBy?.Value.ToString(), a.Summary ?? AuditReason(a.DetailsJson), a.EntityId.ToString()]);
+                rows.Add([Local(a.OccurredAt), "Audit" + a.Action, users.SingleOrDefault(u => u.Id == a.PerformedBy)?.DisplayName ?? a.PerformedBy?.Value.ToString() ?? RestoreActor(a,false), users.SingleOrDefault(u => u.Id == a.AuthorisedBy)?.DisplayName ?? a.AuthorisedBy?.Value.ToString() ?? RestoreActor(a,true), a.Summary ?? AuditReason(a.DetailsJson), a.EntityId.ToString()]);
         }
         else
         {
@@ -144,6 +144,17 @@ public sealed class ReportService(ILocalTransactions transactions, FoundationSer
         if (session.Version != version) throw new FoundationException("SignInRequired");
         return new ReportTable(kind, $"{period.From:yyyy-MM-dd} — {period.Through:yyyy-MM-dd} · {shop.TimeZoneId} · {shop.Currency.Code}", columns, rows);
     }, cancellationToken);
+    private static string? RestoreActor(RetailCore.Domain.Security.AuditEntry entry,bool approval)
+    {
+        if(entry.EntityType!="DatabaseRestore" || entry.DetailsJson is null)return null;
+        try
+        {
+            using var json=System.Text.Json.JsonDocument.Parse(entry.DetailsJson);
+            var actor=json.RootElement.GetProperty("Actor");
+            return actor.GetProperty(approval?"OwnerName":"Name").GetString();
+        }
+        catch(Exception ex) when(ex is System.Text.Json.JsonException or KeyNotFoundException or InvalidOperationException){return null;}
+    }
     private static string? AuditReason(string? json)
     {
         if (string.IsNullOrWhiteSpace(json)) return null;

@@ -11,19 +11,19 @@ using RetailCore.Domain.Tenancy;
 namespace RetailCore.Infrastructure.Sqlite.Foundation;
 
 /// <summary>Serializes local writers; every busy retry gets a new context and transaction.</summary>
-public sealed class SqliteLocalTransactions(IServiceScopeFactory scopes) : ILocalTransactions
+public sealed class SqliteLocalTransactions(IServiceScopeFactory scopes, RetailCore.Infrastructure.Sqlite.Recovery.LocalDatabase database, RetailCore.Infrastructure.Sqlite.Recovery.SqliteRecovery recovery) : ILocalTransactions
 {
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
-        await using var scope = scopes.CreateAsyncScope();
-        var context = scope.ServiceProvider.GetRequiredService<TillDbContext>();
-        await context.Database.MigrateAsync(cancellationToken).ConfigureAwait(false);
+        await recovery.InitializeAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<T> ReadAsync<T>(Func<ILocalStore, CancellationToken, Task<T>> query,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(query);
+        using var lease = await database.EnterAsync(cancellationToken).ConfigureAwait(false);
+        database.RequireReady();
         await using var scope = scopes.CreateAsyncScope();
         var context = scope.ServiceProvider.GetRequiredService<TillDbContext>();
         await context.Database.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
@@ -50,6 +50,8 @@ public sealed class SqliteLocalTransactions(IServiceScopeFactory scopes) : ILoca
         Guid? operationId, string kind, string fingerprint, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(command);
+        using var lease = await database.EnterAsync(cancellationToken).ConfigureAwait(false);
+        database.RequireReady();
         for (var attempt = 0; ; attempt++)
         {
             try
@@ -93,7 +95,7 @@ public sealed class SqliteLocalTransactions(IServiceScopeFactory scopes) : ILoca
     private static bool IsBusy(Exception ex) => ex is SqliteException { SqliteErrorCode: 5 or 6 }
         || ex is DbUpdateException { InnerException: SqliteException { SqliteErrorCode: 5 or 6 } };
 
-    private sealed class LocalStore(TillDbContext context) : ILocalStore
+    internal sealed class LocalStore(TillDbContext context) : ILocalStore
     {
         public Task<RetailCore.Domain.Shifts.ShiftSalesSummary> ShiftSummaryAsync(ShiftId shift, CancellationToken ct) =>
             new RetailCore.Infrastructure.Persistence.ShiftRepository(context).SalesSummaryAsync(shift, ct);

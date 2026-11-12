@@ -52,6 +52,9 @@ public enum AuditAction
     ReceiptPrintRequested = 26,
     ReceiptPrintFinished = 27,
     ReturnCompleted = 28,
+    DatabaseRestored = 29,
+    BackupCreated = 30,
+    BackupSettingsRequested = 31,
 }
 
 /// <summary>
