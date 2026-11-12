@@ -851,4 +851,20 @@
 <data name="AuditDatabaseRestored" xml:space="preserve"><value>Database restored</value></data>
 <data name="AuditBackupCreated" xml:space="preserve"><value>Backup created</value></data>
 <data name="AuditBackupSettingsRequested" xml:space="preserve"><value>Backup destination change requested</value></data>
+  <data name="CurrentSection" xml:space="preserve"><value>Current section</value></data>
+  <data name="NoRows" xml:space="preserve"><value>No matching records. Change the filters or add a record.</value></data>
+  <data name="BasketTitle" xml:space="preserve"><value>Current bill</value></data>
+  <data name="PaymentTitle" xml:space="preserve"><value>Payment</value></data>
+  <data name="LineDetails" xml:space="preserve"><value>Selected item details</value></data>
+  <data name="CheckoutOptions" xml:space="preserve"><value>Discount and stock approval</value></data>
+  <data name="CheckoutBarcode" xml:space="preserve"><value>Barcode</value></data>
+  <data name="CheckoutQuantity" xml:space="preserve"><value>Quantity</value></data>
+  <data name="CheckoutItem" xml:space="preserve"><value>Item</value></data>
+  <data name="CheckoutPrice" xml:space="preserve"><value>Unit price</value></data>
+  <data name="CheckoutUpdate" xml:space="preserve"><value>Update</value></data>
+  <data name="CheckoutRemove" xml:space="preserve"><value>Remove</value></data>
+  <data name="HeaderLock" xml:space="preserve"><value>Lock</value></data>
+  <data name="HeaderSignOut" xml:space="preserve"><value>Sign out</value></data>
+  <data name="CheckoutAdd" xml:space="preserve"><value>Add</value></data>
+  <data name="CheckoutComplete" xml:space="preserve"><value>Complete sale (F9)</value></data>
 </root>

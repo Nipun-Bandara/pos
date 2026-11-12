@@ -851,4 +851,20 @@
 <data name="AuditDatabaseRestored" xml:space="preserve"><value>දත්තගබඩාව ප්‍රතිසාධනය කළා</value></data>
 <data name="AuditBackupCreated" xml:space="preserve"><value>උපස්ථය සෑදුවා</value></data>
 <data name="AuditBackupSettingsRequested" xml:space="preserve"><value>උපස්ථ ස්ථාන වෙනස් කිරීම ඉල්ලුවා</value></data>
+  <data name="CurrentSection" xml:space="preserve"><value>වත්මන් කොටස</value></data>
+  <data name="NoRows" xml:space="preserve"><value>ගැළපෙන වාර්තා නොමැත. පෙරහන් වෙනස් කරන්න හෝ වාර්තාවක් එක් කරන්න.</value></data>
+  <data name="BasketTitle" xml:space="preserve"><value>වත්මන් බිල්පත</value></data>
+  <data name="PaymentTitle" xml:space="preserve"><value>ගෙවීම</value></data>
+  <data name="LineDetails" xml:space="preserve"><value>තෝරාගත් භාණ්ඩ විස්තර</value></data>
+  <data name="CheckoutOptions" xml:space="preserve"><value>වට්ටම් සහ තොග අනුමැතිය</value></data>
+  <data name="CheckoutBarcode" xml:space="preserve"><value>තීරු කේතය</value></data>
+  <data name="CheckoutQuantity" xml:space="preserve"><value>ප්‍රමාණය</value></data>
+  <data name="CheckoutItem" xml:space="preserve"><value>භාණ්ඩය</value></data>
+  <data name="CheckoutPrice" xml:space="preserve"><value>ඒකක මිල</value></data>
+  <data name="CheckoutUpdate" xml:space="preserve"><value>යාවත්කාලීන</value></data>
+  <data name="CheckoutRemove" xml:space="preserve"><value>ඉවත් කරන්න</value></data>
+  <data name="HeaderLock" xml:space="preserve"><value>අගුළුලන්න</value></data>
+  <data name="HeaderSignOut" xml:space="preserve"><value>ඉවත් වන්න</value></data>
+  <data name="CheckoutAdd" xml:space="preserve"><value>එක් කරන්න</value></data>
+  <data name="CheckoutComplete" xml:space="preserve"><value>බිල්පත අවසන් කරන්න</value></data>
 </root>

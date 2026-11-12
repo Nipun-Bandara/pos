@@ -54,17 +54,30 @@ public sealed partial class MainWindow
         if (!_billingScanQueue.IsCompleted) throw new FoundationException("ScanInProgress");
     }
 
-    private ScrollViewer BillingView()
+    private BillingWorkspace BillingView()
     {
         var state = _vm.BillingState!;
         var q = state.Quote;
         var currency = Currency.FromCode(q.Currency);
         string Amount(long minor) => Money.FromMinor(minor, currency).ToDecimal().ToString("0.00", CultureInfo.CurrentCulture);
-        var panel = new StackPanel();
-        panel.Children.Add(new TextBlock { Text = Texts.Get("BillingKeyboardHelp"), TextWrapping = TextWrapping.Wrap });
-        _billingBarcode = Field(panel, "ScanBarcode");
+        var workspace = new BillingWorkspace();
+        var panel = new StackPanel(); workspace.ScanHost.Content = panel;
+        var scanRow = new Grid();
+        scanRow.ColumnDefinitions.Add(new ColumnDefinition());
+        scanRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(84) });
+        scanRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        var barcodeField = new StackPanel { Margin = new Thickness(0, 0, 8, 0) };
+        var weightField = new StackPanel { Margin = new Thickness(0, 0, 8, 0) };
+        scanRow.Children.Add(barcodeField); Grid.SetColumn(weightField, 1); scanRow.Children.Add(weightField);
+        panel.Children.Add(scanRow);
+        panel.Children.Add(new TextBlock { Text = Texts.Get("BillingKeyboardHelp"), ToolTip = Texts.Get("BillingKeyboardHelp"), FontSize = 12, TextTrimming = TextTrimming.CharacterEllipsis });
+        _billingBarcode = Field(barcodeField, "ScanBarcode");
         var scanBox = _billingBarcode;
-        var scanQuantity = Field(panel, "ScanQuantity", "1");
+        var scanQuantity = Field(weightField, "ScanQuantity", "1");
+        ((TextBlock)barcodeField.Children[0]).Text = Texts.Get("CheckoutBarcode");
+        ((TextBlock)weightField.Children[0]).Text = Texts.Get("CheckoutQuantity");
+        foreach (var field in new[] { barcodeField, weightField })
+            ((TextBlock)field.Children[0]).Margin = new Thickness(0, 0, 0, 2);
         async Task EnqueueScan()
         {
             if (string.IsNullOrWhiteSpace(scanBox.Text)) return;
@@ -76,13 +89,16 @@ public sealed partial class MainWindow
             await _billingScanQueue;
         }
         scanBox.KeyDown += async (_, e) => { if (e.Key == Key.Enter) { e.Handled = true; await EnqueueScan(); } };
-        var addBarcode = new Button { Content = Texts.Get("AddBarcode"), HorizontalAlignment = HorizontalAlignment.Left };
+        var addBarcode = new Button { Content = Texts.Get("CheckoutAdd"), ToolTip = Texts.Get("AddBarcode"), HorizontalAlignment = HorizontalAlignment.Left };
         AutomationProperties.SetAutomationId(addBarcode, "AddBarcode");
+        AutomationProperties.SetName(addBarcode, Texts.Get("AddBarcode"));
         addBarcode.Click += async (_, _) => await EnqueueScan();
-        panel.Children.Add(addBarcode);
-        var actions = new StackPanel { IsEnabled = !_vm.Busy };
-        _billingActions = actions;
-        panel.Children.Add(actions);
+        addBarcode.MaxWidth = 128; addBarcode.VerticalAlignment = VerticalAlignment.Bottom;
+        Grid.SetColumn(addBarcode, 2); scanRow.Children.Add(addBarcode);
+        _billingActions = workspace.Actions; _billingActions.IsEnabled = !_vm.Busy;
+        var actions = workspace.OptionsHost;
+        var searchPanel = new StackPanel(); workspace.SearchHost.Content = searchPanel;
+        var editor = new StackPanel(); workspace.LineHost.Content = editor;
         actions.Children.Add(Button("RefreshBilling", () => _vm.NavigateAsync("Billing")));
         if (state.Shift is null)
         {
@@ -99,15 +115,16 @@ public sealed partial class MainWindow
             }));
         }
         else actions.Children.Add(new TextBlock { Text = $"{Texts.Get("OpeningFloat")}: {state.Shift.OpeningFloat:0.00} · {Texts.Get("ExpectedDrawer")}: {state.Shift.ExpectedCash:0.00} {q.Currency}", TextWrapping = TextWrapping.Wrap });
-        _billingSearchBox = Field(actions, "BillingSearch", _billingSearch);
+        _billingSearchBox = Field(searchPanel, "BillingSearch", _billingSearch);
         var search = _billingSearchBox;
-        Label(actions, "Category");
+        var selection = new StackPanel();
+        Label(selection, "Category");
         var categories = new ComboBox { DisplayMemberPath = nameof(BillingCategory.Display) };
         var categoryItems = new[] { new BillingCategory(default, Texts.Get("AllCategories")) }.Concat(state.Categories).ToArray();
         categories.ItemsSource = categoryItems;
         categories.SelectedItem = categoryItems.SingleOrDefault(c => c.Id == _billingCategory) ?? categoryItems[0];
         AutomationProperties.SetAutomationId(categories, "BillingCategory");
-        actions.Children.Add(categories);
+        selection.Children.Add(categories);
         var productsView = new ListCollectionView(state.Products.Where(p => p.Active).ToList());
         void Filter()
         {
@@ -122,9 +139,14 @@ public sealed partial class MainWindow
         search.TextChanged += (_, _) => Filter(); categories.SelectionChanged += (_, _) => Filter(); Filter();
         var products = StockTable(productsView, "BillingProducts", ("Sku", "Sku", null), ("SinhalaName", "SinhalaName", null),
             ("EnglishName", "EnglishName", null), ("Unit", "Unit", "Unit"));
-        products.Height = 160; actions.Children.Add(products);
-        var quantityToAdd = Field(actions, "ProductQuantity", "1");
-        actions.Children.Add(Button("AddSelectedProduct", async () =>
+        products.Height = 130;
+        selection.Children.Add(WithEmptyState(products));
+        var productPicker = new Expander { Header = Texts.Get("Products"), Content = selection, IsExpanded = !string.IsNullOrWhiteSpace(_billingSearch) || _billingCategory is not null };
+        AutomationProperties.SetAutomationId(productPicker, "BillingProductPicker");
+        searchPanel.Children.Add(productPicker);
+        search.TextChanged += (_, _) => productPicker.IsExpanded = search.Text.Length > 0;
+        var quantityToAdd = Field(selection, "ProductQuantity", "1");
+        selection.Children.Add(Button("AddSelectedProduct", async () =>
         {
             RequireScansFinished();
             if (products.SelectedItem is not BillingProduct p) throw new FoundationException("SelectProduct");
@@ -134,16 +156,39 @@ public sealed partial class MainWindow
                 quantity + (previous?.QuantityThousandths ?? 0) / 1000m, RequestedUnitPrice: previous?.RequestedUnitPriceMinor is { } minor
                     ? Money.FromMinor(minor, currency).ToDecimal() : null, Reason: previous?.Reason)));
         }));
-        var cart = StockTable(q.Lines, "BillingBasket", ("Sku", "Sku", null), ("SinhalaName", "SinhalaName", null),
-            ("EnglishName", "EnglishName", null), ("BillingQuantity", "Quantity", null), ("Unit", "Unit", "Unit"),
-            ("NormalPrice", "NormalUnitPrice", null), ("TierPrice", "TierUnitPrice", null), ("QualifiedBand", "TierBand", null), ("BillingPriceMode", "Manual", "BillingManual"),
-            ("ChargedPrice", "ChargedUnitPrice", null), ("PreviewTotal", "Total", null), ("Savings", "Savings", null), ("DiscountReason", "Reason", null));
-        actions.Children.Add(cart);
-        if (q.ErrorKey is { } error) actions.Children.Add(new TextBlock { Text = Texts.Get(error), Foreground = System.Windows.Media.Brushes.DarkRed, TextWrapping = TextWrapping.Wrap });
-        var editQuantity = Field(actions, "BillingQuantity", "1");
-        var finalPrice = Field(actions, "RequestedFinalPrice");
-        var discountReason = Field(actions, "DiscountReason");
-        actions.Children.Add(new TextBlock { Text = Texts.Get("ManualPriceHelp"), TextWrapping = TextWrapping.Wrap });
+        ArrangeFields(selection);
+        var cart = StockTable(q.Lines, "BillingBasket", ("CheckoutItem", "ReceiptName", null),
+            ("CheckoutQuantity", "Quantity", null), ("CheckoutPrice", "ChargedUnitPrice", null), ("PreviewTotal", "Total", null));
+        cart.Style = (Style)FindResource("PosBillingBasket");
+        var quantityDisplay = new MultiBinding { StringFormat = "{0:0.000} {1}", Mode = BindingMode.OneWay };
+        quantityDisplay.Bindings.Add(new Binding(nameof(BillingLine.Quantity)) { Mode = BindingMode.OneWay });
+        quantityDisplay.Bindings.Add(new Binding(nameof(BillingLine.Unit)) { Mode = BindingMode.OneWay, Converter = new EnumTextConverter("Unit") });
+        ((DataGridTextColumn)cart.Columns[1]).Binding = quantityDisplay;
+        ((DataGridTextColumn)cart.Columns[2]).Binding = new Binding(nameof(BillingLine.ChargedUnitPrice)) { Mode = BindingMode.OneWay, StringFormat = "{0:0.00}" };
+        ((DataGridTextColumn)cart.Columns[3]).Binding = new Binding(nameof(BillingLine.Total)) { Mode = BindingMode.OneWay, StringFormat = "{0:0.00}" };
+        cart.ClearValue(HeightProperty); cart.MinHeight = 72;
+        // Set each column explicitly: auto-sized numeric columns must not squeeze the name column.
+        foreach (var column in cart.Columns) column.Width = new DataGridLength(1, DataGridLengthUnitType.Star);
+        cart.Columns[0].Width = new DataGridLength(2, DataGridLengthUnitType.Star);
+        foreach (var column in cart.Columns.OfType<DataGridTextColumn>())
+            column.ElementStyle = (Style)FindResource("PosWrappedCell");
+        ScrollViewer.SetHorizontalScrollBarVisibility(cart, ScrollBarVisibility.Disabled);
+        var basket = WithEmptyState(cart);
+        if (q.Lines.Count == 0) ((TextBlock)basket.Children[1]).Text = Texts.Get("BasketEmpty");
+        workspace.BasketHost.Content = basket;
+        if (q.ErrorKey is { } error) actions.Children.Add(new TextBlock { Text = Texts.Get(error), Foreground = (System.Windows.Media.Brush)FindResource("PosError"), TextWrapping = TextWrapping.Wrap });
+        var editQuantity = Field(editor, "BillingQuantity", "1");
+        ((TextBlock)editor.Children[0]).Text = Texts.Get("CheckoutQuantity");
+        editQuantity.Margin = new Thickness(0, 2, 0, 0);
+        var lineDetails = new StackPanel();
+        var finalPrice = Field(lineDetails, "RequestedFinalPrice");
+        var discountReason = Field(lineDetails, "DiscountReason");
+        lineDetails.Children.Add(new TextBlock { Text = Texts.Get("ManualPriceHelp"), TextWrapping = TextWrapping.Wrap });
+        var selectedDetails = new TextBlock { TextWrapping = TextWrapping.Wrap };
+        lineDetails.Children.Add(selectedDetails);
+        var details = new Expander { Header = Texts.Get("LineDetails"), Content = lineDetails };
+        AutomationProperties.SetAutomationId(details, "BillingLineDetails");
+        actions.Children.Add(details);
         cart.SelectionChanged += (_, _) =>
         {
             if (cart.SelectedItem is not BillingLine line) return;
@@ -151,9 +196,13 @@ public sealed partial class MainWindow
             editQuantity.Text = line.Quantity.ToString(CultureInfo.CurrentCulture);
             finalPrice.Text = line.Manual ? line.ChargedUnitPrice.ToString(CultureInfo.CurrentCulture) : "";
             discountReason.Text = line.Reason ?? "";
+            selectedDetails.Text = $"{line.Sku} · {line.SinhalaName} / {line.EnglishName}\n"
+                + $"{Texts.Get("Unit")}: {Texts.Get("Unit" + line.Unit)} · {Texts.Get("NormalPrice")}: {line.NormalUnitPrice:0.00}\n"
+                + $"{Texts.Get("TierPrice")}: {line.TierUnitPrice:0.00} · {Texts.Get("QualifiedBand")}: {line.TierBand}\n"
+                + $"{Texts.Get("Savings")}: {line.Savings:0.00}";
         };
         cart.SelectedItem = q.Lines.SingleOrDefault(l => l.ProductId == _billingSelectedLine);
-        actions.Children.Add(Button("UpdateBillingLine", async () =>
+        editor.Children.Add(Button("UpdateBillingLine", async () =>
         {
             RequireScansFinished();
             if (cart.SelectedItem is not BillingLine line) throw new FoundationException("SelectBillingLine");
@@ -173,20 +222,37 @@ public sealed partial class MainWindow
             if (cart.SelectedItem is not BillingLine line) throw new FoundationException("SelectBillingLine");
             _vm.SetBillingState(await _vm.Billing.EditAsync(new BasketEdit(state.Basket.Id, state.Basket.Version, line.ProductId, 0, Remove: true)));
         });
-        actions.Children.Add(_billingRemove);
+        editor.Children.Add(_billingRemove);
+        var editRow = new WrapPanel();
+        var quantityField = new StackPanel { Width = 84, Margin = new Thickness(0, 0, 6, 0) };
+        for (var i = 0; i < 2; i++) { var child = editor.Children[0]; editor.Children.RemoveAt(0); quantityField.Children.Add(child); }
+        editRow.Children.Add(quantityField);
+        while (editor.Children.Count > 0)
+        {
+            var child = editor.Children[0]; editor.Children.RemoveAt(0);
+            if (child is Button button)
+            {
+                button.ToolTip = button.Content;
+                button.Content = Texts.Get(AutomationProperties.GetAutomationId(button) == "RemoveBillingLine" ? "CheckoutRemove" : "CheckoutUpdate");
+                button.MaxWidth = 110; button.VerticalAlignment = VerticalAlignment.Bottom;
+            }
+            editRow.Children.Add(child);
+        }
+        editor.Children.Add(editRow);
         actions.Children.Add(Button("ClearBasket", async () =>
         {
             RequireScansFinished(); _vm.SetBillingState(await _vm.Billing.ClearAsync(state.Basket.Id, state.Basket.Version));
         }));
-        var total = new TextBlock { FontSize = 34, FontWeight = FontWeights.Bold,
-            Text = $"{Texts.Get("PreviewTotal")}: {Amount(q.TotalMinor)} {q.Currency}", Margin = new Thickness(0, 16, 0, 8) };
-        AutomationProperties.SetAutomationId(total, "BillingTotal"); actions.Children.Add(total);
+        var total = new TextBlock { FontSize = 25, FontWeight = FontWeights.Bold,
+            Text = $"{Texts.Get("PreviewTotal")}: {Amount(q.TotalMinor)} {q.Currency}", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 8) };
+        AutomationProperties.SetAutomationId(total, "BillingTotal"); workspace.TotalsHost.Children.Add(total);
         var method = new ComboBox { ItemsSource = new[] { Texts.Get("TenderCash"), Texts.Get("TenderCard") }, SelectedIndex = 0 };
-        AutomationProperties.SetAutomationId(method, "PaymentMethod"); actions.Children.Add(method);
-        var due = new TextBlock { TextWrapping = TextWrapping.Wrap }; actions.Children.Add(due);
-        _billingTender = Field(actions, "CashTendered", _billingTenderText); var tender = _billingTender;
+        AutomationProperties.SetAutomationId(method, "PaymentMethod");
+        AutomationProperties.SetName(method, Texts.Get("PaymentTitle")); workspace.TenderHost.Children.Add(method);
+        var due = new TextBlock { TextWrapping = TextWrapping.Wrap }; workspace.TotalsHost.Children.Add(due);
+        _billingTender = Field(workspace.TenderHost, "CashTendered", _billingTenderText); var tender = _billingTender;
         tender.TextChanged += (_, _) => _billingTenderText = tender.Text;
-        var cashChange = new TextBlock { TextWrapping = TextWrapping.Wrap }; actions.Children.Add(cashChange);
+        var cashChange = new TextBlock { FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap }; workspace.TenderHost.Children.Add(cashChange);
         var cardApproved = new CheckBox { Content = Texts.Get("ExternalCardApproved") };
         AutomationProperties.SetAutomationId(cardApproved, "ExternalCardApproved"); actions.Children.Add(cardApproved);
         var cardReference = Field(actions, "ExternalCardReference");
@@ -244,13 +310,17 @@ public sealed partial class MainWindow
             _vm.SetBillingState(await _vm.Billing.LoadAsync());
         });
         _billingPay.IsEnabled = state.Shift is not null && q.Lines.Count > 0 && q.ErrorKey is null;
-        actions.Children.Add(_billingPay);
+        _billingPay.Content = Texts.Get("CheckoutComplete");
+        _billingPay.ToolTip = Texts.Get("CompleteSale");
+        _billingPay.HorizontalAlignment = HorizontalAlignment.Stretch;
+        _billingPay.Margin = new Thickness(0, 8, 0, 0); _billingPay.MinHeight = 44;
+        workspace.CheckoutHost.Content = _billingPay;
         if (state.Basket.LastResult is { } last)
         {
             var saved = new TextBlock { Text = $"{Texts.Get("SavedSale")}: {last.Receipt} · {Texts.Get(last.Method == PaymentMethod.Cash ? "TenderCash" : "TenderCard")}\n"
                     + $"{Texts.Get("PreviewTotal")}: {Amount(last.TotalMinor)} · {Texts.Get("CashRounding")}: {Amount(last.RoundingMinor)} · "
                     + $"{Texts.Get("PaidAmount")}: {Amount(last.PaidMinor)} · {Texts.Get("CashChange")}: {Amount(last.ChangeMinor)} {last.Currency}",
-                FontSize = 22, TextWrapping = TextWrapping.Wrap };
+                FontSize = 14, TextWrapping = TextWrapping.Wrap };
             AutomationProperties.SetAutomationId(saved, "SavedSaleResult"); actions.Children.Add(saved);
             actions.Children.Add(Button("OpenSavedBill", () => { RequireScansFinished(); return _vm.OpenBillAsync(last.SaleId); }));
             actions.Children.Add(Button("VerifyLastCompletion", async () =>
@@ -261,6 +331,6 @@ public sealed partial class MainWindow
             }));
         }
         panel.Loaded += (_, _) => scanBox.Focus();
-        return new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto };
+        return workspace;
     }
 }

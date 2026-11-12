@@ -115,6 +115,12 @@ scan-ready billing screen, visible basket, large total and keyboard-accessible s
 Use searchable tables and filters rather than deep menus. Product export operates on all
 products or the current filtered selection.
 
+The UI modernization keeps this architecture and adds MaterialDesignInXAML 5.3.2 only in
+`RetailCore.Desktop`. Shared XAML resources and the persistent shell/bounded Billing workspace
+reuse existing view-model/application commands. Remaining forms share wrapping layouts and
+read-only one-way table bindings. Windows runtime, screenshots, installer and physical
+acceptance remain pending; see [the UI validation record](docs/implementation/MODERN_POS_UI.md).
+
 ## 7. Printing and external devices
 
 Use the owner's supplied receipt template as a fixed, versioned layout; no editor is needed.

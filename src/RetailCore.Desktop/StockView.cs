@@ -39,7 +39,7 @@ public sealed partial class MainWindow
         var table = StockTable(view, "StockTable", ("Sku", "Sku", null), ("SinhalaName", "SinhalaName", null),
             ("EnglishName", "EnglishName", null), ("BaseUnit", "BaseUnit", "Unit"),
             ("StockBalance", "Balance", null), ("StockFactor", "Factor", null), ("Reorder", "Reorder", null));
-        panel.Children.Add(table);
+        panel.Children.Add(WithEmptyState(table));
         Label(panel, "StockProduct");
         var product = new ComboBox { ItemsSource = data.Products, DisplayMemberPath = nameof(StockRow.Display), SelectedIndex = 0 };
         AutomationProperties.SetAutomationId(product, "StockProduct");
@@ -53,7 +53,7 @@ public sealed partial class MainWindow
             ("BaseUnit", "BaseUnit", "Unit"), ("Cost", "InputUnitCost", null), ("BaseCost", "UnitCost", null),
             ("StockReason", "Reason", "Reason"), ("StockReference", "Reference", null), ("RecordedBy", "RecordedByName", null),
             ("ApprovedBy", "ApprovedByName", null), ("StockSource", "SourceType", "StockSource"), ("StockSourceId", "SourceId", null));
-        panel.Children.Add(history);
+        panel.Children.Add(WithEmptyState(history));
         var ownerPanel = new StackPanel { IsEnabled = _vm.IsOwner };
         panel.Children.Add(ownerPanel);
         Label(ownerPanel, "StockConfiguration");
@@ -174,7 +174,8 @@ public sealed partial class MainWindow
         product.SelectionChanged += (_, _) => Select();
         table.SelectionChanged += (_, _) => { if (table.SelectedItem is StockRow row) product.SelectedItem = row; };
         Select();
-        return new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto };
+        ArrangeFields(panel);
+        return Scroll(panel);
     }
 
     private static DataGrid StockTable(object? source, string id, params (string Key, string Property, string? Prefix)[] columns)
@@ -184,7 +185,8 @@ public sealed partial class MainWindow
         AutomationProperties.SetAutomationId(table, id);
         foreach (var column in columns)
             table.Columns.Add(new DataGridTextColumn { Header = Texts.Get(column.Key), SortMemberPath = column.Property,
-                Binding = new Binding(column.Property) { Converter = column.Prefix is null ? null : new EnumTextConverter(column.Prefix) } });
+                ElementStyle = (Style)System.Windows.Application.Current.FindResource("PosWrappedCell"),
+                Binding = new Binding(column.Property) { Mode = BindingMode.OneWay, Converter = column.Prefix is null ? null : new EnumTextConverter(column.Prefix) } });
         return table;
     }
 }

@@ -52,13 +52,15 @@ public sealed partial class MainWindow
             {
                 if (from.SelectedDate is not { } f || through.SelectedDate is not { } t || kind.SelectedItem is not KeyValuePair<string, string> k) throw new FoundationException("InvalidBillDates");
                 var table = Localize(await _vm.Reports.LoadAsync(k.Key, new(DateOnly.FromDateTime(f), DateOnly.FromDateTime(t))));
-                grid.Columns.Clear(); foreach (var (column, i) in table.Columns.Select((c, i) => (c, i))) grid.Columns.Add(new DataGridTextColumn { Header = column, Binding = new Binding($"[{i}]") }); grid.ItemsSource = table.Rows; return table;
+                grid.Columns.Clear(); foreach (var (column, i) in table.Columns.Select((c, i) => (c, i))) grid.Columns.Add(new DataGridTextColumn { Header = column, Binding = new Binding($"[{i}]") { Mode = BindingMode.OneWay } }); grid.ItemsSource = table.Rows; return table;
             }
             report.Children.Add(Button("LoadReport", async () => { await Load(); }));
             foreach (var format in new[] { "CSV", "XLSX", "PDF" }) report.Children.Add(Button("Export" + format, async () => { await SaveExportAsync(await Load(), format); }));
-            report.Children.Add(grid);
+            report.Children.Add(WithEmptyState(grid));
+            ArrangeFields(report);
         }
-        return new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+        ArrangeFields(cash);
+        return Scroll(panel);
     }
     private static ReportTable Localize(ReportTable table) => table with
     {
