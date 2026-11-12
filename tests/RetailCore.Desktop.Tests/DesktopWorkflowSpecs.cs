@@ -2,6 +2,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -24,13 +25,26 @@ public sealed class DesktopWorkflowSpecs
         var thread = new Thread(() =>
         {
             var dispatcher = Dispatcher.CurrentDispatcher;
-            dispatcher.BeginInvoke(async () =>
+            try
             {
-                try { await ExerciseAsync(); completion.TrySetResult(); }
-                catch (Exception ex) { completion.TrySetException(ex); }
-                finally { dispatcher.BeginInvokeShutdown(DispatcherPriority.Background); }
-            });
-            Dispatcher.Run();
+                dispatcher.BeginInvoke(async () =>
+                {
+                    try { await ExerciseAsync(); completion.TrySetResult(); }
+                    catch (Exception ex) { completion.TrySetException(ex); }
+                    finally { dispatcher.BeginInvokeShutdown(DispatcherPriority.Background); }
+                });
+                Dispatcher.Run();
+            }
+            catch (Exception ex)
+            {
+                // Layout/binding failures can occur outside ExerciseAsync's continuation.
+                // Report their original exception instead of waiting for the outer timeout.
+                completion.TrySetException(ex);
+            }
+            finally
+            {
+                completion.TrySetException(new InvalidOperationException("The WPF dispatcher exited before the workflow completed."));
+            }
         });
         thread.SetApartmentState(ApartmentState.STA);
         thread.IsBackground = true;
@@ -426,6 +440,18 @@ public sealed class DesktopWorkflowSpecs
         vm.Message.ShouldBe(Texts.Get("Saved"));
         var table = Find<DataGrid>(window, "ProductsTable");
         table.Items.Count.ShouldBe(1);
+        var activeColumn = table.Columns.OfType<DataGridCheckBoxColumn>().Single();
+        ((Binding)activeColumn.Binding).Mode.ShouldBe(BindingMode.OneWay);
+        activeColumn.IsReadOnly.ShouldBeTrue();
+        table.ScrollIntoView(table.Items[0], activeColumn);
+        table.UpdateLayout();
+        await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+        var activeCell = activeColumn.GetCellContent(table.Items[0]);
+        activeCell.ShouldBeOfType<CheckBox>();
+        var activeCheckBox = (CheckBox)activeCell;
+        activeCheckBox.IsChecked.ShouldBe(true);
+        activeCheckBox.GetBindingExpression(System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty)!
+            .HasError.ShouldBeFalse();
         Find<TextBox>(window, "ProductSearch").Text = "missing";
         table.Items.Count.ShouldBe(0);
         Find<TextBox>(window, "ProductSearch").Text = "තේ";
