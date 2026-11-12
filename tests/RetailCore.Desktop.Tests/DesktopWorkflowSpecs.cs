@@ -112,6 +112,12 @@ public sealed class DesktopWorkflowSpecs
             Click(window, "Lock");
             vm.Session.IsLocked.ShouldBeTrue();
             vm.Screen.ShouldBe("Login");
+            await UntilAsync(() => vm.Screen == "Login" && !vm.Busy);
+            var lockedUser = Find<ComboBox>(window, "LoginUser");
+            lockedUser.IsEnabled.ShouldBeFalse();
+            ((UserSummary)lockedUser.SelectedItem).Id.ShouldBe(vm.Session.UserId!.Value);
+            Descendants(window).OfType<TextBox>()
+                .Any(c => AutomationProperties.GetAutomationId(c) == "ShopName").ShouldBeFalse();
             Find<PasswordBox>(window, "Pin").Password = "638194";
             Click(window, "Unlock");
             await UntilAsync(() => vm.Screen == "Shell" && !vm.Busy);
@@ -465,8 +471,23 @@ public sealed class DesktopWorkflowSpecs
     private static void Click(DependencyObject root, string id) =>
         Find<Button>(root, id).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
 
-    private static T Find<T>(DependencyObject root, string id) where T : DependencyObject =>
-        Descendants(root).OfType<T>().Single(c => AutomationProperties.GetAutomationId(c) == id);
+    private static T Find<T>(DependencyObject root, string id) where T : DependencyObject
+    {
+        // ContentControl replacements do not attach their visual children synchronously.
+        // Realize the current content before inspecting the visual tree.
+        if (root is UIElement element) { element.UpdateLayout(); }
+        var controls = Descendants(root).OfType<T>().ToArray();
+        var matches = controls.Where(c => AutomationProperties.GetAutomationId(c) == id).ToArray();
+        if (matches.Length != 1)
+        {
+            var available = string.Join(", ", controls.Select(AutomationProperties.GetAutomationId)
+                .Where(value => !string.IsNullOrEmpty(value)).Distinct().Order(StringComparer.Ordinal));
+            throw new InvalidOperationException(
+                $"Expected one {typeof(T).Name} with AutomationId '{id}', found {matches.Length}. Available IDs: [{available}].");
+        }
+
+        return matches[0];
+    }
 
     private static IEnumerable<DependencyObject> Descendants(DependencyObject root)
     {
@@ -481,13 +502,15 @@ public sealed class DesktopWorkflowSpecs
     private static async Task UntilAsync(Func<bool> predicate)
     {
         var limit = DateTimeOffset.UtcNow.AddSeconds(20);
-        while (!predicate())
+        while (true)
         {
+            // Let rendering, templates and Loaded handlers settle before checking readiness.
+            // Checking only view-model state can otherwise return before the new view exists.
+            await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+            if (predicate()) { return; }
             if (DateTimeOffset.UtcNow >= limit) { throw new TimeoutException("WPF workflow did not reach its expected state."); }
             await Task.Delay(25);
         }
-
-        await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
     }
 
     private static void Capture(Window window, string name)
