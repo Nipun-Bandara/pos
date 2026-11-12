@@ -64,6 +64,29 @@ jobs:
           path: tests/RetailCore.Desktop.Tests/bin/Release/net10.0-windows/artifacts/*
           if-no-files-found: warn
 
+  windows-package:
+    name: Windows installer and clean-profile smoke
+    needs: windows-desktop
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Build self-contained Windows installer
+        shell: pwsh
+        run: ./scripts/build-installer.ps1
+      - name: Install, schedule backup and preserve user data on uninstall
+        shell: pwsh
+        run: ./scripts/test-installer.ps1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-installer
+          path: artifacts/installer/*
+          if-no-files-found: error
+
   legacy-postgres:
     name: Optional legacy PostgreSQL compatibility
     if: github.event_name == 'workflow_dispatch' && inputs.legacy_postgres
