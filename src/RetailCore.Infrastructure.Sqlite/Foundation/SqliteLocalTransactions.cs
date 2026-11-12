@@ -11,19 +11,19 @@ using RetailCore.Domain.Tenancy;
 namespace RetailCore.Infrastructure.Sqlite.Foundation;
 
 /// <summary>Serializes local writers; every busy retry gets a new context and transaction.</summary>
-public sealed class SqliteLocalTransactions(IServiceScopeFactory scopes) : ILocalTransactions
+public sealed class SqliteLocalTransactions(IServiceScopeFactory scopes, RetailCore.Infrastructure.Sqlite.Recovery.LocalDatabase database, RetailCore.Infrastructure.Sqlite.Recovery.SqliteRecovery recovery) : ILocalTransactions
 {
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
-        await using var scope = scopes.CreateAsyncScope();
-        var context = scope.ServiceProvider.GetRequiredService<TillDbContext>();
-        await context.Database.MigrateAsync(cancellationToken).ConfigureAwait(false);
+        await recovery.InitializeAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<T> ReadAsync<T>(Func<ILocalStore, CancellationToken, Task<T>> query,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(query);
+        using var lease = await database.EnterAsync(cancellationToken).ConfigureAwait(false);
+        database.RequireReady();
         await using var scope = scopes.CreateAsyncScope();
         var context = scope.ServiceProvider.GetRequiredService<TillDbContext>();
         await context.Database.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
@@ -50,6 +50,8 @@ public sealed class SqliteLocalTransactions(IServiceScopeFactory scopes) : ILoca
         Guid? operationId, string kind, string fingerprint, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(command);
+        using var lease = await database.EnterAsync(cancellationToken).ConfigureAwait(false);
+        database.RequireReady();
         for (var attempt = 0; ; attempt++)
         {
             try
@@ -93,7 +95,7 @@ public sealed class SqliteLocalTransactions(IServiceScopeFactory scopes) : ILoca
     private static bool IsBusy(Exception ex) => ex is SqliteException { SqliteErrorCode: 5 or 6 }
         || ex is DbUpdateException { InnerException: SqliteException { SqliteErrorCode: 5 or 6 } };
 
-    private sealed class LocalStore(TillDbContext context) : ILocalStore
+    internal sealed class LocalStore(TillDbContext context) : ILocalStore
     {
         public Task<RetailCore.Domain.Shifts.ShiftSalesSummary> ShiftSummaryAsync(ShiftId shift, CancellationToken ct) =>
             new RetailCore.Infrastructure.Persistence.ShiftRepository(context).SalesSummaryAsync(shift, ct);
@@ -111,6 +113,19 @@ public sealed class SqliteLocalTransactions(IServiceScopeFactory scopes) : ILoca
                 .ToListAsync(cancellationToken).ConfigureAwait(false);
         public async Task<IReadOnlyList<RetailCore.Domain.Catalogue.Product>> ProductsAsync(ShopId shop, CancellationToken ct) =>
             await context.Products.IgnoreQueryFilters().Where(p => p.ShopId == shop).ToListAsync(ct).ConfigureAwait(false);
+        public async Task<IReadOnlyList<RetailCore.Domain.Catalogue.Product>> CheckoutProductsAsync(ShopId shop, IReadOnlyCollection<ProductId> ids, string? barcode, CancellationToken ct)
+        {
+            // Financial inputs are reloaded inside each write; unrelated catalogue aggregates are not needed.
+            var products = context.Products.IgnoreQueryFilters().AsNoTracking().Where(p => p.ShopId == shop);
+            var selected = products.Where(p => ids.Contains(p.Id) || (barcode != null && p.Barcodes.Any(b => b.Code == barcode)));
+            var roots = selected.Where(p => p.StockBaseProductId != null).Select(p => p.StockBaseProductId!.Value);
+            return await products.Where(p => selected.Select(s => s.Id).Contains(p.Id) || roots.Contains(p.Id)).ToListAsync(ct).ConfigureAwait(false);
+        }
+        public async Task<IReadOnlyList<RetailCore.Application.Checkout.BillingProduct>> BillingProductsAsync(ShopId shop, CancellationToken ct) =>
+            await context.Products.IgnoreQueryFilters().AsNoTracking().Where(p => p.ShopId == shop)
+                .Select(p => new RetailCore.Application.Checkout.BillingProduct(p.Id, p.Sku, p.SinhalaName, p.Name, p.CategoryId, p.Unit,
+                    p.Barcodes.Select(b => b.Code).ToArray(), p.IsActive && !p.IsOpenPrice && !string.IsNullOrWhiteSpace(p.ReceiptName)))
+                .ToListAsync(ct).ConfigureAwait(false);
         public async Task<IReadOnlyList<RetailCore.Domain.Catalogue.Category>> CategoriesAsync(ShopId shop, CancellationToken ct) =>
             await context.Categories.IgnoreQueryFilters().Where(p => p.ShopId == shop).ToListAsync(ct).ConfigureAwait(false);
         public async Task<IReadOnlyList<RetailCore.Domain.Tax.TaxRate>> TaxRatesAsync(ShopId shop, CancellationToken ct) =>

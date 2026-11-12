@@ -44,3 +44,8 @@ appsettings.*.local.json
 *.snk
 .env
 .env.*
+
+## Local maintenance journals, status and process locks
+*.db.recovery/
+*.db.maintenance
+*-backups/

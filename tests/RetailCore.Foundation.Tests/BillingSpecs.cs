@@ -233,6 +233,29 @@ public sealed partial class FoundationSpecs
     }
 
     [Fact]
+    public async Task Search_selection_loads_pack_root_and_settlement_reloads_current_conversion()
+    {
+        await using var f = new LocalFixture(); await f.SetupAsync(); var (root, pack) = await StockProducts(f);
+        await Stock(f).PostAsync(Entry(f, pack)); await Billing(f).OpenShiftAsync(Guid.NewGuid(), 0);
+        var state = await Billing(f).LoadAsync();
+        state.Products.Select(p => p.Id).ShouldContain(root);
+        state.Products.Select(p => p.Id).ShouldContain(pack);
+        state = await Billing(f).EditAsync(new(state.Basket.Id, state.Basket.Version, pack, 1));
+        state.Quote.Stock.Single().ProductId.ShouldBe(root);
+        state.Quote.Stock.Single().Remaining.ShouldBe(25m);
+        await f.Transactions.WriteAsync(async (store, ct) =>
+        {
+            var product = (await store.ProductsAsync((await store.ShopsAsync(ct)).Single().Id, ct)).Single(p => p.Id == pack);
+            product.ConfigureStock(root, UnitOfMeasure.Kilogram, 20000, Quantity.Of(0));
+            return true;
+        });
+        (await Should.ThrowAsync<FoundationException>(() => Billing(f).CompleteAsync(Cash(state, 4000)))).Key.ShouldBe("CheckoutChanged");
+        state = await Billing(f).LoadAsync(); state.Quote.Stock.Single().Remaining.ShouldBe(30m);
+        await Billing(f).CompleteAsync(Cash(state, 4000));
+        (await Stock(f).LoadAsync()).Products.ShouldAllBe(p => p.Balance == 30m);
+    }
+
+    [Fact]
     public async Task Locked_sessions_and_other_cashiers_cannot_edit_or_complete_another_users_cart()
     {
         await using var f = new LocalFixture(); var owner = await f.SetupAsync(); var p = await BillingProduct(f, 150);

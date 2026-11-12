@@ -325,15 +325,18 @@ public sealed partial class FoundationSpecs
     private sealed class LocalFixture : IAsyncDisposable
     {
         private readonly string _directory = Path.Combine(Path.GetTempPath(), "retailcore-tests-" + Guid.NewGuid().ToString("N"));
+        public string DirectoryPath => _directory;
         private readonly FailAfterSave? _failure;
+        private readonly RetailCore.Infrastructure.Sqlite.Recovery.IRecoveryFaults? _recoveryFault;
         public TestClock Clock { get; } = new();
         public ServiceProvider Provider { get; private set; }
         public FoundationService App => Provider.GetRequiredService<FoundationService>();
         public ILocalTransactions Transactions => Provider.GetRequiredService<ILocalTransactions>();
 
-        public LocalFixture(FailAfterSave? failure = null)
+        public LocalFixture(FailAfterSave? failure = null, RetailCore.Infrastructure.Sqlite.Recovery.IRecoveryFaults? recoveryFault = null)
         {
             _failure = failure;
+            _recoveryFault = recoveryFault;
             Provider = Build();
         }
 
@@ -342,6 +345,7 @@ public sealed partial class FoundationSpecs
             var services = new ServiceCollection();
             services.AddLocalFoundation(Path.Combine(_directory, "till.db"));
             services.AddSingleton<IClock>(Clock);
+            if(_recoveryFault is not null)services.AddSingleton(_recoveryFault);
             if (_failure is not null) { services.AddDbContext<TillDbContext>(o => o.AddInterceptors(_failure)); }
             return services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true, ValidateOnBuild = true });
         }
@@ -374,6 +378,7 @@ public sealed partial class FoundationSpecs
             await Provider.DisposeAsync();
             SqliteConnection.ClearAllPools();
             Directory.Delete(_directory, true);
+            if(Directory.Exists(_directory+"-backups"))Directory.Delete(_directory+"-backups",true);
         }
     }
 }

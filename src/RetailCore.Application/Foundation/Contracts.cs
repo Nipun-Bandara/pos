@@ -24,6 +24,8 @@ public interface ILocalStore
     Task<IReadOnlyList<Terminal>> TerminalsAsync(ShopId shopId, CancellationToken cancellationToken);
     Task<IReadOnlyList<User>> UsersAsync(ShopId shopId, CancellationToken cancellationToken);
     Task<IReadOnlyList<RetailCore.Domain.Catalogue.Product>> ProductsAsync(ShopId shop, CancellationToken ct);
+    Task<IReadOnlyList<RetailCore.Domain.Catalogue.Product>> CheckoutProductsAsync(ShopId shop, IReadOnlyCollection<ProductId> ids, string? barcode, CancellationToken ct);
+    Task<IReadOnlyList<RetailCore.Application.Checkout.BillingProduct>> BillingProductsAsync(ShopId shop, CancellationToken ct);
     Task<IReadOnlyList<RetailCore.Domain.Catalogue.Category>> CategoriesAsync(ShopId shop, CancellationToken ct);
     Task<IReadOnlyDictionary<ProductId, long>> StockAsync(ShopId shop, CancellationToken ct);
     Task<IReadOnlyList<RetailCore.Domain.Tax.TaxRate>> TaxRatesAsync(ShopId shop, CancellationToken ct);

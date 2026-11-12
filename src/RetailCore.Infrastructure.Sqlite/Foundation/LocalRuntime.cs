@@ -19,8 +19,13 @@ public static class LocalRuntime
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         var connection = new SqliteConnectionStringBuilder
         {
-            DataSource = path, ForeignKeys = true, DefaultTimeout = 5,
+            DataSource = path, ForeignKeys = true, DefaultTimeout = 5, Pooling = false,
         }.ToString();
+        services.AddSingleton(new RetailCore.Infrastructure.Sqlite.Recovery.LocalDatabase(path));
+        services.AddSingleton<RetailCore.Infrastructure.Sqlite.Recovery.IRecoveryFaults,RetailCore.Infrastructure.Sqlite.Recovery.NoRecoveryFaults>();
+        services.AddSingleton<RetailCore.Infrastructure.Sqlite.Recovery.SqliteRecovery>();
+        services.AddSingleton<RetailCore.Application.Recovery.IRecoveryStorage>(sp=>sp.GetRequiredService<RetailCore.Infrastructure.Sqlite.Recovery.SqliteRecovery>());
+        services.AddSingleton<RetailCore.Application.Recovery.RecoveryService>();
         services.AddRetailCorePersistence();
         services.AddDbContext<TillDbContext>(options => options.UseSqlite(connection)
             .AddInterceptors(new SqliteDurabilityInterceptor()));
