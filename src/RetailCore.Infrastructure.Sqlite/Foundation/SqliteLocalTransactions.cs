@@ -113,6 +113,19 @@ public sealed class SqliteLocalTransactions(IServiceScopeFactory scopes, RetailC
                 .ToListAsync(cancellationToken).ConfigureAwait(false);
         public async Task<IReadOnlyList<RetailCore.Domain.Catalogue.Product>> ProductsAsync(ShopId shop, CancellationToken ct) =>
             await context.Products.IgnoreQueryFilters().Where(p => p.ShopId == shop).ToListAsync(ct).ConfigureAwait(false);
+        public async Task<IReadOnlyList<RetailCore.Domain.Catalogue.Product>> CheckoutProductsAsync(ShopId shop, IReadOnlyCollection<ProductId> ids, string? barcode, CancellationToken ct)
+        {
+            // Financial inputs are reloaded inside each write; unrelated catalogue aggregates are not needed.
+            var products = context.Products.IgnoreQueryFilters().AsNoTracking().Where(p => p.ShopId == shop);
+            var selected = products.Where(p => ids.Contains(p.Id) || (barcode != null && p.Barcodes.Any(b => b.Code == barcode)));
+            var roots = selected.Where(p => p.StockBaseProductId != null).Select(p => p.StockBaseProductId!.Value);
+            return await products.Where(p => selected.Select(s => s.Id).Contains(p.Id) || roots.Contains(p.Id)).ToListAsync(ct).ConfigureAwait(false);
+        }
+        public async Task<IReadOnlyList<RetailCore.Application.Checkout.BillingProduct>> BillingProductsAsync(ShopId shop, CancellationToken ct) =>
+            await context.Products.IgnoreQueryFilters().AsNoTracking().Where(p => p.ShopId == shop)
+                .Select(p => new RetailCore.Application.Checkout.BillingProduct(p.Id, p.Sku, p.SinhalaName, p.Name, p.CategoryId, p.Unit,
+                    p.Barcodes.Select(b => b.Code).ToArray(), p.IsActive && !p.IsOpenPrice && !string.IsNullOrWhiteSpace(p.ReceiptName)))
+                .ToListAsync(ct).ConfigureAwait(false);
         public async Task<IReadOnlyList<RetailCore.Domain.Catalogue.Category>> CategoriesAsync(ShopId shop, CancellationToken ct) =>
             await context.Categories.IgnoreQueryFilters().Where(p => p.ShopId == shop).ToListAsync(ct).ConfigureAwait(false);
         public async Task<IReadOnlyList<RetailCore.Domain.Tax.TaxRate>> TaxRatesAsync(ShopId shop, CancellationToken ct) =>

@@ -60,7 +60,7 @@ public sealed class BillingService(ILocalTransactions transactions, FoundationSe
     public Task<BillingState> ScanAsync(Guid basketId, long version, string barcode, decimal quantity = 1,
         CancellationToken cancellationToken = default) => transactions.WriteAsync(async (store, ct) =>
     {
-        var c = await ContextAsync(store, ct).ConfigureAwait(false);
+        var c = await ContextAsync(store, ct, barcode: barcode.Trim()).ConfigureAwait(false);
         RequireVersion(c.Basket, basketId, version);
         var matches = c.Products.Where(p => p.IsActive && p.HasBarcode(barcode.Trim())).ToArray();
         if (matches.Length != 1) throw new FoundationException(matches.Length == 0 ? "BarcodeNotFound" : "AmbiguousBarcode");
@@ -82,7 +82,7 @@ public sealed class BillingService(ILocalTransactions transactions, FoundationSe
 
     public Task<BillingState> EditAsync(BasketEdit input, CancellationToken cancellationToken = default) => transactions.WriteAsync(async (store, ct) =>
     {
-        var c = await ContextAsync(store, ct).ConfigureAwait(false);
+        var c = await ContextAsync(store, ct, extra: input.ProductId).ConfigureAwait(false);
         RequireVersion(c.Basket, input.BasketId, input.Version);
         var items = c.Basket.Items.ToList();
         var index = items.FindIndex(i => i.ProductId == input.ProductId);
@@ -195,7 +195,7 @@ public sealed class BillingService(ILocalTransactions transactions, FoundationSe
     internal async Task<Sale> BuildWithinAsync(ILocalStore store, UserId owner, CancellationToken ct) =>
         BuildSale(await ContextAsync(store,ct).ConfigureAwait(false),owner);
 
-    private async Task<Context> ContextAsync(ILocalStore store, CancellationToken ct)
+    private async Task<Context> ContextAsync(ILocalStore store, CancellationToken ct, ProductId? extra = null, string? barcode = null)
     {
         var actor = await foundation.RequireUserAsync(store, false, ct).ConfigureAwait(false);
         var shop = (await store.ShopsAsync(ct).ConfigureAwait(false)).Single();
@@ -204,8 +204,10 @@ public sealed class BillingService(ILocalTransactions transactions, FoundationSe
         if (cart is null) { cart = BasketDocument.Empty(); store.SaveBasket(shop.Id, terminal.Id, actor.Id, cart); }
         var shift = await store.OpenShiftAsync(shop.Id, terminal.Id, ct).ConfigureAwait(false);
         if (shift is not null && shift.Currency != shop.Currency) throw new FoundationException("LocalConfiguration");
+        var ids = cart.Items.Select(i => i.ProductId).Concat(extra is { } id ? [id] : []).Distinct().ToArray();
         return new Context(actor, shop, terminal, shift, cart,
-            await store.ProductsAsync(shop.Id, ct).ConfigureAwait(false), await store.TaxRatesAsync(shop.Id, ct).ConfigureAwait(false),
+            await store.CheckoutProductsAsync(shop.Id, ids, barcode, ct).ConfigureAwait(false),
+            await store.TaxRatesAsync(shop.Id, ct).ConfigureAwait(false),
             await store.StockAsync(shop.Id, ct).ConfigureAwait(false), await store.MovementsAsync(shop.Id, ct).ConfigureAwait(false));
     }
 
@@ -236,8 +238,7 @@ public sealed class BillingService(ILocalTransactions transactions, FoundationSe
         var categories = await store.CategoriesAsync(c.Shop.Id, ct).ConfigureAwait(false);
         return new BillingState(c.Basket, quote, c.Shift is null ? null : new BillingShift(c.Shift.Id, c.Shift.OpeningFloat.ToDecimal(),
             (await store.ExpectedCashAsync(c.Shift, ct).ConfigureAwait(false)).ToDecimal()),
-            c.Products.Select(p => new BillingProduct(p.Id, p.Sku, p.SinhalaName, p.Name, p.CategoryId, p.Unit,
-                p.Barcodes.Select(b => b.Code).ToArray(), p.IsActive && !p.IsOpenPrice && !string.IsNullOrWhiteSpace(p.ReceiptName))).ToArray(),
+            await store.BillingProductsAsync(c.Shop.Id, ct).ConfigureAwait(false),
             categories.Where(c => c.IsActive).Select(c => new BillingCategory(c.Id, $"{c.SinhalaName} / {c.Name}")).ToArray());
     }
 
