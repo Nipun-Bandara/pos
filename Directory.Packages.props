@@ -13,6 +13,10 @@
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
   </ItemGroup>
 
+  <ItemGroup Label="Desktop">
+    <PackageVersion Include="MaterialDesignThemes" Version="5.3.2" />
+  </ItemGroup>
+
   <ItemGroup Label="Extensions">
     <PackageVersion Include="BouncyCastle.Cryptography" Version="2.7.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.11" />

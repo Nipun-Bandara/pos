@@ -21,10 +21,14 @@ public sealed class ApprovalDialog : Window
     {
         Title = Texts.Get("OwnerApproval");
         Width = 560;
+        MinWidth = 440; MinHeight = 420;
+        Background = (System.Windows.Media.Brush)System.Windows.Application.Current.FindResource("PosBackground");
+        Foreground = (System.Windows.Media.Brush)System.Windows.Application.Current.FindResource("PosInk");
+        UseLayoutRounding = true;
         Height = 650;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
-        FontSize = 16;
-        FontFamily = new System.Windows.Media.FontFamily("Nirmala UI, Iskoola Pota, Segoe UI");
+        FontSize = 14;
+        FontFamily = (System.Windows.Media.FontFamily)System.Windows.Application.Current.FindResource("PosFont");
         var panel = MainWindow.Form("OwnerApproval");
         panel.Margin = new Thickness(24);
         panel.Children.Add(new TextBlock { Text = Texts.Get("ApprovalHelp"), TextWrapping = TextWrapping.Wrap });
@@ -59,7 +63,14 @@ public sealed class ApprovalDialog : Window
         };
         panel.Children.Add(approve);
         panel.Children.Add(cancel);
-        Content = new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+        approve.SetResourceReference(StyleProperty, "PosPrimaryButton");
+        System.Windows.Automation.AutomationProperties.SetName(owner, Texts.Get("SelectUser"));
+        System.Windows.Automation.AutomationProperties.SetName(approve, Texts.Get("Approve"));
+        System.Windows.Automation.AutomationProperties.SetName(cancel, Texts.Get("Cancel"));
+        System.Windows.Automation.AutomationProperties.SetLiveSetting(error, System.Windows.Automation.AutomationLiveSetting.Assertive);
+        var surface = new Border { Child = panel, Margin = new Thickness(12) }; panel.Margin = new Thickness(0);
+        surface.SetResourceReference(StyleProperty, "PosSurfaceBorder");
+        Content = new ScrollViewer { Content = surface, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled };
         Loaded += (_, _) => pin.Focus();
         Closed += (_, _) => pin.Clear();
     }

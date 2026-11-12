@@ -13,31 +13,13 @@ namespace RetailCore.Desktop;
 public sealed partial class MainWindow : Window
 {
     private readonly MainViewModel _vm;
-    private readonly DockPanel _root = new() { Margin = new Thickness(24) };
-    private readonly TextBlock _status = new() { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 8), Foreground = Brushes.DarkRed };
-    private readonly TextBlock _backupHealth = new() { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0,4,0,4) };
-    private readonly ContentControl _body = new();
-    private readonly ContentControl _header = new();
     private readonly DispatcherTimer _idleTimer = new() { Interval = TimeSpan.FromSeconds(15) };
     private DateTimeOffset _lastInput = DateTimeOffset.UtcNow;
 
     public MainWindow(MainViewModel vm)
     {
         _vm = vm;
-        Width = 1100;
-        Height = 800;
-        MinWidth = 800;
-        MinHeight = 600;
-        FontFamily = new FontFamily("Nirmala UI, Iskoola Pota, Segoe UI");
-        FontSize = 16;
-        WindowStartupLocation = WindowStartupLocation.CenterScreen;
-        Content = _root;
-        DockPanel.SetDock(_header, Dock.Top);
-        DockPanel.SetDock(_status, Dock.Bottom);
-        _root.Children.Add(_header);
-        _root.Children.Add(_status);
-        DockPanel.SetDock(_backupHealth,Dock.Bottom);_root.Children.Add(_backupHealth);
-        _root.Children.Add(_body);
+        InitializeComponent();
         _vm.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(MainViewModel.Screen)) { Render(); }
@@ -46,6 +28,7 @@ public sealed partial class MainWindow : Window
             _body.IsEnabled = !_vm.Busy || (_vm.Screen == "Shell" && _vm.Section == "Billing");
             if (_billingActions is not null) _billingActions.IsEnabled = !_vm.Busy;
             _header.IsEnabled = !_vm.Busy;
+            _nav.IsEnabled = !_vm.Busy;
         };
         Loaded += async (_, _) => { Render(); await _vm.RunAsync(_vm.StartAsync); };
         System.Windows.Input.InputManager.Current.PreProcessInput += RecordInput;
@@ -89,24 +72,32 @@ public sealed partial class MainWindow : Window
         }
         Title = Texts.Get("AppTitle");
         Language = System.Windows.Markup.XmlLanguage.GetLanguage(CultureInfo.CurrentUICulture.IetfLanguageTag);
-        var header = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 20) };
-        header.Children.Add(new TextBlock { Text = Texts.Get("AppTitle"), FontSize = 26, Margin = new Thickness(0, 0, 24, 0), VerticalAlignment = VerticalAlignment.Center });
+        _appTitle.Text = Texts.Get("AppTitle");
+        _currentUser.Text = _vm.Current is not null && !_vm.Session.IsLocked
+            ? _vm.Current.Name + " · " + Texts.Get(_vm.IsOwner ? "Owner" : "Cashier") : string.Empty;
         var languages = LanguagePicker(Texts.Language);
         languages.SelectionChanged += async (_, _) =>
         {
             var code = languages.SelectedIndex == 1 ? "si" : "en";
-            if (code != Texts.Language) { await _vm.RunAsync(() => _vm.ChangeLanguageAsync(code)); }
+            if (code != Texts.Language) await _vm.RunAsync(() => _vm.ChangeLanguageAsync(code));
         };
         AutomationProperties.SetName(languages, Texts.Get("Language"));
-        header.Children.Add(languages);
-        if (_vm.Current is not null && !_vm.Session.IsLocked)
+        AutomationProperties.SetAutomationId(languages, "UiLanguage");
+        _languageSlot.Content = languages;
+        var signedIn = _vm.Current is not null && !_vm.Session.IsLocked;
+        _lockButton.Visibility = _signOutButton.Visibility = signedIn ? Visibility.Visible : Visibility.Collapsed;
+        _lockButton.Content = Texts.Get("Lock"); _signOutButton.Content = Texts.Get("SignOut");
+        _nav.Visibility = _vm.Screen == "Shell" ? Visibility.Visible : Visibility.Collapsed;
+        _sectionTitle.Visibility = _vm.Screen == "Shell" ? Visibility.Visible : Visibility.Collapsed;
+        _sectionTitle.Text = Texts.Get(_vm.Section);
+        foreach (var button in _navigation.Children.OfType<Button>())
         {
-            header.Children.Add(new TextBlock { Text = _vm.Current.Name, Margin = new Thickness(20, 8, 16, 0) });
-            header.Children.Add(Button("Lock", () => { LockNow(); return Task.CompletedTask; }));
-            header.Children.Add(Button("SignOut", _vm.SignOutAsync));
+            var section = (string)button.Tag;
+            button.Content = Texts.Get(section);
+            AutomationProperties.SetName(button, Texts.Get(section));
+            AutomationProperties.SetItemStatus(button, _vm.Section == section ? Texts.Get("CurrentSection") : string.Empty);
+            button.Style = (Style)FindResource(_vm.Section == section ? "PosSelectedNavButton" : "PosNavButton");
         }
-
-        _header.Content = header;
         _body.Content = _vm.Screen switch
         {
             "Setup" => SetupView(),
@@ -143,7 +134,7 @@ public sealed partial class MainWindow : Window
             }
             finally { pin.Clear(); confirmation.Clear(); }
         }));
-        return Scroll(panel);
+        return AuthPage(panel);
     }
 
     private ScrollViewer LoginView()
@@ -178,55 +169,24 @@ public sealed partial class MainWindow : Window
         };
         if (_vm.Unlocking) { panel.Children.Add(Button("SignOut", _vm.SignOutAsync)); }
         panel.Loaded += (_, _) => pin.Focus();
-        return Scroll(panel);
+        return AuthPage(panel);
     }
 
-    private DockPanel ShellView()
+    private async void NavigateClicked(object sender, RoutedEventArgs e) =>
+        await _vm.RunAsync(() => _vm.NavigateAsync((string)((Button)sender).Tag));
+    private void LockClicked(object sender, RoutedEventArgs e) => LockNow();
+    private async void SignOutClicked(object sender, RoutedEventArgs e) => await _vm.RunAsync(_vm.SignOutAsync);
+
+    private FrameworkElement ShellView() => _vm.Section switch
     {
-        var dock = new DockPanel();
-        var nav = new StackPanel { Width = 180, Margin = new Thickness(0, 0, 24, 0) };
-        DockPanel.SetDock(nav, Dock.Left);
-        foreach (var section in new[] { "Billing", "Products", "Stock", "Returns", "Reports", "Settings" })
-        {
-            var button = Button(section, () => _vm.NavigateAsync(section));
-            if (_vm.Section == section) { button.FontWeight = FontWeights.Bold; }
-            nav.Children.Add(button);
-        }
-
-        dock.Children.Add(nav);
-        if (_vm.Section == "Billing")
-        {
-            dock.Children.Add(BillingView());
-        }
-        else if (_vm.Section == "Returns")
-        {
-            dock.Children.Add(ReturnsView());
-        }
-        else if (_vm.Section == "Reports")
-        {
-            dock.Children.Add(TradingView());
-        }
-        else if (_vm.Section == "Settings" && _vm.IsOwner)
-        {
-            dock.Children.Add(SettingsView());
-        }
-        else if (_vm.Section == "Stock")
-        {
-            dock.Children.Add(StockView());
-        }
-        else if (_vm.Section == "Products")
-        {
-            dock.Children.Add(ProductsView());
-        }
-        else
-        {
-            var placeholder = Form(_vm.Section);
-            placeholder.Children.Add(new TextBlock { Text = Texts.Get(_vm.Section == "Settings" ? "OwnerRequired" : "ComingSoon"), TextWrapping = TextWrapping.Wrap });
-            dock.Children.Add(Scroll(placeholder));
-        }
-
-        return dock;
-    }
+        "Billing" => BillingView(),
+        "Returns" => ReturnsView(),
+        "Reports" => TradingView(),
+        "Settings" when _vm.IsOwner => SettingsView(),
+        "Stock" => StockView(),
+        "Products" => ProductsView(),
+        _ => new Border { Child = new TextBlock { Text = Texts.Get("OwnerRequired"), TextWrapping = TextWrapping.Wrap } },
+    };
 
     private ScrollViewer SettingsView()
     {
@@ -317,6 +277,7 @@ public sealed partial class MainWindow : Window
             }
             finally { resetPin.Clear(); }
         }));
+        ArrangeFields(panel);
         return Scroll(panel);
     }
 
@@ -324,20 +285,22 @@ public sealed partial class MainWindow : Window
     {
         var button = new Button { Content = Texts.Get(key), HorizontalAlignment = HorizontalAlignment.Left };
         AutomationProperties.SetAutomationId(button, key);
+        AutomationProperties.SetName(button, Texts.Get(key));
+        if (PrimaryActions.Contains(key)) button.SetResourceReference(StyleProperty, "PosPrimaryButton");
         button.Click += async (_, _) => await _vm.RunAsync(action);
         return button;
     }
 
     internal static StackPanel Form(string heading)
     {
-        var panel = new StackPanel { MaxWidth = 680, HorizontalAlignment = HorizontalAlignment.Left, MinWidth = 380 };
-        panel.Children.Add(new TextBlock { Text = Texts.Get(heading), FontSize = 28, Margin = new Thickness(0, 0, 0, 18) });
+        var panel = new StackPanel { MaxWidth = 680, HorizontalAlignment = HorizontalAlignment.Stretch };
+        panel.Children.Add(new TextBlock { Text = Texts.Get(heading), Style = (Style)System.Windows.Application.Current.FindResource("PosPageTitle") });
         return panel;
     }
 
     internal static void Label(Panel panel, string key) => panel.Children.Add(new TextBlock
     {
-        Text = Texts.Get(key), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 5),
+        Text = Texts.Get(key), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 2),
     });
 
     internal static TextBox Field(Panel panel, string key, string? value = null)

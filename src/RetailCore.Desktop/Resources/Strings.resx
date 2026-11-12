@@ -851,4 +851,10 @@
 <data name="AuditDatabaseRestored" xml:space="preserve"><value>Database restored</value></data>
 <data name="AuditBackupCreated" xml:space="preserve"><value>Backup created</value></data>
 <data name="AuditBackupSettingsRequested" xml:space="preserve"><value>Backup destination change requested</value></data>
+  <data name="CurrentSection" xml:space="preserve"><value>Current section</value></data>
+  <data name="NoRows" xml:space="preserve"><value>No matching records. Change the filters or add a record.</value></data>
+  <data name="BasketTitle" xml:space="preserve"><value>Current bill</value></data>
+  <data name="PaymentTitle" xml:space="preserve"><value>Payment</value></data>
+  <data name="LineDetails" xml:space="preserve"><value>Selected item details</value></data>
+  <data name="CheckoutOptions" xml:space="preserve"><value>Discount and stock approval</value></data>
 </root>

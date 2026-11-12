@@ -6,6 +6,7 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="MaterialDesignThemes" />
     <ProjectReference Include="../RetailCore.Infrastructure.Sqlite/RetailCore.Infrastructure.Sqlite.csproj" />
   </ItemGroup>
 </Project>
