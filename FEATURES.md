@@ -181,6 +181,10 @@ label the reporting period. CSV should open correctly in Windows Excel.
 
 ## 7. Interface, access and maintenance
 
+Milestone 08 implements backup/recovery, controlled database upgrades and Windows packaging
+in source. Windows installation, physical devices, intended-PC performance and the full pilot
+week are not accepted; see [the validation boundary](docs/implementation/MILESTONE_08.md).
+
 | ID | Feature | Priority | Status |
 |---|---|---|---|
 | CFG-01 | One shop profile: name/address/phone, currency, receipt details and printer | Must | Foundation |
@@ -195,9 +199,9 @@ label the reporting period. CSV should open correctly in Windows Excel.
 | CSH-01 | Daily/shift opening float | Must | Foundation |
 | CSH-04 | Close day/shift with counted cash and variance | Must | Foundation |
 | CSH-05 | Cash pay-in/out with reason | Must | Foundation |
-| OPS-01 | Windows installer, controlled upgrades and pre-upgrade backup | Must | Planned |
+| OPS-01 | Windows installer, controlled upgrades and pre-upgrade backup | Must | Foundation |
 | OPS-02 | Local error logs and a simple support export | Should | Planned |
-| OPS-07 | Automatic daily backup, manual backup and verified restore | Must | Planned |
+| OPS-07 | Automatic daily backup, manual backup and verified restore | Must | Foundation |
 
 Back up outside the application database folder; offer a second destination such as USB.
 Display last successful backup and failures. A second copy on the same disk is not sufficient

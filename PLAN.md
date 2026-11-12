@@ -41,7 +41,10 @@ partial returns, eligible voids, atomic exchanges and linked Sinhala documents i
 Windows and physical acceptance remain pending. See [validation notes](docs/implementation/MILESTONE_06.md).
 Milestone 07 adds close/count/variance, trading reports and shared export workflows in source;
 Windows and physical acceptance remain pending. See [validation notes](docs/implementation/MILESTONE_07.md).
-Backup and installation remain milestone 08. Tenant/outbox infrastructure is legacy
+Milestone 08 adds verified backup/restore, guarded upgrades and Windows installer source;
+Windows/device validation, intended-PC measurements and the supervised pilot remain outstanding.
+See [milestone 08 notes](docs/implementation/MILESTONE_08.md) and
+[the uncompleted acceptance record](docs/implementation/PILOT_ACCEPTANCE.md). Tenant/outbox infrastructure is legacy
 scope. Earlier documents reported passing tests; current build/test status must be verified
 in the implementation environment rather than carried forward as a guarantee.
 

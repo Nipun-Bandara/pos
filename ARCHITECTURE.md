@@ -248,3 +248,32 @@ The latter embeds 192 dpi rendered pages and does not require a PDF printer or r
 Reports identify their local period, timezone, currency and filters. Stock valuation uses current
 recorded base-unit cost and excludes pack aliases. Windows/physical acceptance and export
 limitations are recorded in [milestone 07 validation notes](docs/implementation/MILESTONE_07.md).
+
+## Milestone 08 maintenance boundary
+
+All local units of work participate in a per-database process/OS lease. `RecoveryService`
+checks an active owner inside that boundary; restore binds an owner PIN grant to archive
+checksum, path, reason and operation ID, requires a closed current shift and invalidates the
+current session. `SqliteRecovery` creates SQLite live snapshots, standalone verified archives,
+retention and independent second-copy outcomes. Host-local backup configuration survives
+restoring shop data. Daily scheduling uses the shop-local date and an installed per-user
+Windows task without stored credentials.
+
+Integrity, foreign keys, declared migration prefix and exact known schema/guards are checked
+before restore. Known older backups migrate only in staging. Verified safety copies precede
+restore and forward upgrades. A durable maintenance journal blocks trading until startup
+verifies an operation's committed marker or restores its safety snapshot. No EF down migration
+is used. Restored financial/stock/audit/receipt records remain one consistent SQLite image.
+Restore provenance records original identity names even across replacement checkout profiles.
+
+The per-user self-contained Windows installer keeps data outside program files, checks the app
+mutex and runs pre-upgrade preparation before replacing subsequent installed versions.
+Uninstall preserves business data/backups. Package compilation, real dispatcher checks and
+installer smoke have Windows CI definitions; they do not establish physical printer/scanner,
+USB storage or pilot acceptance. See [milestone 08 notes](docs/implementation/MILESTONE_08.md)
+and [the pending owner acceptance record](docs/implementation/PILOT_ACCEPTANCE.md).
+
+Checkout performance diagnostics use an isolated 10,000-product SQLite workload. Financial
+product aggregates are queried afresh for basket/selected items and their stock roots;
+the searchable catalogue uses a lightweight projection. No cross-command price/stock cache
+is introduced. Backend timings do not replace WPF/intended-PC performance acceptance.
