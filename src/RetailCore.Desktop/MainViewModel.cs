@@ -6,8 +6,11 @@ using RetailCore.Domain.Security;
 
 namespace RetailCore.Desktop;
 
-public sealed class MainViewModel(FoundationService service, LocalSession session, RetailCore.Application.Catalogue.CatalogueService catalogue, RetailCore.Application.Inventory.StockService stock, RetailCore.Application.Checkout.BillingService billing, RetailCore.Application.Receipts.ReceiptService receipts, RetailCore.Application.Returns.ReturnService returns, RetailCore.Application.Reporting.CashService cash, RetailCore.Application.Reporting.ReportService reports) : INotifyPropertyChanged
+public sealed class MainViewModel(FoundationService service, LocalSession session, RetailCore.Application.Catalogue.CatalogueService catalogue, RetailCore.Application.Inventory.StockService stock, RetailCore.Application.Checkout.BillingService billing, RetailCore.Application.Receipts.ReceiptService receipts, RetailCore.Application.Returns.ReturnService returns, RetailCore.Application.Reporting.CashService cash, RetailCore.Application.Reporting.ReportService reports, RetailCore.Application.Recovery.RecoveryService recovery) : INotifyPropertyChanged
 {
+    public RetailCore.Application.Recovery.RecoveryService Recovery { get; } = recovery;
+    public string BackupHealth { get; private set; } = "BackupNever";
+    public void SetBackupHealth(string state) { BackupHealth=state; Notify(nameof(BackupHealth)); }
     public RetailCore.Application.Reporting.CashService Cash { get; } = cash;
     public RetailCore.Application.Reporting.ReportService Reports { get; } = reports;
     public RetailCore.Application.Returns.ReturnService ReturnsService { get; } = returns;

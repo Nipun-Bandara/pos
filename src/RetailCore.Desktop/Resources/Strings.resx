@@ -804,4 +804,51 @@
 <data name="Reference" xml:space="preserve"><value>Reference</value></data>
 <data name="ReorderLevel" xml:space="preserve"><value>Reorder threshold</value></data>
 <data name="TradingCashHistory" xml:space="preserve"><value>Cash pay-in/out history</value></data>
+<data name="RecoveryTitle" xml:space="preserve"><value>Backup and recovery</value></data>
+<data name="RecoveryHelp" xml:space="preserve"><value>Create verified backups here. Daily backups run while the app is open and through the installed daily task. Keep a second copy on external/USB storage. Safety copies are retained separately.</value></data>
+<data name="BackupHealth" xml:space="preserve"><value>Backup status</value></data>
+<data name="BackupPrimary" xml:space="preserve"><value>Primary backup folder</value></data>
+<data name="BackupSecond" xml:space="preserve"><value>Second folder (external/USB; optional)</value></data>
+<data name="BackupRetention" xml:space="preserve"><value>Recent manual/daily copies to retain (2–365)</value></data>
+<data name="ChooseBackupPrimary" xml:space="preserve"><value>Choose primary folder</value></data>
+<data name="ChooseBackupSecond" xml:space="preserve"><value>Choose external/USB folder</value></data>
+<data name="BackupLastPrimary" xml:space="preserve"><value>Last verified primary copy</value></data>
+<data name="BackupLastSecond" xml:space="preserve"><value>Last verified second copy</value></data>
+<data name="RefreshBackup" xml:space="preserve"><value>Refresh backup status</value></data>
+<data name="SaveBackupSettings" xml:space="preserve"><value>Save backup destinations</value></data>
+<data name="BackupNow" xml:space="preserve"><value>Back up now</value></data>
+<data name="RestoreWarning" xml:space="preserve"><value>Restore replaces current shop data with the selected backup. Close the shift first. Review its date and bill counts, obtain owner approval and keep the safety copy. Sign in again using the restored shop’s credentials.</value></data>
+<data name="RestoreFile" xml:space="preserve"><value>Backup file</value></data>
+<data name="RestoreReason" xml:space="preserve"><value>Reason for restoring</value></data>
+<data name="ChooseRestoreFile" xml:space="preserve"><value>Choose backup file</value></data>
+<data name="BackupFileFilter" xml:space="preserve"><value>SQLite backup (*.db)|*.db</value></data>
+<data name="ReviewRestore" xml:space="preserve"><value>Verify and review backup</value></data>
+<data name="RestoreBills" xml:space="preserve"><value>Saved bills</value></data>
+<data name="RestoreMovements" xml:space="preserve"><value>Stock movements</value></data>
+<data name="RestoreShifts" xml:space="preserve"><value>Shifts</value></data>
+<data name="RestoreChecksum" xml:space="preserve"><value>Verified file checksum</value></data>
+<data name="RestoreBackup" xml:space="preserve"><value>Restore verified backup</value></data>
+<data name="BackupNever" xml:space="preserve"><value>No verified backup yet. Configure destinations and back up now.</value></data>
+<data name="BackupFailed" xml:space="preserve"><value>Backup failed. Check free space and folder access, then retry.</value></data>
+<data name="BackupPrimaryOnly" xml:space="preserve"><value>Primary backup verified; no external second destination configured.</value></data>
+<data name="BackupSucceeded" xml:space="preserve"><value>Primary and second backups verified.</value></data>
+<data name="BackupSecondFailed" xml:space="preserve"><value>Primary backup verified, but second copy failed. Reconnect external/USB storage and retry.</value></data>
+<data name="BackupSecondUnavailable" xml:space="preserve"><value>Reconnect the configured external/USB destination.</value></data>
+<data name="InvalidBackupSettings" xml:space="preserve"><value>Choose separate backup folders outside the database folder and retain 2–365 copies.</value></data>
+<data name="InvalidBackup" xml:space="preserve"><value>This is not a verified closed shop backup. Choose an intact SQLite backup file.</value></data>
+<data name="BackupSchemaIncompatible" xml:space="preserve"><value>The database schema is incompatible or modified. Use a compatible backup/application version.</value></data>
+<data name="InvalidRestore" xml:space="preserve"><value>Enter a reason (up to 500 characters) and review the backup before requesting restore approval.</value></data>
+<data name="ReviewRestoreFirst" xml:space="preserve"><value>Verify the currently selected backup first.</value></data>
+<data name="RestoreFileChanged" xml:space="preserve"><value>The backup changed after review. Verify it again and request new approval.</value></data>
+<data name="RestoreSucceeded" xml:space="preserve"><value>Backup restored. Sign in using the restored shop’s credentials.</value></data>
+<data name="RecoveryPending" xml:space="preserve"><value>An interrupted maintenance operation needs recovery. Restart before trading. Preserve the database and safety copies if recovery fails.</value></data>
+<data name="RecoveryRolledBack" xml:space="preserve"><value>Interrupted maintenance was rolled back to its verified safety copy. Review data before trading.</value></data>
+<data name="UpgradeOpenShift" xml:space="preserve"><value>Close the open shift using the previous application version before upgrading. No migration was applied.</value></data>
+<data name="UpgradeSucceeded" xml:space="preserve"><value>Database upgrade verified; pre-upgrade safety copy retained.</value></data>
+<data name="UpgradeFailed" xml:space="preserve"><value>Upgrade failed and the pre-upgrade database was restored. Keep the safety copy and contact support before retrying.</value></data>
+<data name="RestoreOpenShift" xml:space="preserve"><value>Close the current shift and reconcile the drawer before restoring.</value></data>
+<data name="BackupArchiveDate" xml:space="preserve"><value>Archive file written (local time)</value></data>
+<data name="AuditDatabaseRestored" xml:space="preserve"><value>Database restored</value></data>
+<data name="AuditBackupCreated" xml:space="preserve"><value>Backup created</value></data>
+<data name="AuditBackupSettingsRequested" xml:space="preserve"><value>Backup destination change requested</value></data>
 </root>

@@ -15,6 +15,7 @@ public sealed partial class MainWindow : Window
     private readonly MainViewModel _vm;
     private readonly DockPanel _root = new() { Margin = new Thickness(24) };
     private readonly TextBlock _status = new() { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 12, 0, 8), Foreground = Brushes.DarkRed };
+    private readonly TextBlock _backupHealth = new() { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0,4,0,4) };
     private readonly ContentControl _body = new();
     private readonly ContentControl _header = new();
     private readonly DispatcherTimer _idleTimer = new() { Interval = TimeSpan.FromSeconds(15) };
@@ -35,10 +36,12 @@ public sealed partial class MainWindow : Window
         DockPanel.SetDock(_status, Dock.Bottom);
         _root.Children.Add(_header);
         _root.Children.Add(_status);
+        DockPanel.SetDock(_backupHealth,Dock.Bottom);_root.Children.Add(_backupHealth);
         _root.Children.Add(_body);
         _vm.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(MainViewModel.Screen)) { Render(); }
+            _backupHealth.Text = Texts.Get("BackupHealth")+": "+Texts.Get(_vm.BackupHealth);
             _status.Text = _vm.Busy ? Texts.Get("Loading") : _vm.Message;
             _body.IsEnabled = !_vm.Busy || (_vm.Screen == "Shell" && _vm.Section == "Billing");
             if (_billingActions is not null) _billingActions.IsEnabled = !_vm.Busy;
@@ -229,6 +232,7 @@ public sealed partial class MainWindow : Window
     {
         var p = _vm.Profile!;
         var panel = Form("SettingsTitle");
+        panel.Children.Add(RecoveryView());
         var name = Field(panel, "ShopName", p.Name);
         var legal = Field(panel, "LegalName", p.LegalName);
         var currency = Field(panel, "Currency", p.Currency);

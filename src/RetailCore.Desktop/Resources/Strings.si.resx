@@ -804,4 +804,51 @@
 <data name="Reference" xml:space="preserve"><value>යොමුව</value></data>
 <data name="ReorderLevel" xml:space="preserve"><value>නැවත ඇණවුම් සීමාව</value></data>
 <data name="TradingCashHistory" xml:space="preserve"><value>මුදල් ඇතුළත්/පිටතට ගැනීම් ඉතිහාසය</value></data>
+<data name="RecoveryTitle" xml:space="preserve"><value>උපස්ථ හා ප්‍රතිසාධනය</value></data>
+<data name="RecoveryHelp" xml:space="preserve"><value>සත්‍යාපිත උපස්ථ මෙහි සාදන්න. යෙදුම විවෘත විට සහ ස්ථාපිත දෛනික කාර්යය මඟින් උපස්ථ ක්‍රියාත්මක වේ. බාහිර/USB ගබඩාවක දෙවන පිටපතක් තබන්න. ආරක්ෂිත පිටපත් වෙනම රැකේ.</value></data>
+<data name="BackupHealth" xml:space="preserve"><value>උපස්ථ තත්ත්වය</value></data>
+<data name="BackupPrimary" xml:space="preserve"><value>ප්‍රධාන උපස්ථ බහාලුම</value></data>
+<data name="BackupSecond" xml:space="preserve"><value>දෙවන බහාලුම (බාහිර/USB; අත්‍යවශ්‍ය නොවේ)</value></data>
+<data name="BackupRetention" xml:space="preserve"><value>තබාගන්නා මෑත අතින්/දෛනික පිටපත් ගණන (2–365)</value></data>
+<data name="ChooseBackupPrimary" xml:space="preserve"><value>ප්‍රධාන බහාලුම තෝරන්න</value></data>
+<data name="ChooseBackupSecond" xml:space="preserve"><value>බාහිර/USB බහාලුම තෝරන්න</value></data>
+<data name="BackupLastPrimary" xml:space="preserve"><value>අවසන් සත්‍යාපිත ප්‍රධාන පිටපත</value></data>
+<data name="BackupLastSecond" xml:space="preserve"><value>අවසන් සත්‍යාපිත දෙවන පිටපත</value></data>
+<data name="RefreshBackup" xml:space="preserve"><value>උපස්ථ තත්ත්වය නැවුම් කරන්න</value></data>
+<data name="SaveBackupSettings" xml:space="preserve"><value>උපස්ථ ස්ථාන සුරකින්න</value></data>
+<data name="BackupNow" xml:space="preserve"><value>දැන් උපස්ථ කරන්න</value></data>
+<data name="RestoreWarning" xml:space="preserve"><value>ප්‍රතිසාධනය වත්මන් වෙළඳසැල් දත්ත තෝරාගත් උපස්ථයට ප්‍රතිස්ථාපනය කරයි. පළමුව වැඩ මුරය වසන්න. දිනය හා බිල් ගණන පරීක්ෂා කර හිමිකරු අනුමැතිය ගන්න. ආරක්ෂිත පිටපත රැකගන්න. ප්‍රතිසාධිත වෙළඳසැලේ පිවිසුම් තොරතුරු භාවිතයෙන් නැවත පිවිසෙන්න.</value></data>
+<data name="RestoreFile" xml:space="preserve"><value>උපස්ථ ගොනුව</value></data>
+<data name="RestoreReason" xml:space="preserve"><value>ප්‍රතිසාධන හේතුව</value></data>
+<data name="ChooseRestoreFile" xml:space="preserve"><value>උපස්ථ ගොනුව තෝරන්න</value></data>
+<data name="BackupFileFilter" xml:space="preserve"><value>SQLite උපස්ථ (*.db)|*.db</value></data>
+<data name="ReviewRestore" xml:space="preserve"><value>උපස්ථය සත්‍යාපනය කර පරීක්ෂා කරන්න</value></data>
+<data name="RestoreBills" xml:space="preserve"><value>සුරැකි බිල්</value></data>
+<data name="RestoreMovements" xml:space="preserve"><value>තොග චලන</value></data>
+<data name="RestoreShifts" xml:space="preserve"><value>වැඩ මුර</value></data>
+<data name="RestoreChecksum" xml:space="preserve"><value>සත්‍යාපිත ගොනු පරීක්ෂක අගය</value></data>
+<data name="RestoreBackup" xml:space="preserve"><value>සත්‍යාපිත උපස්ථය ප්‍රතිසාධනය කරන්න</value></data>
+<data name="BackupNever" xml:space="preserve"><value>තවම සත්‍යාපිත උපස්ථයක් නොමැත. ස්ථාන සකසා දැන් උපස්ථ කරන්න.</value></data>
+<data name="BackupFailed" xml:space="preserve"><value>උපස්ථය අසාර්ථකයි. නිදහස් ඉඩ හා බහාලුම් ප්‍රවේශය පරීක්ෂා කර නැවත උත්සාහ කරන්න.</value></data>
+<data name="BackupPrimaryOnly" xml:space="preserve"><value>ප්‍රධාන උපස්ථය සත්‍යාපිතයි; බාහිර දෙවන ස්ථානයක් සකසා නොමැත.</value></data>
+<data name="BackupSucceeded" xml:space="preserve"><value>ප්‍රධාන හා දෙවන උපස්ථ සත්‍යාපිතයි.</value></data>
+<data name="BackupSecondFailed" xml:space="preserve"><value>ප්‍රධාන උපස්ථය සත්‍යාපිතයි, දෙවන පිටපත අසාර්ථකයි. බාහිර/USB ගබඩාව සම්බන්ධ කර නැවත උත්සාහ කරන්න.</value></data>
+<data name="BackupSecondUnavailable" xml:space="preserve"><value>සැකසූ බාහිර/USB ස්ථානය නැවත සම්බන්ධ කරන්න.</value></data>
+<data name="InvalidBackupSettings" xml:space="preserve"><value>දත්තගබඩා බහාලුමෙන් පිටත වෙනම උපස්ථ බහාලුම් තෝරා පිටපත් 2–365ක් තබාගන්න.</value></data>
+<data name="InvalidBackup" xml:space="preserve"><value>මෙය සත්‍යාපිත වසා ඇති වෙළඳසැල් උපස්ථයක් නොවේ. වලංගු SQLite උපස්ථ ගොනුවක් තෝරන්න.</value></data>
+<data name="BackupSchemaIncompatible" xml:space="preserve"><value>දත්තගබඩා ව්‍යුහය නොගැළපේ හෝ වෙනස් කර ඇත. ගැළපෙන උපස්ථයක්/යෙදුම් අනුවාදයක් භාවිත කරන්න.</value></data>
+<data name="InvalidRestore" xml:space="preserve"><value>අකුරු 500කට නොවැඩි හේතුවක් ඇතුළත් කර අනුමැතිය ඉල්ලීමට පෙර උපස්ථය පරීක්ෂා කරන්න.</value></data>
+<data name="ReviewRestoreFirst" xml:space="preserve"><value>පළමුව වත්මන් තෝරාගත් උපස්ථය සත්‍යාපනය කරන්න.</value></data>
+<data name="RestoreFileChanged" xml:space="preserve"><value>පරීක්ෂාවෙන් පසු උපස්ථය වෙනස් වී ඇත. නැවත සත්‍යාපනය කර නව අනුමැතිය ඉල්ලන්න.</value></data>
+<data name="RestoreSucceeded" xml:space="preserve"><value>උපස්ථය ප්‍රතිසාධිතයි. ප්‍රතිසාධිත වෙළඳසැලේ පිවිසුම් තොරතුරු භාවිත කරන්න.</value></data>
+<data name="RecoveryPending" xml:space="preserve"><value>බාධා වූ නඩත්තු ක්‍රියාව ප්‍රතිසාධනය කළ යුතුය. වෙළඳාමට පෙර නැවත ආරම්භ කරන්න. අසාර්ථක නම් දත්තගබඩාව හා ආරක්ෂිත පිටපත් රැකගන්න.</value></data>
+<data name="RecoveryRolledBack" xml:space="preserve"><value>බාධා වූ නඩත්තුව සත්‍යාපිත ආරක්ෂිත පිටපතට ආපසු ගෙන ඇත. වෙළඳාමට පෙර දත්ත පරීක්ෂා කරන්න.</value></data>
+<data name="UpgradeOpenShift" xml:space="preserve"><value>යාවත්කාලීන කිරීමට පෙර පෙර යෙදුම් අනුවාදයෙන් විවෘත වැඩ මුරය වසන්න. දත්ත පරිවර්තනයක් සිදු කර නැත.</value></data>
+<data name="UpgradeSucceeded" xml:space="preserve"><value>දත්තගබඩා යාවත්කාලීනය සත්‍යාපිතයි; පෙර ආරක්ෂිත පිටපත රැක ඇත.</value></data>
+<data name="UpgradeFailed" xml:space="preserve"><value>යාවත්කාලීනය අසාර්ථක වූ අතර පෙර දත්තගබඩාව ප්‍රතිසාධනය කර ඇත. ආරක්ෂිත පිටපත තබා නැවත උත්සාහයට පෙර සහාය ලබාගන්න.</value></data>
+<data name="RestoreOpenShift" xml:space="preserve"><value>ප්‍රතිසාධනයට පෙර වත්මන් වැඩ මුරය වසා මුදල් ලාච්චුව සසඳන්න.</value></data>
+<data name="BackupArchiveDate" xml:space="preserve"><value>උපස්ථ ගොනුව ලියූ දිනය (දේශීය වේලාව)</value></data>
+<data name="AuditDatabaseRestored" xml:space="preserve"><value>දත්තගබඩාව ප්‍රතිසාධනය කළා</value></data>
+<data name="AuditBackupCreated" xml:space="preserve"><value>උපස්ථය සෑදුවා</value></data>
+<data name="AuditBackupSettingsRequested" xml:space="preserve"><value>උපස්ථ ස්ථාන වෙනස් කිරීම ඉල්ලුවා</value></data>
 </root>

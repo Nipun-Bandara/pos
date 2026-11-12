@@ -46,7 +46,7 @@ public sealed class DesktopWorkflowSpecs
         Texts.Use("en");
         var services = new ServiceCollection().AddLocalFoundation(Path.Combine(path, "till.db"));
         await using var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
-        var vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>(), provider.GetRequiredService<RetailCore.Application.Checkout.BillingService>(), provider.GetRequiredService<RetailCore.Application.Receipts.ReceiptService>(), provider.GetRequiredService<RetailCore.Application.Returns.ReturnService>(), provider.GetRequiredService<RetailCore.Application.Reporting.CashService>(), provider.GetRequiredService<RetailCore.Application.Reporting.ReportService>());
+        var vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>(), provider.GetRequiredService<RetailCore.Application.Checkout.BillingService>(), provider.GetRequiredService<RetailCore.Application.Receipts.ReceiptService>(), provider.GetRequiredService<RetailCore.Application.Returns.ReturnService>(), provider.GetRequiredService<RetailCore.Application.Reporting.CashService>(), provider.GetRequiredService<RetailCore.Application.Reporting.ReportService>(), provider.GetRequiredService<RetailCore.Application.Recovery.RecoveryService>());
         var window = new MainWindow(vm);
         try
         {
@@ -104,7 +104,7 @@ public sealed class DesktopWorkflowSpecs
             var ownerId = vm.Current!.Id;
             window.Close();
             // Reopen the actual window and sign in against the same database with a new session.
-            vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>(), provider.GetRequiredService<RetailCore.Application.Checkout.BillingService>(), provider.GetRequiredService<RetailCore.Application.Receipts.ReceiptService>(), provider.GetRequiredService<RetailCore.Application.Returns.ReturnService>(), provider.GetRequiredService<RetailCore.Application.Reporting.CashService>(), provider.GetRequiredService<RetailCore.Application.Reporting.ReportService>());
+            vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>(), provider.GetRequiredService<RetailCore.Application.Checkout.BillingService>(), provider.GetRequiredService<RetailCore.Application.Receipts.ReceiptService>(), provider.GetRequiredService<RetailCore.Application.Returns.ReturnService>(), provider.GetRequiredService<RetailCore.Application.Reporting.CashService>(), provider.GetRequiredService<RetailCore.Application.Reporting.ReportService>(), provider.GetRequiredService<RetailCore.Application.Recovery.RecoveryService>());
             window = new MainWindow(vm);
             window.Show();
             await UntilAsync(() => vm.Screen == "Login" && !vm.Busy);
@@ -135,6 +135,7 @@ public sealed class DesktopWorkflowSpecs
             (await vm.Stock.LoadAsync()).Products.Single(p => p.Sku == "RICE").Balance.ShouldBe(47.50m);
             Capture(window, "stock-si.png");
             await ExerciseReportsAsync(window,vm);
+            await ExerciseRecoveryAsync(window,vm);
             Click(window, "SignOut");
             await UntilAsync(() => vm.Screen == "Login" && !vm.Busy);
             users = Find<ComboBox>(window, "LoginUser");
@@ -164,6 +165,26 @@ public sealed class DesktopWorkflowSpecs
             Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
             Directory.Delete(path, true);
         }
+    }
+
+    private static async Task ExerciseRecoveryAsync(Window window,MainViewModel vm)
+    {
+        var owner=vm.Current!.Id;var review=await vm.Cash.ReviewAsync();
+        var close=new RetailCore.Application.Reporting.CashRequest(Guid.NewGuid(),review.ShiftId,true,review.ExpectedMinor,false,"Windows recovery rehearsal",review.ExpectedMinor);
+        await vm.Cash.PostAsync(close,await vm.Service.ApproveAsync(owner,"638194",RetailCore.Application.Reporting.CashService.Approval(close)));
+        Click(window,"Settings");await UntilAsync(()=>vm.Section=="Settings" && !vm.Busy);
+        Click(window,"RefreshBackup");await UntilAsync(()=>!vm.Busy);Click(window,"BackupNow");await UntilAsync(()=>!vm.Busy);
+        var backup=await vm.Recovery.StatusAsync();backup.State.ShouldBe("BackupPrimaryOnly");
+        Find<TextBox>(window,"RestoreFile").Text=backup.LastFile!;Find<TextBox>(window,"RestoreReason").Text="Windows verified restore rehearsal";
+        Click(window,"ReviewRestore");await UntilAsync(()=>!vm.Busy);Capture(window,"backup-restore-si.png");
+        var approval=window.Dispatcher.InvokeAsync(async()=>
+        {
+            await UntilAsync(()=>window.OwnedWindows.OfType<ApprovalDialog>().Any());var dialog=window.OwnedWindows.OfType<ApprovalDialog>().Single();
+            Find<PasswordBox>(dialog,"Pin").Password="638194";Click(dialog,"Approve");
+        }).Task.Unwrap();
+        Click(window,"RestoreBackup");await approval;await UntilAsync(()=>vm.Screen=="Login" && !vm.Busy);
+        Find<PasswordBox>(window,"Pin").Password="638194";Click(window,"SignIn");await UntilAsync(()=>vm.Screen=="Shell" && !vm.Busy);
+        (await vm.Billing.LoadAsync()).Shift.ShouldBeNull();(await vm.Stock.LoadAsync()).Products.Single(p=>p.Sku=="RICE").Balance.ShouldBe(47.50m);
     }
 
     private static async Task ExerciseReportsAsync(Window window,MainViewModel vm)
