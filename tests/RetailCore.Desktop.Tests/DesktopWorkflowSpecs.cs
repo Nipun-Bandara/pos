@@ -274,7 +274,8 @@ public sealed class DesktopWorkflowSpecs
         var longReceipt = receipt with { Lines = Enumerable.Range(1,100).Select(i => receipt.Lines[0] with
             { Number = i, Name = string.Concat(Enumerable.Repeat("දිගු සිංහල භාණ්ඩ නාමය ",8)) }).ToArray() };
         var rendered = ReceiptRenderer.Render(longReceipt,48,true);
-        rendered.Language.IetfLanguageTag.ShouldBe("si-LK");
+        // WPF canonicalizes XmlLanguage tags to lowercase; compare language values, not casing.
+        rendered.Language.ShouldBe(System.Windows.Markup.XmlLanguage.GetLanguage("si-LK"));
         rendered.Blocks.OfType<System.Windows.Documents.Table>().ShouldContain(t => t.Columns.Count == 4);
         receipt.Version.ShouldBe(2);
         var paginated = ((System.Windows.Documents.IDocumentPaginatorSource)rendered).DocumentPaginator;
