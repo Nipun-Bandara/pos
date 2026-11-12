@@ -68,10 +68,14 @@ hashes; keep storage under the owner's control.
 `scripts/build-installer.ps1` publishes a self-contained Windows x64 WPF application and
 compiles `installer/RetailCore.iss` with Inno Setup 6.3 or newer in the 6.x series. No separately installed .NET runtime or
 internet connection is required on the target checkout. The build computer needs the .NET SDK,
-Windows runtime packs and Inno Setup. The build script checks the compiler version for
+Windows runtime packs and Inno Setup. The installer source checks the compiler engine's
+predefined `VER` value, rather than the `ISCC.exe` launcher's file metadata, for
 [UTF-8 source support](https://jrsoftware.org/ishelp/topic_unicode.htm) and the
 [x64-compatible architecture setting](https://jrsoftware.org/ishelp/topic_archidentifiers.htm). Generated installers and checksums belong in ignored
-`artifacts/installer`. No installer binary built on Linux is claimed.
+`artifacts/installer`. Windows CI downloads Inno Setup 6.7.4 from its official GitHub
+release, verifies the pinned SHA-256 checksum, and passes the installed compiler explicitly.
+The installer artifact uploads only after a successful build, including when the later
+installation smoke check fails. No installer binary built on Linux is claimed.
 
 Installation is per Windows user in `%LOCALAPPDATA%\Programs\RetailCore`. Database:
 `%LOCALAPPDATA%\RetailCore\retailcore.db`. The installer neither initializes shop data in its

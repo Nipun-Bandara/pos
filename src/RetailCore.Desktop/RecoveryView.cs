@@ -29,10 +29,16 @@ public sealed partial class MainWindow
         panel.Children.Add(Button("BackupNow", async () => Show(await Task.Run(() => _vm.Recovery.BackupAsync()))));
         Label(panel, "RestoreWarning"); var file = Field(panel, "RestoreFile"); var reason = Field(panel, "RestoreReason");
         panel.Children.Add(Button("ChooseRestoreFile", () => { var dialog = new OpenFileDialog { Filter = Texts.Get("BackupFileFilter"), CheckFileExists = true }; if (dialog.ShowDialog(this) == true) file.Text = dialog.FileName; return Task.CompletedTask; }));
-        RestoreReview? selected = null; var reviewText = new TextBlock { TextWrapping = TextWrapping.Wrap }; panel.Children.Add(reviewText);
+        RestoreReview? selected = null; var reviewText = new TextBlock { TextWrapping = TextWrapping.Wrap };
+        System.Windows.Automation.AutomationProperties.SetAutomationId(reviewText, "RestoreReviewSummary");
+        panel.Children.Add(reviewText);
         panel.Children.Add(Button("ReviewRestore", async () =>
         {
-            selected = await Task.Run(() => _vm.Recovery.ReviewAsync(file.Text));
+            // Dependency properties belong to the UI thread; pass only the captured value to the worker.
+            var path = file.Text;
+            selected = null;
+            reviewText.Text = string.Empty;
+            selected = await Task.Run(() => _vm.Recovery.ReviewAsync(path));
             reviewText.Text = $"{selected.Shop}\n{Texts.Get("BackupArchiveDate")}: {selected.ArchiveWrittenAt.ToLocalTime():g}\n{Texts.Get("RestoreBills")}: {selected.Bills}\n{Texts.Get("RestoreMovements")}: {selected.Movements}\n{Texts.Get("RestoreShifts")}: {selected.Shifts}\n{Texts.Get("RestoreChecksum")}: {selected.Sha256}";
         }));
         panel.Children.Add(Button("RestoreBackup", async () =>
@@ -42,7 +48,8 @@ public sealed partial class MainWindow
             var owners = await _vm.Service.ApproversAsync();
             var dialog = new ApprovalDialog(_vm.Service, owners, RecoveryService.RestoreApproval(request), Texts.Get("RestoreWarning") + "\n" + reviewText.Text + "\n" + reason.Text) { Owner = this };
             if (dialog.ShowDialog() != true) return;
-            try { await Task.Run(() => _vm.Recovery.RestoreAsync(request, dialog.Ticket)); }
+            var ticket = dialog.Ticket;
+            try { await Task.Run(() => _vm.Recovery.RestoreAsync(request, ticket)); }
             finally { await _vm.SignOutAsync(); }
             _vm.ShowMessage("RestoreSucceeded");
         }));

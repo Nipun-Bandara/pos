@@ -2,6 +2,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -24,13 +25,26 @@ public sealed class DesktopWorkflowSpecs
         var thread = new Thread(() =>
         {
             var dispatcher = Dispatcher.CurrentDispatcher;
-            dispatcher.BeginInvoke(async () =>
+            try
             {
-                try { await ExerciseAsync(); completion.TrySetResult(); }
-                catch (Exception ex) { completion.TrySetException(ex); }
-                finally { dispatcher.BeginInvokeShutdown(DispatcherPriority.Background); }
-            });
-            Dispatcher.Run();
+                dispatcher.BeginInvoke(async () =>
+                {
+                    try { await ExerciseAsync(); completion.TrySetResult(); }
+                    catch (Exception ex) { completion.TrySetException(ex); }
+                    finally { dispatcher.BeginInvokeShutdown(DispatcherPriority.Background); }
+                });
+                Dispatcher.Run();
+            }
+            catch (Exception ex)
+            {
+                // Layout/binding failures can occur outside ExerciseAsync's continuation.
+                // Report their original exception instead of waiting for the outer timeout.
+                completion.TrySetException(ex);
+            }
+            finally
+            {
+                completion.TrySetException(new InvalidOperationException("The WPF dispatcher exited before the workflow completed."));
+            }
         });
         thread.SetApartmentState(ApartmentState.STA);
         thread.IsBackground = true;
@@ -98,6 +112,12 @@ public sealed class DesktopWorkflowSpecs
             Click(window, "Lock");
             vm.Session.IsLocked.ShouldBeTrue();
             vm.Screen.ShouldBe("Login");
+            await UntilAsync(() => vm.Screen == "Login" && !vm.Busy);
+            var lockedUser = Find<ComboBox>(window, "LoginUser");
+            lockedUser.IsEnabled.ShouldBeFalse();
+            ((UserSummary)lockedUser.SelectedItem).Id.ShouldBe(vm.Session.UserId!.Value);
+            Descendants(window).OfType<TextBox>()
+                .Any(c => AutomationProperties.GetAutomationId(c) == "ShopName").ShouldBeFalse();
             Find<PasswordBox>(window, "Pin").Password = "638194";
             Click(window, "Unlock");
             await UntilAsync(() => vm.Screen == "Shell" && !vm.Busy);
@@ -176,13 +196,26 @@ public sealed class DesktopWorkflowSpecs
         Click(window,"RefreshBackup");await UntilAsync(()=>!vm.Busy);Click(window,"BackupNow");await UntilAsync(()=>!vm.Busy);
         var backup=await vm.Recovery.StatusAsync();backup.State.ShouldBe("BackupPrimaryOnly");
         Find<TextBox>(window,"RestoreFile").Text=backup.LastFile!;Find<TextBox>(window,"RestoreReason").Text="Windows verified restore rehearsal";
-        Click(window,"ReviewRestore");await UntilAsync(()=>!vm.Busy);Capture(window,"backup-restore-si.png");
+        Click(window,"ReviewRestore");await UntilAsync(()=>!vm.Busy);
+        vm.Message.ShouldBe(string.Empty, "backup verification must succeed before requesting restore approval");
+        var restoreSummary = Find<TextBlock>(window, "RestoreReviewSummary").Text;
+        restoreSummary.ShouldContain(vm.Profile!.Name);
+        restoreSummary.ShouldContain(Texts.Get("RestoreChecksum"));
+        Capture(window,"backup-restore-si.png");
         var approval=window.Dispatcher.InvokeAsync(async()=>
         {
-            await UntilAsync(()=>window.OwnedWindows.OfType<ApprovalDialog>().Any());var dialog=window.OwnedWindows.OfType<ApprovalDialog>().Single();
+            await UntilAsync(() =>
+            {
+                if (!string.IsNullOrEmpty(vm.Message))
+                    throw new InvalidOperationException($"Restore approval did not open: {vm.Message}");
+                return window.OwnedWindows.OfType<ApprovalDialog>().Any();
+            });
+            var dialog=window.OwnedWindows.OfType<ApprovalDialog>().Single();
             Find<PasswordBox>(dialog,"Pin").Password="638194";Click(dialog,"Approve");
         }).Task.Unwrap();
         Click(window,"RestoreBackup");await approval;await UntilAsync(()=>vm.Screen=="Login" && !vm.Busy);
+        var restoredUsers = Find<ComboBox>(window, "LoginUser");
+        restoredUsers.SelectedItem = vm.Startup!.Users.Single(user => user.Id == owner);
         Find<PasswordBox>(window,"Pin").Password="638194";Click(window,"SignIn");await UntilAsync(()=>vm.Screen=="Shell" && !vm.Busy);
         (await vm.Billing.LoadAsync()).Shift.ShouldBeNull();(await vm.Stock.LoadAsync()).Products.Single(p=>p.Sku=="RICE").Balance.ShouldBe(47.50m);
     }
@@ -260,7 +293,8 @@ public sealed class DesktopWorkflowSpecs
         var longReceipt = receipt with { Lines = Enumerable.Range(1,100).Select(i => receipt.Lines[0] with
             { Number = i, Name = string.Concat(Enumerable.Repeat("දිගු සිංහල භාණ්ඩ නාමය ",8)) }).ToArray() };
         var rendered = ReceiptRenderer.Render(longReceipt,48,true);
-        rendered.Language.IetfLanguageTag.ShouldBe("si-LK");
+        // WPF canonicalizes XmlLanguage tags to lowercase; compare language values, not casing.
+        rendered.Language.ShouldBe(System.Windows.Markup.XmlLanguage.GetLanguage("si-LK"));
         rendered.Blocks.OfType<System.Windows.Documents.Table>().ShouldContain(t => t.Columns.Count == 4);
         receipt.Version.ShouldBe(2);
         var paginated = ((System.Windows.Documents.IDocumentPaginatorSource)rendered).DocumentPaginator;
@@ -426,6 +460,18 @@ public sealed class DesktopWorkflowSpecs
         vm.Message.ShouldBe(Texts.Get("Saved"));
         var table = Find<DataGrid>(window, "ProductsTable");
         table.Items.Count.ShouldBe(1);
+        var activeColumn = table.Columns.OfType<DataGridCheckBoxColumn>().Single();
+        ((Binding)activeColumn.Binding).Mode.ShouldBe(BindingMode.OneWay);
+        activeColumn.IsReadOnly.ShouldBeTrue();
+        table.ScrollIntoView(table.Items[0], activeColumn);
+        table.UpdateLayout();
+        await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+        var activeCell = activeColumn.GetCellContent(table.Items[0]);
+        activeCell.ShouldBeOfType<CheckBox>();
+        var activeCheckBox = (CheckBox)activeCell;
+        activeCheckBox.IsChecked.ShouldBe(true);
+        activeCheckBox.GetBindingExpression(System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty)!
+            .HasError.ShouldBeFalse();
         Find<TextBox>(window, "ProductSearch").Text = "missing";
         table.Items.Count.ShouldBe(0);
         Find<TextBox>(window, "ProductSearch").Text = "තේ";
@@ -438,8 +484,23 @@ public sealed class DesktopWorkflowSpecs
     private static void Click(DependencyObject root, string id) =>
         Find<Button>(root, id).RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
 
-    private static T Find<T>(DependencyObject root, string id) where T : DependencyObject =>
-        Descendants(root).OfType<T>().Single(c => AutomationProperties.GetAutomationId(c) == id);
+    private static T Find<T>(DependencyObject root, string id) where T : DependencyObject
+    {
+        // ContentControl replacements do not attach their visual children synchronously.
+        // Realize the current content before inspecting the visual tree.
+        if (root is UIElement element) { element.UpdateLayout(); }
+        var controls = Descendants(root).OfType<T>().ToArray();
+        var matches = controls.Where(c => AutomationProperties.GetAutomationId(c) == id).ToArray();
+        if (matches.Length != 1)
+        {
+            var available = string.Join(", ", controls.Select(AutomationProperties.GetAutomationId)
+                .Where(value => !string.IsNullOrEmpty(value)).Distinct().Order(StringComparer.Ordinal));
+            throw new InvalidOperationException(
+                $"Expected one {typeof(T).Name} with AutomationId '{id}', found {matches.Length}. Available IDs: [{available}].");
+        }
+
+        return matches[0];
+    }
 
     private static IEnumerable<DependencyObject> Descendants(DependencyObject root)
     {
@@ -454,13 +515,15 @@ public sealed class DesktopWorkflowSpecs
     private static async Task UntilAsync(Func<bool> predicate)
     {
         var limit = DateTimeOffset.UtcNow.AddSeconds(20);
-        while (!predicate())
+        while (true)
         {
+            // Let rendering, templates and Loaded handlers settle before checking readiness.
+            // Checking only view-model state can otherwise return before the new view exists.
+            await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+            if (predicate()) { return; }
             if (DateTimeOffset.UtcNow >= limit) { throw new TimeoutException("WPF workflow did not reach its expected state."); }
             await Task.Delay(25);
         }
-
-        await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
     }
 
     private static void Capture(Window window, string name)
