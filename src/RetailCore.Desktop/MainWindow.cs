@@ -86,7 +86,10 @@ public sealed partial class MainWindow : Window
         _languageSlot.Content = languages;
         var signedIn = _vm.Current is not null && !_vm.Session.IsLocked;
         _lockButton.Visibility = _signOutButton.Visibility = signedIn ? Visibility.Visible : Visibility.Collapsed;
-        _lockButton.Content = Texts.Get("Lock"); _signOutButton.Content = Texts.Get("SignOut");
+        _lockButton.Content = Texts.Get("HeaderLock"); _signOutButton.Content = Texts.Get("HeaderSignOut");
+        _lockButton.ToolTip = Texts.Get("Lock"); _signOutButton.ToolTip = Texts.Get("SignOut");
+        AutomationProperties.SetName(_lockButton, Texts.Get("Lock"));
+        AutomationProperties.SetName(_signOutButton, Texts.Get("SignOut"));
         _nav.Visibility = _vm.Screen == "Shell" ? Visibility.Visible : Visibility.Collapsed;
         _sectionTitle.Visibility = _vm.Screen == "Shell" && _vm.Section != "Billing" ? Visibility.Visible : Visibility.Collapsed;
         _sectionTitle.Text = Texts.Get(_vm.Section);

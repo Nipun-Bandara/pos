@@ -138,3 +138,24 @@ Keyboard event simulation and a missing-queue test cannot establish physical acc
 
 Do not merge into `development` until required Windows build/workflow/layout/installer checks
 pass. No remote push is authorized by this request.
+
+## Windows minimum-size follow-up
+
+The [Windows run for `9143f7a`](https://github.com/Nipun-Bandara/pos/actions/runs/43220043322)
+reached the Sinhala 800×600 review after the English sizes, then failed the client-bounds
+assertion (bottom 569 against client limit 562). Its actual screenshot shows header actions
+wrapping to a second row and Add Barcode occupying multiple lines, while the payment's auto
+rows push completion below the available area. The basket name column was also squeezed.
+
+The follow-up uses short bilingual header/Add/completion captions, preserving original full
+accessible names, tooltips, automation IDs and handlers. Basket columns explicitly use
+proportional widths. The basket derives directly from the named shared table style, retaining
+its existing cell-padding correction without relying on an implicit-style resource lookup.
+Bounds assertions retain their one-pixel tolerance and now identify the control, language,
+window size and rectangle. The review also checks checkout/basket bounds with product
+selection expanded and saves a separate capture. No assertion or timeout was relaxed.
+
+503 unique, nonempty bilingual resource keys match. The desktop-test project Release build
+passed with zero warnings/errors. The native Windows rerun remains pending: Linux can compile
+the views/tests but cannot establish that the corrected Windows layout passes. The branch remains
+unmerged pending that rerun and the other recorded Windows acceptance gates.

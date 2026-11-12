@@ -511,9 +511,11 @@ public sealed class DesktopWorkflowSpecs
         element.IsVisible.ShouldBeTrue(); element.ActualWidth.ShouldBeGreaterThan(0); element.ActualHeight.ShouldBeGreaterThan(0);
         var client = (FrameworkElement)window.Content;
         var bounds = element.TransformToAncestor(client).TransformBounds(new Rect(element.RenderSize));
-        bounds.Left.ShouldBeGreaterThanOrEqualTo(-1); bounds.Top.ShouldBeGreaterThanOrEqualTo(-1);
-        bounds.Right.ShouldBeLessThanOrEqualTo(client.ActualWidth + 1);
-        bounds.Bottom.ShouldBeLessThanOrEqualTo(client.ActualHeight + 1);
+        var context = $"Control={AutomationProperties.GetAutomationId(element)} ({element.GetType().Name}), "
+            + $"language={Texts.Language}, window={window.Width}x{window.Height}, bounds={bounds}, client={client.RenderSize}";
+        bounds.Left.ShouldBeGreaterThanOrEqualTo(-1, context); bounds.Top.ShouldBeGreaterThanOrEqualTo(-1, context);
+        bounds.Right.ShouldBeLessThanOrEqualTo(client.ActualWidth + 1, context);
+        bounds.Bottom.ShouldBeLessThanOrEqualTo(client.ActualHeight + 1, context);
     }
 
     private static async Task CaptureAuthenticationSizesAsync(Window window, MainViewModel vm, string screen)
@@ -560,6 +562,12 @@ public sealed class DesktopWorkflowSpecs
                 rowBounds.Bottom.ShouldBeLessThanOrEqualTo(cart.ActualHeight + 1,
                     $"First basket row must fit: language={language}, window={size.Item1}x{size.Item2}, "
                     + $"basket={cart.ActualWidth:0.##}x{cart.ActualHeight:0.##}, row={rowBounds}");
+                var picker = Find<Expander>(window, "BillingProductPicker"); picker.IsExpanded = true;
+                await Dispatcher.Yield(DispatcherPriority.ApplicationIdle); window.UpdateLayout();
+                AssertInClient(window, Find<Button>(window, "CompleteSale"));
+                AssertInClient(window, cart);
+                Capture(window, $"modern-billing-picker-{language}-{size.Item1}x{size.Item2}.png");
+                picker.IsExpanded = false;
             }
         }
         await vm.ChangeLanguageAsync(originalLanguage);

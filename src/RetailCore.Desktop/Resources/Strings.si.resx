@@ -863,4 +863,8 @@
   <data name="CheckoutPrice" xml:space="preserve"><value>ඒකක මිල</value></data>
   <data name="CheckoutUpdate" xml:space="preserve"><value>යාවත්කාලීන</value></data>
   <data name="CheckoutRemove" xml:space="preserve"><value>ඉවත් කරන්න</value></data>
+  <data name="HeaderLock" xml:space="preserve"><value>අගුළුලන්න</value></data>
+  <data name="HeaderSignOut" xml:space="preserve"><value>ඉවත් වන්න</value></data>
+  <data name="CheckoutAdd" xml:space="preserve"><value>එක් කරන්න</value></data>
+  <data name="CheckoutComplete" xml:space="preserve"><value>බිල්පත අවසන් කරන්න</value></data>
 </root>

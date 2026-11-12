@@ -89,8 +89,9 @@ public sealed partial class MainWindow
             await _billingScanQueue;
         }
         scanBox.KeyDown += async (_, e) => { if (e.Key == Key.Enter) { e.Handled = true; await EnqueueScan(); } };
-        var addBarcode = new Button { Content = Texts.Get("AddBarcode"), HorizontalAlignment = HorizontalAlignment.Left };
+        var addBarcode = new Button { Content = Texts.Get("CheckoutAdd"), ToolTip = Texts.Get("AddBarcode"), HorizontalAlignment = HorizontalAlignment.Left };
         AutomationProperties.SetAutomationId(addBarcode, "AddBarcode");
+        AutomationProperties.SetName(addBarcode, Texts.Get("AddBarcode"));
         addBarcode.Click += async (_, _) => await EnqueueScan();
         addBarcode.MaxWidth = 128; addBarcode.VerticalAlignment = VerticalAlignment.Bottom;
         Grid.SetColumn(addBarcode, 2); scanRow.Children.Add(addBarcode);
@@ -166,7 +167,8 @@ public sealed partial class MainWindow
         ((DataGridTextColumn)cart.Columns[2]).Binding = new Binding(nameof(BillingLine.ChargedUnitPrice)) { Mode = BindingMode.OneWay, StringFormat = "{0:0.00}" };
         ((DataGridTextColumn)cart.Columns[3]).Binding = new Binding(nameof(BillingLine.Total)) { Mode = BindingMode.OneWay, StringFormat = "{0:0.00}" };
         cart.ClearValue(HeightProperty); cart.MinHeight = 72;
-        cart.ColumnWidth = new DataGridLength(1, DataGridLengthUnitType.Star);
+        // Set each column explicitly: auto-sized numeric columns must not squeeze the name column.
+        foreach (var column in cart.Columns) column.Width = new DataGridLength(1, DataGridLengthUnitType.Star);
         cart.Columns[0].Width = new DataGridLength(2, DataGridLengthUnitType.Star);
         foreach (var column in cart.Columns.OfType<DataGridTextColumn>())
             column.ElementStyle = (Style)FindResource("PosWrappedCell");
@@ -308,6 +310,8 @@ public sealed partial class MainWindow
             _vm.SetBillingState(await _vm.Billing.LoadAsync());
         });
         _billingPay.IsEnabled = state.Shift is not null && q.Lines.Count > 0 && q.ErrorKey is null;
+        _billingPay.Content = Texts.Get("CheckoutComplete");
+        _billingPay.ToolTip = Texts.Get("CompleteSale");
         _billingPay.HorizontalAlignment = HorizontalAlignment.Stretch;
         _billingPay.Margin = new Thickness(0, 8, 0, 0); _billingPay.MinHeight = 44;
         workspace.CheckoutHost.Content = _billingPay;

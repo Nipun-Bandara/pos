@@ -863,4 +863,8 @@
   <data name="CheckoutPrice" xml:space="preserve"><value>Unit price</value></data>
   <data name="CheckoutUpdate" xml:space="preserve"><value>Update</value></data>
   <data name="CheckoutRemove" xml:space="preserve"><value>Remove</value></data>
+  <data name="HeaderLock" xml:space="preserve"><value>Lock</value></data>
+  <data name="HeaderSignOut" xml:space="preserve"><value>Sign out</value></data>
+  <data name="CheckoutAdd" xml:space="preserve"><value>Add</value></data>
+  <data name="CheckoutComplete" xml:space="preserve"><value>Complete sale (F9)</value></data>
 </root>
