@@ -196,13 +196,26 @@ public sealed class DesktopWorkflowSpecs
         Click(window,"RefreshBackup");await UntilAsync(()=>!vm.Busy);Click(window,"BackupNow");await UntilAsync(()=>!vm.Busy);
         var backup=await vm.Recovery.StatusAsync();backup.State.ShouldBe("BackupPrimaryOnly");
         Find<TextBox>(window,"RestoreFile").Text=backup.LastFile!;Find<TextBox>(window,"RestoreReason").Text="Windows verified restore rehearsal";
-        Click(window,"ReviewRestore");await UntilAsync(()=>!vm.Busy);Capture(window,"backup-restore-si.png");
+        Click(window,"ReviewRestore");await UntilAsync(()=>!vm.Busy);
+        vm.Message.ShouldBe(string.Empty, "backup verification must succeed before requesting restore approval");
+        var restoreSummary = Find<TextBlock>(window, "RestoreReviewSummary").Text;
+        restoreSummary.ShouldContain(vm.Profile!.Name);
+        restoreSummary.ShouldContain(Texts.Get("RestoreChecksum"));
+        Capture(window,"backup-restore-si.png");
         var approval=window.Dispatcher.InvokeAsync(async()=>
         {
-            await UntilAsync(()=>window.OwnedWindows.OfType<ApprovalDialog>().Any());var dialog=window.OwnedWindows.OfType<ApprovalDialog>().Single();
+            await UntilAsync(() =>
+            {
+                if (!string.IsNullOrEmpty(vm.Message))
+                    throw new InvalidOperationException($"Restore approval did not open: {vm.Message}");
+                return window.OwnedWindows.OfType<ApprovalDialog>().Any();
+            });
+            var dialog=window.OwnedWindows.OfType<ApprovalDialog>().Single();
             Find<PasswordBox>(dialog,"Pin").Password="638194";Click(dialog,"Approve");
         }).Task.Unwrap();
         Click(window,"RestoreBackup");await approval;await UntilAsync(()=>vm.Screen=="Login" && !vm.Busy);
+        var restoredUsers = Find<ComboBox>(window, "LoginUser");
+        restoredUsers.SelectedItem = vm.Startup!.Users.Single(user => user.Id == owner);
         Find<PasswordBox>(window,"Pin").Password="638194";Click(window,"SignIn");await UntilAsync(()=>vm.Screen=="Shell" && !vm.Busy);
         (await vm.Billing.LoadAsync()).Shift.ShouldBeNull();(await vm.Stock.LoadAsync()).Products.Single(p=>p.Sku=="RICE").Balance.ShouldBe(47.50m);
     }
