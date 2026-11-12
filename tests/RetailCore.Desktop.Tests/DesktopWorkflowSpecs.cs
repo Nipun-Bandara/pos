@@ -526,6 +526,8 @@ public sealed class DesktopWorkflowSpecs
             {
                 window.Width = size.Item1; window.Height = size.Item2;
                 await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                Descendants(window).OfType<ScrollViewer>().Single(view => view.Content is Border).ScrollToTop();
+                await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
                 Capture(window, $"modern-{screen}-{language}-{size.Item1}x{size.Item2}.png");
                 var pin = Find<PasswordBox>(window, "Pin");
                 pin.BringIntoView(); await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
@@ -554,7 +556,7 @@ public sealed class DesktopWorkflowSpecs
                 row.ShouldNotBeNull(); AssertInClient(window, row);
                 var rowBounds = row.TransformToAncestor(cart).TransformBounds(new Rect(row.RenderSize));
                 rowBounds.Bottom.ShouldBeLessThanOrEqualTo(cart.ActualHeight + 1);
-                Capture(window, $"modern-billing-{language}-{size.Item1}x{size.Item2}.png");
+                Capture(window, $"modern-billing-basket-{language}-{size.Item1}x{size.Item2}.png");
             }
         }
         await vm.ChangeLanguageAsync(originalLanguage);
