@@ -46,12 +46,12 @@ public sealed partial class MainWindow
         var table=new DataGrid{ItemsSource=_returnLines,AutoGenerateColumns=false,CanUserAddRows=false,CanUserDeleteRows=false,Height=220};
         AutomationProperties.SetAutomationId(table,"ReturnLines");
         foreach(var (label,path) in new[]{("ReceiptName","Original.Name"),("ReturnRemaining","Original.Remaining"),("ReturnCreditRemaining","Original.CreditRemaining")})
-            table.Columns.Add(new DataGridTextColumn{Header=Texts.Get(label),Binding=new Binding(path),IsReadOnly=true});
+            table.Columns.Add(new DataGridTextColumn{Header=Texts.Get(label),Binding=new Binding(path){Mode=BindingMode.OneWay},IsReadOnly=true});
         table.Columns.Add(new DataGridTextColumn{Header=Texts.Get("ReturnQuantity"),Binding=new Binding("Requested"){UpdateSourceTrigger=UpdateSourceTrigger.PropertyChanged}});
         table.Columns.Add(new DataGridComboBoxColumn{Header=Texts.Get("ReturnDisposition"),SelectedValueBinding=new Binding("Disposition"){UpdateSourceTrigger=UpdateSourceTrigger.PropertyChanged},
             SelectedValuePath="Value",DisplayMemberPath="Name",ItemsSource=new[]{new{Value=ReturnDisposition.Saleable,Name=Texts.Get("DispositionSaleable")},new{Value=ReturnDisposition.Damaged,Name=Texts.Get("DispositionDamaged")}}});
-        table.Columns.Add(new DataGridTextColumn{Header=Texts.Get("Unit"),Binding=new Binding("Original.Unit"){Converter=new EnumTextConverter("Unit")},IsReadOnly=true});
-        panel.Children.Add(table);
+        table.Columns.Add(new DataGridTextColumn{Header=Texts.Get("Unit"),Binding=new Binding("Original.Unit"){Mode=BindingMode.OneWay,Converter=new EnumTextConverter("Unit")},IsReadOnly=true});
+        panel.Children.Add(WithEmptyState(table));
         var reason=Field(panel,"ReturnReason",_returnDraft?.Reason);
         var useBasket=new CheckBox{Content=Texts.Get("ExchangeUseBasket"),IsChecked=_returnDraft?.UseBasket==true};AutomationProperties.SetAutomationId(useBasket,"ExchangeUseBasket");panel.Children.Add(useBasket);
         var isVoid=new CheckBox{Content=Texts.Get("VoidOriginalBill"),IsChecked=_returnDraft?.Void==true};AutomationProperties.SetAutomationId(isVoid,"VoidOriginalBill");panel.Children.Add(isVoid);
@@ -128,6 +128,7 @@ public sealed partial class MainWindow
                 var printed=await _vm.Receipts.PrintReturnAsync(result.Id,Guid.NewGuid(),new WindowsReceiptPrinter(Dispatcher));_vm.ShowMessage(printed.Status);
             }));
         }
+        ArrangeFields(panel);
         panel.Loaded+=(_,_)=>lookup.Focus();return Scroll(panel);
     }
 }

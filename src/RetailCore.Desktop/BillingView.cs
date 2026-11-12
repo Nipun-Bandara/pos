@@ -74,6 +74,8 @@ public sealed partial class MainWindow
         _billingBarcode = Field(barcodeField, "ScanBarcode");
         var scanBox = _billingBarcode;
         var scanQuantity = Field(weightField, "ScanQuantity", "1");
+        ((TextBlock)barcodeField.Children[0]).Text = Texts.Get("CheckoutBarcode");
+        ((TextBlock)weightField.Children[0]).Text = Texts.Get("CheckoutQuantity");
         foreach (var field in new[] { barcodeField, weightField })
             ((TextBlock)field.Children[0]).Margin = new Thickness(0, 0, 0, 2);
         async Task EnqueueScan()
@@ -154,8 +156,14 @@ public sealed partial class MainWindow
                     ? Money.FromMinor(minor, currency).ToDecimal() : null, Reason: previous?.Reason)));
         }));
         ArrangeFields(selection);
-        var cart = StockTable(q.Lines, "BillingBasket", ("ReceiptName", "ReceiptName", null),
-            ("BillingQuantity", "Quantity", null), ("ChargedPrice", "ChargedUnitPrice", null), ("PreviewTotal", "Total", null));
+        var cart = StockTable(q.Lines, "BillingBasket", ("CheckoutItem", "ReceiptName", null),
+            ("CheckoutQuantity", "Quantity", null), ("CheckoutPrice", "ChargedUnitPrice", null), ("PreviewTotal", "Total", null));
+        var quantityDisplay = new MultiBinding { StringFormat = "{0:0.000} {1}", Mode = BindingMode.OneWay };
+        quantityDisplay.Bindings.Add(new Binding(nameof(BillingLine.Quantity)) { Mode = BindingMode.OneWay });
+        quantityDisplay.Bindings.Add(new Binding(nameof(BillingLine.Unit)) { Mode = BindingMode.OneWay, Converter = new EnumTextConverter("Unit") });
+        ((DataGridTextColumn)cart.Columns[1]).Binding = quantityDisplay;
+        ((DataGridTextColumn)cart.Columns[2]).Binding = new Binding(nameof(BillingLine.ChargedUnitPrice)) { Mode = BindingMode.OneWay, StringFormat = "{0:0.00}" };
+        ((DataGridTextColumn)cart.Columns[3]).Binding = new Binding(nameof(BillingLine.Total)) { Mode = BindingMode.OneWay, StringFormat = "{0:0.00}" };
         cart.ClearValue(HeightProperty); cart.MinHeight = 72;
         cart.ColumnWidth = new DataGridLength(1, DataGridLengthUnitType.Star);
         cart.Columns[0].Width = new DataGridLength(2, DataGridLengthUnitType.Star);
@@ -167,6 +175,8 @@ public sealed partial class MainWindow
         workspace.BasketHost.Content = basket;
         if (q.ErrorKey is { } error) actions.Children.Add(new TextBlock { Text = Texts.Get(error), Foreground = (System.Windows.Media.Brush)FindResource("PosError"), TextWrapping = TextWrapping.Wrap });
         var editQuantity = Field(editor, "BillingQuantity", "1");
+        ((TextBlock)editor.Children[0]).Text = Texts.Get("CheckoutQuantity");
+        editQuantity.Margin = new Thickness(0, 2, 0, 0);
         var lineDetails = new StackPanel();
         var finalPrice = Field(lineDetails, "RequestedFinalPrice");
         var discountReason = Field(lineDetails, "DiscountReason");
@@ -217,7 +227,12 @@ public sealed partial class MainWindow
         while (editor.Children.Count > 0)
         {
             var child = editor.Children[0]; editor.Children.RemoveAt(0);
-            if (child is Button button) { button.MaxWidth = 110; button.VerticalAlignment = VerticalAlignment.Bottom; }
+            if (child is Button button)
+            {
+                button.ToolTip = button.Content;
+                button.Content = Texts.Get(AutomationProperties.GetAutomationId(button) == "RemoveBillingLine" ? "CheckoutRemove" : "CheckoutUpdate");
+                button.MaxWidth = 110; button.VerticalAlignment = VerticalAlignment.Bottom;
+            }
             editRow.Children.Add(child);
         }
         editor.Children.Add(editRow);

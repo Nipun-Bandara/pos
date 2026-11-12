@@ -30,12 +30,12 @@ public sealed partial class MainWindow
         foreach (var (key, property) in new[] { ("Sku", "Sku"), ("SinhalaName", "SinhalaName"),
             ("EnglishName", "EnglishName"), ("Barcode", "Barcode"), ("Category", "Category"),
             ("Cost", "Cost"), ("NormalPrice", "NormalPrice"), ("PriceBands", "Bands"), ("StockBalance", "Stock"), ("BaseUnit", "StockUnit") })
-            table.Columns.Add(new DataGridTextColumn { Header = Texts.Get(key), Binding = new Binding(property) { Mode = BindingMode.OneWay, Converter = property == "StockUnit" ? new EnumTextConverter("Unit") : null }, SortMemberPath = property });
+            table.Columns.Add(new DataGridTextColumn { Header = Texts.Get(key), ElementStyle = (Style)System.Windows.Application.Current.FindResource("PosWrappedCell"), Binding = new Binding(property) { Mode = BindingMode.OneWay, Converter = property == "StockUnit" ? new EnumTextConverter("Unit") : null }, SortMemberPath = property });
         // CheckBox.IsChecked defaults to TwoWay even when its DataGrid is read-only.
         // ProductRow is a query projection; edits belong to the separate product form.
         table.Columns.Add(new DataGridCheckBoxColumn { Header = Texts.Get("Active"), Binding = new Binding(nameof(ProductRow.Active)) { Mode = BindingMode.OneWay }, IsReadOnly = true, SortMemberPath = nameof(ProductRow.Active) });
         System.Windows.Automation.AutomationProperties.SetAutomationId(table, "ProductsTable");
-        panel.Children.Add(table);
+        panel.Children.Add(WithEmptyState(table));
         foreach(var (key,filtered,format,prices) in new[]{("ExportAllCSV",false,"CSV",false),("ExportFilteredCSV",true,"CSV",false),("ExportAllXLSX",false,"XLSX",false),("ExportFilteredXLSX",true,"XLSX",false),("PriceListPDF",true,"PDF",true)})
             panel.Children.Add(Button(key,async()=>
             {
@@ -175,7 +175,7 @@ public sealed partial class MainWindow
             _vm.ShowSaved();
         }));
         RefreshPreview();
-        return new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-            HorizontalScrollBarVisibility = ScrollBarVisibility.Auto };
+        ArrangeFields(panel);
+        return Scroll(panel);
     }
 }

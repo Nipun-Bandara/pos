@@ -857,4 +857,10 @@
   <data name="PaymentTitle" xml:space="preserve"><value>ගෙවීම</value></data>
   <data name="LineDetails" xml:space="preserve"><value>තෝරාගත් භාණ්ඩ විස්තර</value></data>
   <data name="CheckoutOptions" xml:space="preserve"><value>වට්ටම් සහ තොග අනුමැතිය</value></data>
+  <data name="CheckoutBarcode" xml:space="preserve"><value>තීරු කේතය</value></data>
+  <data name="CheckoutQuantity" xml:space="preserve"><value>ප්‍රමාණය</value></data>
+  <data name="CheckoutItem" xml:space="preserve"><value>භාණ්ඩය</value></data>
+  <data name="CheckoutPrice" xml:space="preserve"><value>ඒකක මිල</value></data>
+  <data name="CheckoutUpdate" xml:space="preserve"><value>යාවත්කාලීන</value></data>
+  <data name="CheckoutRemove" xml:space="preserve"><value>ඉවත් කරන්න</value></data>
 </root>

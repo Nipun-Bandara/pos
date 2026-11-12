@@ -4,6 +4,7 @@ using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
+using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Microsoft.Extensions.DependencyInjection;
@@ -67,6 +68,7 @@ public sealed class DesktopWorkflowSpecs
             window.Show();
             await UntilAsync(() => vm.Screen == "Setup" && !vm.Busy);
             Capture(window, "setup-en.png");
+            await CaptureAuthenticationSizesAsync(window, vm, "setup");
             Find<TextBox>(window, "ShopName").Text = "අපේ කඩේ";
             Find<TextBox>(window, "LegalName").Text = "Test shop";
             Find<TextBox>(window, "OwnerName").Text = "Owner";
@@ -74,6 +76,7 @@ public sealed class DesktopWorkflowSpecs
             Find<PasswordBox>(window, "ConfirmPin").Password = "638194";
             Click(window, "CreateShop");
             await UntilAsync(() => vm.Screen == "Login" && !vm.Busy);
+            await CaptureAuthenticationSizesAsync(window, vm, "login");
             Find<PasswordBox>(window, "Pin").Password = "638194";
             Click(window, "SignIn");
             await UntilAsync(() => vm.Screen == "Shell" && !vm.Busy);
@@ -96,6 +99,7 @@ public sealed class DesktopWorkflowSpecs
             {
                 await UntilAsync(() => window.OwnedWindows.OfType<ApprovalDialog>().Any());
                 var dialog = window.OwnedWindows.OfType<ApprovalDialog>().Single();
+                Capture(dialog, $"modern-approval-{Texts.Language}.png");
                 Find<PasswordBox>(dialog, "Pin").Password = "638194";
                 Click(dialog, "Approve");
             }).Task.Unwrap();
@@ -113,6 +117,7 @@ public sealed class DesktopWorkflowSpecs
             vm.Session.IsLocked.ShouldBeTrue();
             vm.Screen.ShouldBe("Login");
             await UntilAsync(() => vm.Screen == "Login" && !vm.Busy);
+            await CaptureAuthenticationSizesAsync(window, vm, "locked");
             var lockedUser = Find<ComboBox>(window, "LoginUser");
             lockedUser.IsEnabled.ShouldBeFalse();
             ((UserSummary)lockedUser.SelectedItem).Id.ShouldBe(vm.Session.UserId!.Value);
@@ -156,6 +161,7 @@ public sealed class DesktopWorkflowSpecs
             Capture(window, "stock-si.png");
             await ExerciseReportsAsync(window,vm);
             await ExerciseRecoveryAsync(window,vm);
+            await ReviewScreenLayoutsAsync(window, vm);
             Click(window, "SignOut");
             await UntilAsync(() => vm.Screen == "Login" && !vm.Busy);
             users = Find<ComboBox>(window, "LoginUser");
@@ -314,9 +320,20 @@ public sealed class DesktopWorkflowSpecs
         vm.BillingState!.Shift.ShouldNotBeNull();
         async Task Scan(string barcode)
         {
-            Find<TextBox>(window, "ScanBarcode").Text = barcode; Click(window, "AddBarcode");
-            await UntilAsync(() => !vm.Busy);
+            var version = vm.BillingState!.Basket.Version;
+            var input = Find<TextBox>(window, "ScanBarcode"); input.Focus(); input.Text = barcode;
+            Enter(input, window);
+            await UntilAsync(() => !vm.Busy && vm.BillingState!.Basket.Version > version);
+            Find<TextBox>(window, "ScanBarcode").IsKeyboardFocused.ShouldBeTrue();
         }
+        var queuedVersion = vm.BillingState!.Basket.Version;
+        for (var i = 0; i < 2; i++)
+        {
+            var input = Find<TextBox>(window, "ScanBarcode"); input.Text = "001234567890"; Enter(input, window);
+        }
+        await UntilAsync(() => !vm.Busy && vm.BillingState!.Basket.Version == queuedVersion + 2);
+        vm.BillingState!.Quote.TotalMinor.ShouldBe(18000);
+        Click(window, "ClearBasket"); await UntilAsync(() => !vm.Busy && vm.BillingState!.Basket.Items.Count == 0);
         foreach (var expected in new long[] { 10000, 18000, 25500, 32000, 40000 })
         {
             await Scan("001234567890"); vm.BillingState!.Quote.TotalMinor.ShouldBe(expected);
@@ -327,6 +344,7 @@ public sealed class DesktopWorkflowSpecs
         vm.BillingState!.Quote.TotalMinor.ShouldBe(18000);
         Find<TextBox>(window, "ScanQuantity").Text = "1.250";
         await Scan("00001"); vm.BillingState!.Quote.TotalMinor.ShouldBe(36750);
+        await ReviewBillingSizesAsync(window, vm);
         Find<TextBox>(window, "CashTendered").Text = "400";
         Click(window, "CompleteSale"); await UntilAsync(() => !vm.Busy);
         vm.BillingState!.Basket.LastResult!.TotalMinor.ShouldBe(36750);
@@ -348,6 +366,7 @@ public sealed class DesktopWorkflowSpecs
         vm.BillingState.Shift!.ExpectedCash.ShouldBe(1518);
         await Scan("001234567890"); await Scan("001234567890");
         Find<DataGrid>(window, "BillingBasket").SelectedIndex = 0;
+        Find<Expander>(window, "BillingLineDetails").IsExpanded = true;
         Find<TextBox>(window, "RequestedFinalPrice").Text = "80";
         Find<TextBox>(window, "DiscountReason").Text = "Owner offer";
         Click(window, "UpdateBillingLine"); await UntilAsync(() => !vm.Busy);
@@ -357,6 +376,7 @@ public sealed class DesktopWorkflowSpecs
         {
             await UntilAsync(() => window.OwnedWindows.OfType<ApprovalDialog>().Any());
             var dialog = window.OwnedWindows.OfType<ApprovalDialog>().Single();
+            Capture(dialog, $"modern-approval-{Texts.Language}.png");
             Find<PasswordBox>(dialog, "Pin").Password = "638194"; Click(dialog, "Approve");
         }).Task.Unwrap();
         Click(window, "CompleteSale"); await approvalInteraction; await UntilAsync(() => !vm.Busy);
@@ -414,6 +434,7 @@ public sealed class DesktopWorkflowSpecs
         {
             await UntilAsync(() => window.OwnedWindows.OfType<ApprovalDialog>().Any());
             var dialog = window.OwnedWindows.OfType<ApprovalDialog>().Single();
+            Capture(dialog, $"modern-approval-{Texts.Language}.png");
             Find<PasswordBox>(dialog, "Pin").Password = "638194";
             Click(dialog, "Approve");
         }).Task.Unwrap();
@@ -479,6 +500,85 @@ public sealed class DesktopWorkflowSpecs
         table.SelectedIndex = 0;
         Find<TextBox>(window, "Sku").Text.ShouldBe("TEA-01");
         Capture(window, "products-en.png");
+    }
+
+    private static void Enter(UIElement target, Window window) => target.RaiseEvent(new KeyEventArgs(
+        Keyboard.PrimaryDevice, PresentationSource.FromVisual(window)!, Environment.TickCount, Key.Enter)
+        { RoutedEvent = Keyboard.KeyDownEvent });
+
+    private static void AssertInClient(Window window, FrameworkElement element)
+    {
+        element.IsVisible.ShouldBeTrue(); element.ActualWidth.ShouldBeGreaterThan(0); element.ActualHeight.ShouldBeGreaterThan(0);
+        var client = (FrameworkElement)window.Content;
+        var bounds = element.TransformToAncestor(client).TransformBounds(new Rect(element.RenderSize));
+        bounds.Left.ShouldBeGreaterThanOrEqualTo(-1); bounds.Top.ShouldBeGreaterThanOrEqualTo(-1);
+        bounds.Right.ShouldBeLessThanOrEqualTo(client.ActualWidth + 1);
+        bounds.Bottom.ShouldBeLessThanOrEqualTo(client.ActualHeight + 1);
+    }
+
+    private static async Task CaptureAuthenticationSizesAsync(Window window, MainViewModel vm, string screen)
+    {
+        var originalLanguage = Texts.Language;
+        foreach (var language in new[] { "en", "si" })
+        {
+            await vm.ChangeLanguageAsync(language);
+            foreach (var size in new[] { (800d, 600d), (1280d, 850d) })
+            {
+                window.Width = size.Item1; window.Height = size.Item2;
+                await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                Capture(window, $"modern-{screen}-{language}-{size.Item1}x{size.Item2}.png");
+                var pin = Find<PasswordBox>(window, "Pin");
+                pin.BringIntoView(); await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                AssertInClient(window, pin);
+                if (screen == "setup") Capture(window, $"modern-setup-pin-{language}-{size.Item1}x{size.Item2}.png");
+            }
+        }
+        await vm.ChangeLanguageAsync(originalLanguage);
+    }
+
+    private static async Task ReviewBillingSizesAsync(Window window, MainViewModel vm)
+    {
+        var originalLanguage = Texts.Language;
+        foreach (var language in new[] { "en", "si" })
+        {
+            await vm.ChangeLanguageAsync(language);
+            foreach (var size in new[] { (800d, 600d), (1280d, 850d) })
+            {
+                window.Width = size.Item1; window.Height = size.Item2;
+                await Dispatcher.Yield(DispatcherPriority.ApplicationIdle); window.UpdateLayout();
+                foreach (var id in new[] { "ScanBarcode", "BillingSearch", "BillingBasket", "BillingTotal", "PaymentMethod", "CashTendered", "CompleteSale" })
+                    AssertInClient(window, Find<FrameworkElement>(window, id));
+                var cart = Find<DataGrid>(window, "BillingBasket");
+                cart.Columns.Sum(c => c.ActualWidth).ShouldBeLessThanOrEqualTo(cart.ActualWidth + 1);
+                var row = (DataGridRow)cart.ItemContainerGenerator.ContainerFromIndex(0);
+                row.ShouldNotBeNull(); AssertInClient(window, row);
+                var rowBounds = row.TransformToAncestor(cart).TransformBounds(new Rect(row.RenderSize));
+                rowBounds.Bottom.ShouldBeLessThanOrEqualTo(cart.ActualHeight + 1);
+                Capture(window, $"modern-billing-{language}-{size.Item1}x{size.Item2}.png");
+            }
+        }
+        await vm.ChangeLanguageAsync(originalLanguage);
+    }
+
+    private static async Task ReviewScreenLayoutsAsync(Window window, MainViewModel vm)
+    {
+        foreach (var language in new[] { "en", "si" })
+        {
+            await vm.ChangeLanguageAsync(language);
+            foreach (var size in new[] { (800d, 600d), (1280d, 850d) })
+            {
+                window.Width = size.Item1; window.Height = size.Item2;
+                foreach (var section in new[] { "Billing", "Products", "Stock", "Returns", "Reports", "Settings" })
+                {
+                    Click(window, section); await UntilAsync(() => !vm.Busy && vm.Section == section);
+                    foreach (var nav in new[] { "Billing", "Products", "Stock", "Returns", "Reports", "Settings" })
+                        AssertInClient(window, Find<Button>(window, nav));
+                    AssertInClient(window, Find<ComboBox>(window, "UiLanguage"));
+                    AssertInClient(window, Find<TextBlock>(window, "BackupHealth"));
+                    Capture(window, $"modern-{section.ToLowerInvariant()}-{language}-{size.Item1}x{size.Item2}.png");
+                }
+            }
+        }
     }
 
     private static void Click(DependencyObject root, string id) =>

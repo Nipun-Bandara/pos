@@ -36,7 +36,7 @@ public sealed partial class MainWindow
         };
         var table = StockTable(_vm.Bills, "BillHistoryTable", ("BillNumber", "Number", null), ("BillLocalDate", "LocalTime", null),
             ("BillTotal", "Total", null), ("Currency", "Currency", null), ("BillStatus", "Status", "BillStatus"));
-        table.Height = 190; panel.Children.Add(table);
+        table.Height = 190; panel.Children.Add(WithEmptyState(table));
         panel.Children.Add(Button("OpenBill", async () =>
         {
             if (table.SelectedItem is not BillSummary bill) throw new FoundationException("SelectBill");
@@ -86,6 +86,7 @@ public sealed partial class MainWindow
                 ("ReceiptPrinter", "Printer", null), ("PrintableWidth", "PrintableWidthMillimeters", null), ("PrintCopy", "Copy", null), ("PrintStatus", "Status", null)));
         }
         panel.Loaded += (_, _) => lookup.Focus();
-        return new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto };
+        ArrangeFields(panel);
+        return Scroll(panel);
     }
 }

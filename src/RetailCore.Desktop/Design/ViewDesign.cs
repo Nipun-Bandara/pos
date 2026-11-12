@@ -12,6 +12,7 @@ public sealed partial class MainWindow
     private static ScrollViewer AuthPage(StackPanel panel)
     {
         panel.MaxWidth = 520;
+        panel.Width = 440;
         var surface = new Border { Child = panel, MaxWidth = 568, Margin = new Thickness(8, 20, 8, 20), HorizontalAlignment = HorizontalAlignment.Center };
         surface.SetResourceReference(StyleProperty, "PosSurfaceBorder");
         return Scroll(surface);

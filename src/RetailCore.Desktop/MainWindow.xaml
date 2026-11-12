@@ -13,7 +13,7 @@
     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
     <StackPanel VerticalAlignment="Center" Margin="0,0,8,0">
      <TextBlock x:Name="_appTitle" FontWeight="SemiBold" FontSize="17" TextWrapping="Wrap"/>
-     <TextBlock x:Name="_currentUser" Foreground="{StaticResource PosMuted}" TextWrapping="Wrap"/>
+     <TextBlock x:Name="_currentUser" Foreground="{StaticResource PosMuted}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"/>
     </StackPanel>
     <WrapPanel Grid.Column="1" VerticalAlignment="Center" MaxWidth="420">
      <ContentControl x:Name="_languageSlot" MinWidth="100" Margin="0,0,8,0"/>
