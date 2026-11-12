@@ -158,6 +158,7 @@ public sealed partial class MainWindow
         ArrangeFields(selection);
         var cart = StockTable(q.Lines, "BillingBasket", ("CheckoutItem", "ReceiptName", null),
             ("CheckoutQuantity", "Quantity", null), ("CheckoutPrice", "ChargedUnitPrice", null), ("PreviewTotal", "Total", null));
+        cart.Style = (Style)FindResource("PosBillingBasket");
         var quantityDisplay = new MultiBinding { StringFormat = "{0:0.000} {1}", Mode = BindingMode.OneWay };
         quantityDisplay.Bindings.Add(new Binding(nameof(BillingLine.Quantity)) { Mode = BindingMode.OneWay });
         quantityDisplay.Bindings.Add(new Binding(nameof(BillingLine.Unit)) { Mode = BindingMode.OneWay, Converter = new EnumTextConverter("Unit") });

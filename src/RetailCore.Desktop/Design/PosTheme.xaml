@@ -98,6 +98,11 @@
   <Setter Property="AlternatingRowBackground" Value="#FAFBFD"/>
   <Setter Property="FocusVisualStyle" Value="{StaticResource PosFocus}"/>
  </Style>
+ <!-- PosWrappedCell supplies basket text padding. Do not also inherit the
+      Material cell's 16,8 padding: narrow columns wrap excessively at 800x600. -->
+ <Style x:Key="PosBillingBasket" TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">
+  <Setter Property="md:DataGridAssist.CellPadding" Value="0"/>
+ </Style>
  <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
   <Setter Property="Padding" Value="8,9"/>
   <Setter Property="Foreground" Value="{StaticResource PosMuted}"/>

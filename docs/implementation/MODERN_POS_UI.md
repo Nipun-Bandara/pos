@@ -39,6 +39,15 @@ charged unit price and total, using proportional wrapped columns without horizon
 Selected-item details retain SKU, Sinhala/English names, normal/tier pricing, band, savings,
 manual final price and reason. Search and category selection still use the saved catalogue.
 
+The basket disables Material Design's outer cell padding because `PosWrappedCell` already
+supplies text padding. Applying both narrowed text unnecessarily and caused the first row
+to extend below the basket in the Windows minimum-size check. Other tables retain their
+existing styling. Layout captures are saved before bounds assertions so a failed Windows
+review still provides the rendered screen. This correction requires a Windows CI rerun;
+the Ubuntu build alone does not establish that the rendered row fits.
+The desktop test project rebuild after this correction passed with zero warnings/errors;
+theme XML parsing and `git diff --check` also passed. WPF execution remains unavailable here.
+
 Existing queued barcode input, repeated-scan aggregation, Enter, F2/Escape scan focus,
 Ctrl+F search, F4 tender, F6 removal and F9 completion handlers are retained. The existing
 shift, discount/negative-stock approvals, cash/card safeguards, rounding and idempotent

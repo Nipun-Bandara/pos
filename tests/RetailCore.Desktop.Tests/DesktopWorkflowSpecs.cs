@@ -548,6 +548,8 @@ public sealed class DesktopWorkflowSpecs
             {
                 window.Width = size.Item1; window.Height = size.Item2;
                 await Dispatcher.Yield(DispatcherPriority.ApplicationIdle); window.UpdateLayout();
+                // Keep the actual layout available for diagnosis even if a bounds assertion fails.
+                Capture(window, $"modern-billing-basket-{language}-{size.Item1}x{size.Item2}.png");
                 foreach (var id in new[] { "ScanBarcode", "BillingSearch", "BillingBasket", "BillingTotal", "PaymentMethod", "CashTendered", "CompleteSale" })
                     AssertInClient(window, Find<FrameworkElement>(window, id));
                 var cart = Find<DataGrid>(window, "BillingBasket");
@@ -555,8 +557,9 @@ public sealed class DesktopWorkflowSpecs
                 var row = (DataGridRow)cart.ItemContainerGenerator.ContainerFromIndex(0);
                 row.ShouldNotBeNull(); AssertInClient(window, row);
                 var rowBounds = row.TransformToAncestor(cart).TransformBounds(new Rect(row.RenderSize));
-                rowBounds.Bottom.ShouldBeLessThanOrEqualTo(cart.ActualHeight + 1);
-                Capture(window, $"modern-billing-basket-{language}-{size.Item1}x{size.Item2}.png");
+                rowBounds.Bottom.ShouldBeLessThanOrEqualTo(cart.ActualHeight + 1,
+                    $"First basket row must fit: language={language}, window={size.Item1}x{size.Item2}, "
+                    + $"basket={cart.ActualWidth:0.##}x{cart.ActualHeight:0.##}, row={rowBounds}");
             }
         }
         await vm.ChangeLanguageAsync(originalLanguage);
