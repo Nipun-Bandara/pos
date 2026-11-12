@@ -366,9 +366,13 @@ public sealed class DesktopWorkflowSpecs
         vm.BillingState.Shift!.ExpectedCash.ShouldBe(1518);
         await Scan("001234567890"); await Scan("001234567890");
         Find<DataGrid>(window, "BillingBasket").SelectedIndex = 0;
-        Find<Expander>(window, "BillingLineDetails").IsExpanded = true;
-        Find<TextBox>(window, "RequestedFinalPrice").Text = "80";
-        Find<TextBox>(window, "DiscountReason").Text = "Owner offer";
+        var details = Find<Expander>(window, "BillingLineDetails"); details.IsExpanded = true;
+        var finalPrice = await FindVisibleAsync<TextBox>(window, "RequestedFinalPrice");
+        finalPrice.BringIntoView(); await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+        finalPrice.Focus().ShouldBeTrue(); AssertInClient(window, finalPrice); finalPrice.Text = "80";
+        var discountReason = await FindVisibleAsync<TextBox>(window, "DiscountReason");
+        discountReason.BringIntoView(); await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+        discountReason.Focus().ShouldBeTrue(); AssertInClient(window, discountReason); discountReason.Text = "Owner offer";
         Click(window, "UpdateBillingLine"); await UntilAsync(() => !vm.Busy);
         vm.BillingState!.Quote.TotalMinor.ShouldBe(16000);
         Find<TextBox>(window, "CashTendered").Text = "200";
@@ -563,7 +567,8 @@ public sealed class DesktopWorkflowSpecs
                     $"First basket row must fit: language={language}, window={size.Item1}x{size.Item2}, "
                     + $"basket={cart.ActualWidth:0.##}x{cart.ActualHeight:0.##}, row={rowBounds}");
                 var picker = Find<Expander>(window, "BillingProductPicker"); picker.IsExpanded = true;
-                await Dispatcher.Yield(DispatcherPriority.ApplicationIdle); window.UpdateLayout();
+                await FindVisibleAsync<DataGrid>(window, "BillingProducts");
+                window.UpdateLayout();
                 AssertInClient(window, Find<Button>(window, "CompleteSale"));
                 AssertInClient(window, cart);
                 Capture(window, $"modern-billing-picker-{language}-{size.Item1}x{size.Item2}.png");
@@ -613,6 +618,27 @@ public sealed class DesktopWorkflowSpecs
         }
 
         return matches[0];
+    }
+
+    private static async Task<T> FindVisibleAsync<T>(FrameworkElement root, string id) where T : FrameworkElement
+    {
+        T? match = null;
+        // Material's Expander starts its visibility storyboard on a dispatcher/render tick.
+        // UpdateLayout alone cannot realize content that is still collapsed by that storyboard.
+        await UntilAsync(() =>
+        {
+            root.UpdateLayout();
+            var matches = Descendants(root).OfType<T>()
+                .Where(control => AutomationProperties.GetAutomationId(control) == id).ToArray();
+            matches.Length.ShouldBeLessThanOrEqualTo(1, $"AutomationId '{id}' must remain unique.");
+            match = matches.SingleOrDefault();
+            if (match is not { IsLoaded: true, IsVisible: true, ActualWidth: > 0, ActualHeight: > 0 }) return false;
+            // Visibility changes at the start of expansion; wait until the parent scale has
+            // also revealed the control at its measured size before scrolling/focusing it.
+            var bounds = match.TransformToAncestor(root).TransformBounds(new Rect(match.RenderSize));
+            return bounds.Width >= match.ActualWidth - .01 && bounds.Height >= match.ActualHeight - .01;
+        });
+        return match!;
     }
 
     private static IEnumerable<DependencyObject> Descendants(DependencyObject root)

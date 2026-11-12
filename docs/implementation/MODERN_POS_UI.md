@@ -159,3 +159,23 @@ selection expanded and saves a separate capture. No assertion or timeout was rel
 passed with zero warnings/errors. The native Windows rerun remains pending: Linux can compile
 the views/tests but cannot establish that the corrected Windows layout passes. The branch remains
 unmerged pending that rerun and the other recorded Windows acceptance gates.
+
+## Deferred Expander content in the Windows workflow
+
+The subsequent supplied Windows run reached the discounted-sale editor after completing the
+minimum/normal-size checks in both languages and the preceding cash/card examples. It then
+looked for `RequestedFinalPrice` immediately after setting `IsExpanded`, before that field
+was present in the visual tree. The pinned toolkit's
+[Expander template](https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit/blob/v5.3.2/src/MaterialDesignThemes.Wpf/Themes/MaterialDesignTheme.Expander.xaml)
+changes content visibility through a storyboard; a synchronous `UpdateLayout` does not
+advance that transition.
+
+The test now uses its existing bounded dispatcher wait to require exactly one loaded,
+visible, measured control whose on-screen size has finished expanding before editing. It
+brings each discount field into view and
+asserts keyboard focus and client bounds. Product-picker checks likewise wait for the real
+product table to appear before inspecting the expanded layout. The 20-second readiness
+limit, three-minute outer timeout, financial assertions and owner-approval flow are unchanged.
+No logical-tree shortcut, artificial field, fixed sleep or application authorization change
+was introduced. The desktop-test Release build passes with zero warnings/errors; native
+Windows execution of this synchronization correction remains pending.
