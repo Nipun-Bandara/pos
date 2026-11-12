@@ -1,0 +1,31 @@
+<UserControl x:Class="RetailCore.Desktop.BillingWorkspace"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ AutomationProperties.AutomationId="BillingWorkspace">
+ <Grid>
+  <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+  <ContentControl x:Name="ScanHost" HorizontalContentAlignment="Stretch"/>
+  <Grid x:Name="Actions" Grid.Row="1" Margin="0,8,0,0">
+   <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="246"/></Grid.ColumnDefinitions>
+   <Grid>
+    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+    <ScrollViewer x:Name="SearchViewport" MaxHeight="160" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+     <ContentControl x:Name="SearchHost" HorizontalContentAlignment="Stretch"/>
+    </ScrollViewer>
+    <ContentControl x:Name="BasketHost" Grid.Row="1" Margin="0,8" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+    <ContentControl x:Name="LineHost" Grid.Row="2" HorizontalContentAlignment="Stretch"/>
+   </Grid>
+   <Border Grid.Column="2" Style="{StaticResource PosSurfaceBorder}" Padding="12">
+    <Grid>
+     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+     <StackPanel x:Name="TotalsHost"/>
+     <StackPanel x:Name="TenderHost" Grid.Row="1"/>
+     <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,4,0,4">
+      <StackPanel x:Name="OptionsHost"/>
+     </ScrollViewer>
+     <ContentControl x:Name="CheckoutHost" Grid.Row="3" HorizontalContentAlignment="Stretch"/>
+    </Grid>
+   </Border>
+  </Grid>
+ </Grid>
+</UserControl>
