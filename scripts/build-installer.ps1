@@ -4,7 +4,11 @@ if ($Version -notmatch '^\d+\.\d+\.\d+$') { throw 'Use a three-part numeric vers
 $root = Split-Path $PSScriptRoot -Parent
 $publish = Join-Path $root 'artifacts/publish/win-x64'
 if (-not $Compiler) { $Compiler = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6/ISCC.exe' }
-if (-not (Test-Path $Compiler)) { throw 'Install Inno Setup 6 from https://jrsoftware.org/isdl.php or pass -Compiler.' }
+if (-not (Test-Path $Compiler)) { throw 'Install Inno Setup 6.3 or newer in the 6.x series from https://jrsoftware.org/isdl.php or pass -Compiler.' }
+$compilerVersion = (Get-Item $Compiler).VersionInfo
+if ($compilerVersion.FileMajorPart -ne 6 -or $compilerVersion.FileMinorPart -lt 3) {
+    throw 'Use Inno Setup 6.3 or newer in the 6.x series (UTF-8 sources and x64compatible architecture).'
+}
 dotnet publish (Join-Path $root 'src/RetailCore.Desktop') -c Release -r win-x64 --self-contained true -p:Version=$Version -p:PublishSingleFile=false -o $publish
 if ($LASTEXITCODE -ne 0) { throw 'Windows publish failed.' }
 & $Compiler "/DAppVersion=$Version" "/DPublishDir=$publish" (Join-Path $root 'installer/RetailCore.iss')
