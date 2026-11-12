@@ -74,14 +74,29 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
-      - name: Build self-contained Windows installer
+      - name: Install pinned Inno Setup compiler
         shell: pwsh
-        run: ./scripts/build-installer.ps1
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $setup = Join-Path $env:RUNNER_TEMP 'innosetup-6.7.4.exe'
+          $compilerDir = Join-Path $env:RUNNER_TEMP 'InnoSetup6'
+          Invoke-WebRequest 'https://github.com/jrsoftware/issrc/releases/download/is-6_7_4/innosetup-6.7.4.exe' -OutFile $setup
+          $expectedHash = 'a549929319f9120716677c685535ca4671e4b937b5fdc87e2585f32d8eb30e8c'
+          if ((Get-FileHash $setup -Algorithm SHA256).Hash -ne $expectedHash) {
+            throw 'Inno Setup download checksum does not match the pinned release.'
+          }
+          $install = Start-Process $setup -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/SP-', "/DIR=`"$compilerDir`"" -Wait -PassThru
+          if ($install.ExitCode -ne 0) { throw "Inno Setup installation failed with exit code $($install.ExitCode)." }
+          if (-not (Test-Path (Join-Path $compilerDir 'ISCC.exe'))) { throw 'Inno Setup compiler was not installed.' }
+      - name: Build self-contained Windows installer
+        id: build_installer
+        shell: pwsh
+        run: ./scripts/build-installer.ps1 -Compiler (Join-Path $env:RUNNER_TEMP 'InnoSetup6/ISCC.exe')
       - name: Install, schedule backup and preserve user data on uninstall
         shell: pwsh
         run: ./scripts/test-installer.ps1
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: ${{ always() && steps.build_installer.outcome == 'success' }}
         with:
           name: windows-installer
           path: artifacts/installer/*

@@ -1,3 +1,6 @@
+#if (VER < 0x06030000) || (VER >= 0x07000000)
+  #error Use Inno Setup 6.3 or newer in the 6.x series (UTF-8 sources and x64compatible architecture).
+#endif
 #ifndef PublishDir
   #error PublishDir is required. Run scripts/build-installer.ps1.
 #endif
