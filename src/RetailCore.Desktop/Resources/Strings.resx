@@ -869,4 +869,23 @@
   <data name="CheckoutComplete" xml:space="preserve"><value>Complete sale (F9)</value></data>
   <data name="UseLightTheme" xml:space="preserve"><value>Switch to light theme</value></data>
   <data name="UseDarkTheme" xml:space="preserve"><value>Switch to dark theme</value></data>
+  <data name="ImportProducts" xml:space="preserve"><value>Import new products</value></data>
+  <data name="ImportHelp" xml:space="preserve"><value>Choose one category and download a template. Replace the example row; keep the English column headings. Use UTF-8 CSV or a single-sheet XLSX, up to 5,000 products / 10 MB. Use a decimal point, units Each/Kilogram/Gram/Litre/Millilitre/Metre/Pack, and true/false for Active. In Excel, keep SKU and barcode cells as Text. Preview before saving. All rows must be valid; existing products and stock are unchanged.</value></data>
+  <data name="ImportTemplateCSV" xml:space="preserve"><value>Download CSV template</value></data>
+  <data name="ImportTemplateXLSX" xml:space="preserve"><value>Download Excel template</value></data>
+  <data name="ImportFileFilter" xml:space="preserve"><value>CSV files (*.csv)|*.csv|Excel files (*.xlsx)|*.xlsx</value></data>
+  <data name="ImportFile" xml:space="preserve"><value>Product file path</value></data>
+  <data name="ChooseImportFile" xml:space="preserve"><value>Choose product file</value></data>
+  <data name="PreviewImport" xml:space="preserve"><value>Preview import</value></data>
+  <data name="ImportRow" xml:space="preserve"><value>Row</value></data>
+  <data name="ImportError" xml:space="preserve"><value>Issue to fix</value></data>
+  <data name="ImportSummaryFormat" xml:space="preserve"><value>{0} rows; {1} rows need correction.</value></data>
+  <data name="InvalidImportFile" xml:space="preserve"><value>Use a valid UTF-8 CSV or single-sheet XLSX template (up to 5,000 rows / 10 MB).</value></data>
+  <data name="ImportHeaders" xml:space="preserve"><value>Column headings must match the downloadable template.</value></data>
+  <data name="ImportUnit" xml:space="preserve"><value>Use a unit from the template instructions, with the same spelling.</value></data>
+  <data name="ImportFormulas" xml:space="preserve"><value>Replace spreadsheet formulas with their literal values before importing.</value></data>
+  <data name="ImportTextIdentifiers" xml:space="preserve"><value>Set SKU and barcode cells to Text and re-enter codes to preserve leading zeroes.</value></data>
+  <data name="ImportInvalidRows" xml:space="preserve"><value>Correct every preview issue and preview again. Nothing was imported.</value></data>
+  <data name="ImportReadFailed" xml:space="preserve"><value>The product file could not be read. Check its path and access permissions.</value></data>
+  <data name="ProductsImported" xml:space="preserve"><value>Products imported successfully.</value></data>
 </root>

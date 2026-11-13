@@ -50,6 +50,7 @@ public sealed partial class MainWindow
                     prices?new[]{Texts.Get("Sku"),Texts.Get("ReceiptName"),Texts.Get("Barcode"),Texts.Get("NormalPrice"),Texts.Get("PriceBands"),Texts.Get("Unit")}:ProductExportColumns.Select(Texts.Get).ToArray(),rows),format);
             }));
 
+        panel.Children.Add(ProductImportView(data));
         panel.Children.Add(new TextBlock { Text = Texts.Get("CatalogueHelp"), TextWrapping = TextWrapping.Wrap });
         // Owners edit; every application command independently rechecks authority.
         var editor = new StackPanel { IsEnabled = _vm.IsOwner };
