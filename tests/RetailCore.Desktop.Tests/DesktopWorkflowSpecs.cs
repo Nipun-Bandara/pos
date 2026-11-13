@@ -65,6 +65,7 @@ public sealed class DesktopWorkflowSpecs
         var window = new MainWindow(vm, new DesktopAppearance(Path.Combine(path, "theme.txt")));
         try
         {
+            window.Icon.ShouldNotBeNull();
             window.Show();
             await UntilAsync(() => vm.Screen == "Setup" && !vm.Busy);
             AssertInClient(window, Find<ComboBox>(window, "UiLanguage"));

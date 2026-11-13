@@ -4,8 +4,10 @@
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <ApplicationIcon>Assets/RetailCore.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Resource Include="Assets/RetailCore.ico" />
     <PackageReference Include="MaterialDesignThemes" />
     <ProjectReference Include="../RetailCore.Infrastructure.Sqlite/RetailCore.Infrastructure.Sqlite.csproj" />
   </ItemGroup>

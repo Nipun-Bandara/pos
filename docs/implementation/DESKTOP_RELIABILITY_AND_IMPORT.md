@@ -90,3 +90,16 @@ Do not treat the build as proof that the reported Windows visual defects are res
 hardware. The changes and Windows regression checks are committed for that verification.
 No local merge to `development` was performed because required Windows validation remains
 unavailable. No remote push was requested or performed.
+
+### Installed launcher icon follow-up
+
+Added an original storefront ICO with 16, 20, 24, 32, 40, 48, 64, 128 and 256 pixel
+representations. `ApplicationIcon` embeds it into the Windows executable; the WPF window
+uses the same embedded resource. The installer uses it for the setup executable and assigns
+the installed executable's icon explicitly to both Start menu and desktop shortcuts. The
+uninstaller entry already uses that executable. `scripts/generate-app-icon.py` reproduces
+the artwork using Pillow (developer-only; no installed application dependency).
+
+Existing installed copies need a new Windows installer/build. Checking the icon on an
+installed Windows desktop/Start menu/taskbar remains pending with the other Windows checks.
+No financial or database code changed in this follow-up.
