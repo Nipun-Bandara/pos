@@ -9,18 +9,20 @@
  <SolidColorBrush x:Key="PosAccent" Color="#1D4ED8"/>
  <SolidColorBrush x:Key="PosAccentSoft" Color="#EBF1FF"/>
  <SolidColorBrush x:Key="PosError" Color="#B42318"/>
+ <SolidColorBrush x:Key="PosOnAccent" Color="#FFFFFF"/>
+ <SolidColorBrush x:Key="PosAlternate" Color="#FAFBFD"/>
  <FontFamily x:Key="PosFont">Nirmala UI, Segoe UI, Iskoola Pota</FontFamily>
  <Thickness x:Key="PosPagePadding">16,12</Thickness>
  <Thickness x:Key="PosFieldGap">0,4,0,8</Thickness>
  <Style x:Key="PosFocus">
   <Setter Property="Control.Template"><Setter.Value><ControlTemplate>
-   <Rectangle Margin="-3" Stroke="{StaticResource PosAccent}" StrokeThickness="2" StrokeDashArray="2,1" RadiusX="4" RadiusY="4"/>
+   <Rectangle Margin="-3" Stroke="{DynamicResource PosAccent}" StrokeThickness="2" StrokeDashArray="2,1" RadiusX="4" RadiusY="4"/>
   </ControlTemplate></Setter.Value></Setter>
  </Style>
  <Style x:Key="PosButton" TargetType="Button" BasedOn="{StaticResource MaterialDesignOutlinedButton}">
-  <Setter Property="Foreground" Value="{StaticResource PosInk}"/>
-  <Setter Property="Background" Value="{StaticResource PosSurface}"/>
-  <Setter Property="BorderBrush" Value="{StaticResource PosBorder}"/>
+  <Setter Property="Foreground" Value="{DynamicResource PosInk}"/>
+  <Setter Property="Background" Value="{DynamicResource PosSurface}"/>
+  <Setter Property="BorderBrush" Value="{DynamicResource PosBorder}"/>
   <Setter Property="FontFamily" Value="{StaticResource PosFont}"/>
   <Setter Property="Padding" Value="12,7"/>
   <Setter Property="Margin" Value="0,4,8,4"/>
@@ -36,9 +38,9 @@
  </Style>
  <Style TargetType="Button" BasedOn="{StaticResource PosButton}"/>
  <Style x:Key="PosPrimaryButton" TargetType="Button" BasedOn="{StaticResource PosButton}">
-  <Setter Property="Background" Value="{StaticResource PosAccent}"/>
-  <Setter Property="BorderBrush" Value="{StaticResource PosAccent}"/>
-  <Setter Property="Foreground" Value="White"/>
+  <Setter Property="Background" Value="{DynamicResource PosAccent}"/>
+  <Setter Property="BorderBrush" Value="{DynamicResource PosAccent}"/>
+  <Setter Property="Foreground" Value="{DynamicResource PosOnAccent}"/>
  </Style>
  <Style x:Key="PosNavButton" TargetType="Button" BasedOn="{StaticResource PosButton}">
   <Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -48,8 +50,8 @@
   <Setter Property="MinHeight" Value="44"/>
  </Style>
  <Style x:Key="PosSelectedNavButton" TargetType="Button" BasedOn="{StaticResource PosNavButton}">
-  <Setter Property="Background" Value="{StaticResource PosAccentSoft}"/>
-  <Setter Property="Foreground" Value="{StaticResource PosAccent}"/>
+  <Setter Property="Background" Value="{DynamicResource PosAccentSoft}"/>
+  <Setter Property="Foreground" Value="{DynamicResource PosAccent}"/>
  </Style>
  <Style x:Key="PosInput" TargetType="TextBox" BasedOn="{StaticResource MaterialDesignOutlinedTextBox}">
   <Setter Property="FontFamily" Value="{StaticResource PosFont}"/>
@@ -84,18 +86,18 @@
  </Style>
  <Style x:Key="PosTable" TargetType="DataGrid" BasedOn="{StaticResource MaterialDesignDataGrid}">
   <Setter Property="FontFamily" Value="{StaticResource PosFont}"/>
-  <Setter Property="Background" Value="{StaticResource PosSurface}"/>
-  <Setter Property="BorderBrush" Value="{StaticResource PosBorder}"/>
+  <Setter Property="Background" Value="{DynamicResource PosSurface}"/>
+  <Setter Property="BorderBrush" Value="{DynamicResource PosBorder}"/>
   <Setter Property="BorderThickness" Value="1"/>
   <Setter Property="GridLinesVisibility" Value="Horizontal"/>
-  <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource PosBorder}"/>
+  <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource PosBorder}"/>
   <Setter Property="RowHeaderWidth" Value="0"/>
   <Setter Property="MinRowHeight" Value="40"/>
   <Setter Property="ColumnHeaderHeight" Value="Auto"/>
   <Setter Property="FontSize" Value="14"/>
   <Setter Property="EnableRowVirtualization" Value="True"/>
   <Setter Property="EnableColumnVirtualization" Value="True"/>
-  <Setter Property="AlternatingRowBackground" Value="#FAFBFD"/>
+  <Setter Property="AlternatingRowBackground" Value="{DynamicResource PosAlternate}"/>
   <Setter Property="FocusVisualStyle" Value="{StaticResource PosFocus}"/>
  </Style>
  <Style TargetType="DataGrid" BasedOn="{StaticResource PosTable}"/>
@@ -106,7 +108,7 @@
  </Style>
  <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
   <Setter Property="Padding" Value="8,9"/>
-  <Setter Property="Foreground" Value="{StaticResource PosMuted}"/>
+  <Setter Property="Foreground" Value="{DynamicResource PosMuted}"/>
   <Setter Property="FontWeight" Value="SemiBold"/>
   <Setter Property="ContentTemplate"><Setter.Value><DataTemplate><TextBlock Text="{Binding}" TextWrapping="Wrap"/></DataTemplate></Setter.Value></Setter>
  </Style>
@@ -118,8 +120,8 @@
   <Setter Property="FontSize" Value="16"/><Setter Property="Margin" Value="0,16,0,8"/>
  </Style>
  <Style x:Key="PosSurfaceBorder" TargetType="Border">
-  <Setter Property="Background" Value="{StaticResource PosSurface}"/>
-  <Setter Property="BorderBrush" Value="{StaticResource PosBorder}"/>
+  <Setter Property="Background" Value="{DynamicResource PosSurface}"/>
+  <Setter Property="BorderBrush" Value="{DynamicResource PosBorder}"/>
   <Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="6"/>
   <Setter Property="Padding" Value="16"/>
  </Style>

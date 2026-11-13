@@ -32,7 +32,7 @@ public sealed record CategoryRow(CategoryId Id, string SinhalaName, string Engli
 public sealed record CatalogueData(IReadOnlyList<ProductRow> Products, IReadOnlyList<CategoryRow> Categories, string Currency);
 
 /// <summary>Owner checks and audit share the transaction with every catalogue mutation.</summary>
-public sealed class CatalogueService(ILocalTransactions transactions, FoundationService foundation, IClock clock)
+public sealed partial class CatalogueService(ILocalTransactions transactions, FoundationService foundation, IClock clock)
 {
     public Task<CatalogueData> LoadAsync(CancellationToken cancellationToken = default) =>
         transactions.ReadAsync(async (store, ct) =>

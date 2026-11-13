@@ -13,16 +13,28 @@ namespace RetailCore.Desktop;
 public sealed partial class MainWindow : Window
 {
     private readonly MainViewModel _vm;
+    private readonly DesktopAppearance _appearance;
     private readonly DispatcherTimer _idleTimer = new() { Interval = TimeSpan.FromSeconds(15) };
+    private bool _started;
+    private bool _renderQueued;
+    private bool _closed;
     private DateTimeOffset _lastInput = DateTimeOffset.UtcNow;
 
-    public MainWindow(MainViewModel vm)
+    public MainWindow(MainViewModel vm, DesktopAppearance? appearance = null)
     {
         _vm = vm;
+        _appearance = appearance ?? new DesktopAppearance(RetailCore.Infrastructure.Sqlite.Foundation.LocalRuntime.DefaultDatabasePath + ".ui-theme");
+        _appearance.Apply();
         InitializeComponent();
+        var workArea = SystemParameters.WorkArea;
+        Width = Math.Max(MinWidth, Math.Min(Width, workArea.Width));
+        Height = Math.Max(MinHeight, Math.Min(Height, workArea.Height));
+        Left = Math.Max(workArea.Left, workArea.Left + (workArea.Width - Width) / 2);
+        Top = Math.Max(workArea.Top, workArea.Top + (workArea.Height - Height) / 2);
+        Render();
         _vm.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName == nameof(MainViewModel.Screen)) { Render(); }
+            if (e.PropertyName == nameof(MainViewModel.Screen)) { RequestRender(); }
             _backupHealth.Text = Texts.Get("BackupHealth")+": "+Texts.Get(_vm.BackupHealth);
             _status.Text = _vm.Busy ? Texts.Get("Loading") : _vm.Message;
             _body.IsEnabled = !_vm.Busy || (_vm.Screen == "Shell" && _vm.Section == "Billing");
@@ -30,7 +42,15 @@ public sealed partial class MainWindow : Window
             _header.IsEnabled = !_vm.Busy;
             _nav.IsEnabled = !_vm.Busy;
         };
-        Loaded += async (_, _) => { Render(); await _vm.RunAsync(_vm.StartAsync); };
+        Loaded += async (_, _) =>
+        {
+            // Theme/template reloads may raise Loaded again. They must never restart login.
+            if (_started) return;
+            _started = true;
+            await Dispatcher.Yield(DispatcherPriority.ContextIdle);
+            await _vm.RunAsync(_vm.StartAsync);
+            if (_vm.Screen == "Loading") _body.Content = Button("Retry", _vm.StartAsync);
+        };
         System.Windows.Input.InputManager.Current.PreProcessInput += RecordInput;
         StateChanged += (_, _) => { if (WindowState == WindowState.Minimized) { LockNow(); } };
         _idleTimer.Tick += (_, _) =>
@@ -41,6 +61,7 @@ public sealed partial class MainWindow : Window
         PreviewKeyDown += HandleBillingShortcut;
         Closed += (_, _) =>
         {
+            _closed = true;
             _idleTimer.Stop();
             System.Windows.Input.InputManager.Current.PreProcessInput -= RecordInput;
             _vm.Service.SignOut();
@@ -62,6 +83,27 @@ public sealed partial class MainWindow : Window
         foreach (var dialog in OwnedWindows.Cast<Window>().ToArray()) { dialog.Close(); }
     }
 
+    private void UpdateThemeButton()
+    {
+        var label = Texts.Get(_appearance.IsDark ? "UseLightTheme" : "UseDarkTheme");
+        _themeToggle.ToolTip = label; AutomationProperties.SetName(_themeToggle, label);
+    }
+    private async void ThemeClicked(object sender, RoutedEventArgs e) => await _vm.RunAsync(() =>
+    {
+        _appearance.Toggle(); UpdateThemeButton(); return Task.CompletedTask;
+    });
+
+    private void RequestRender()
+    {
+        if (_closed || _renderQueued) return;
+        _renderQueued = true;
+        Dispatcher.BeginInvoke(DispatcherPriority.Render, () =>
+        {
+            _renderQueued = false;
+            if (!_closed) Render();
+        });
+    }
+
     private void Render()
     {
         if (_billingUiSession != _vm.Session.Version)
@@ -73,6 +115,7 @@ public sealed partial class MainWindow : Window
         Title = Texts.Get("AppTitle");
         Language = System.Windows.Markup.XmlLanguage.GetLanguage(CultureInfo.CurrentUICulture.IetfLanguageTag);
         _appTitle.Text = Texts.Get("AppTitle");
+        UpdateThemeButton();
         _currentUser.Text = _vm.Current is not null && !_vm.Session.IsLocked
             ? _vm.Current.Name + " · " + Texts.Get(_vm.IsOwner ? "Owner" : "Cashier") : string.Empty;
         var languages = LanguagePicker(Texts.Language);
@@ -103,6 +146,7 @@ public sealed partial class MainWindow : Window
         }
         _body.Content = _vm.Screen switch
         {
+            "Loading" => new TextBlock { Text = Texts.Get("Loading"), TextWrapping = TextWrapping.Wrap },
             "Setup" => SetupView(),
             "Login" => LoginView(),
             "Shell" => ShellView(),

@@ -867,4 +867,25 @@
   <data name="HeaderSignOut" xml:space="preserve"><value>ඉවත් වන්න</value></data>
   <data name="CheckoutAdd" xml:space="preserve"><value>එක් කරන්න</value></data>
   <data name="CheckoutComplete" xml:space="preserve"><value>බිල්පත අවසන් කරන්න</value></data>
+  <data name="UseLightTheme" xml:space="preserve"><value>ආලෝක තේමාවට මාරු වන්න</value></data>
+  <data name="UseDarkTheme" xml:space="preserve"><value>අඳුරු තේමාවට මාරු වන්න</value></data>
+  <data name="ImportProducts" xml:space="preserve"><value>නව භාණ්ඩ ආයාත කරන්න</value></data>
+  <data name="ImportHelp" xml:space="preserve"><value>වර්ගයක් තෝරා ආකෘතිය බාගන්න. උදාහරණ පේළිය වෙනස් කරන්න; ඉංග්‍රීසි තීරු ශීර්ෂ එලෙසම තබන්න. UTF-8 CSV හෝ තනි පත්‍රයක් ඇති XLSX භාවිත කරන්න (භාණ්ඩ 5,000 / 10 MB දක්වා). දශම සඳහා තිතක්ද, ඒකක සඳහා Each/Kilogram/Gram/Litre/Millilitre/Metre/Pack ද, Active සඳහා true/false ද යොදන්න. Excel හි SKU සහ තීරු කේත Text ලෙස තබන්න. සුරැකීමට පෙර පෙරදසුන බලන්න. සියලු පේළි වලංගු විය යුතුය; පවතින භාණ්ඩ හා තොග වෙනස් නොවේ.</value></data>
+  <data name="ImportTemplateCSV" xml:space="preserve"><value>CSV ආකෘතිය බාගන්න</value></data>
+  <data name="ImportTemplateXLSX" xml:space="preserve"><value>Excel ආකෘතිය බාගන්න</value></data>
+  <data name="ImportFileFilter" xml:space="preserve"><value>CSV ගොනු (*.csv)|*.csv|Excel ගොනු (*.xlsx)|*.xlsx</value></data>
+  <data name="ImportFile" xml:space="preserve"><value>භාණ්ඩ ගොනුවේ මාර්ගය</value></data>
+  <data name="ChooseImportFile" xml:space="preserve"><value>භාණ්ඩ ගොනුව තෝරන්න</value></data>
+  <data name="PreviewImport" xml:space="preserve"><value>ආයාත පෙරදසුන</value></data>
+  <data name="ImportRow" xml:space="preserve"><value>පේළිය</value></data>
+  <data name="ImportError" xml:space="preserve"><value>නිවැරදි කළ යුතු දෝෂය</value></data>
+  <data name="ImportSummaryFormat" xml:space="preserve"><value>පේළි {0}; නිවැරදි කළ යුතු පේළි {1}.</value></data>
+  <data name="InvalidImportFile" xml:space="preserve"><value>වලංගු UTF-8 CSV හෝ තනි පත්‍ර XLSX ආකෘතියක් භාවිත කරන්න (පේළි 5,000 / 10 MB දක්වා).</value></data>
+  <data name="ImportHeaders" xml:space="preserve"><value>තීරු ශීර්ෂ බාගත කළ ආකෘතියට ගැළපිය යුතුය.</value></data>
+  <data name="ImportUnit" xml:space="preserve"><value>ආකෘතියේ උපදෙස්වල ඇති ඒකකයක් එම අක්ෂර වින්‍යාසයෙන්ම යොදන්න.</value></data>
+  <data name="ImportFormulas" xml:space="preserve"><value>ආයාත කිරීමට පෙර පැතුරුම්පත් සූත්‍ර වෙනුවට ඒවායේ අගයන් යොදන්න.</value></data>
+  <data name="ImportTextIdentifiers" xml:space="preserve"><value>මුල් බිංදු රැකීමට SKU හා තීරු කේත කොටු Text ලෙස සකසා කේත නැවත ඇතුළත් කරන්න.</value></data>
+  <data name="ImportInvalidRows" xml:space="preserve"><value>පෙරදසුනේ සියලු දෝෂ නිවැරදි කර නැවත පෙරදසුන බලන්න. කිසිවක් ආයාත නොකළේය.</value></data>
+  <data name="ImportReadFailed" xml:space="preserve"><value>භාණ්ඩ ගොනුව කියවිය නොහැක. මාර්ගය හා ප්‍රවේශ අවසර පරීක්ෂා කරන්න.</value></data>
+  <data name="ProductsImported" xml:space="preserve"><value>භාණ්ඩ සාර්ථකව ආයාත කළේය.</value></data>
 </root>

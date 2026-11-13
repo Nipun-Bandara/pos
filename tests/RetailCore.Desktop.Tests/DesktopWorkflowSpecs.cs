@@ -62,11 +62,16 @@ public sealed class DesktopWorkflowSpecs
         var services = new ServiceCollection().AddLocalFoundation(Path.Combine(path, "till.db"));
         await using var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
         var vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>(), provider.GetRequiredService<RetailCore.Application.Checkout.BillingService>(), provider.GetRequiredService<RetailCore.Application.Receipts.ReceiptService>(), provider.GetRequiredService<RetailCore.Application.Returns.ReturnService>(), provider.GetRequiredService<RetailCore.Application.Reporting.CashService>(), provider.GetRequiredService<RetailCore.Application.Reporting.ReportService>(), provider.GetRequiredService<RetailCore.Application.Recovery.RecoveryService>());
-        var window = new MainWindow(vm);
+        var window = new MainWindow(vm, new DesktopAppearance(Path.Combine(path, "theme.txt")));
         try
         {
+            window.Icon.ShouldNotBeNull();
             window.Show();
             await UntilAsync(() => vm.Screen == "Setup" && !vm.Busy);
+            AssertInClient(window, Find<ComboBox>(window, "UiLanguage"));
+            AssertInClient(window, Find<Button>(window, "ThemeToggle"));
+            window.Top.ShouldBeGreaterThanOrEqualTo(SystemParameters.WorkArea.Top);
+            window.Top.ShouldBeLessThan(SystemParameters.WorkArea.Bottom);
             Capture(window, "setup-en.png");
             await CaptureAuthenticationSizesAsync(window, vm, "setup");
             Find<TextBox>(window, "ShopName").Text = "අපේ කඩේ";
@@ -80,6 +85,28 @@ public sealed class DesktopWorkflowSpecs
             Find<PasswordBox>(window, "Pin").Password = "638194";
             Click(window, "SignIn");
             await UntilAsync(() => vm.Screen == "Shell" && !vm.Busy);
+            window.WindowStyle.ShouldBe(WindowStyle.SingleBorderWindow);
+            window.ResizeMode.ShouldBe(ResizeMode.CanResize);
+            AssertInClient(window, Find<ComboBox>(window, "UiLanguage"));
+            var billingView = Find<BillingWorkspace>(window, "BillingWorkspace");
+            // Re-loading an already authenticated window must not restart the login workflow.
+            window.RaiseEvent(new RoutedEventArgs(FrameworkElement.LoadedEvent));
+            await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+            vm.Screen.ShouldBe("Shell");
+            Find<BillingWorkspace>(window, "BillingWorkspace").ShouldBeSameAs(billingView);
+            Descendants(window).OfType<ComboBox>().Any(c => AutomationProperties.GetAutomationId(c) == "LoginUser").ShouldBeFalse();
+            Find<TextBox>(window, "ScanBarcode").Text = "000-PENDING";
+            var lightColor = ((SolidColorBrush)window.FindResource("PosBackground")).Color;
+            Click(window, "ThemeToggle"); await UntilAsync(() => !vm.Busy);
+            new DesktopAppearance(Path.Combine(path, "theme.txt")).IsDark.ShouldBeTrue();
+            ((SolidColorBrush)window.FindResource("PosBackground")).Color.ShouldNotBe(lightColor);
+            vm.Screen.ShouldBe("Shell");
+            Find<BillingWorkspace>(window, "BillingWorkspace").ShouldBeSameAs(billingView);
+            Find<TextBox>(window, "ScanBarcode").Text.ShouldBe("000-PENDING");
+            Find<TextBox>(window, "ScanBarcode").Clear();
+            Capture(window, "billing-dark.png");
+            Click(window, "ThemeToggle"); await UntilAsync(() => !vm.Busy);
+            ((SolidColorBrush)window.FindResource("PosBackground")).Color.ShouldBe(lightColor);
             await ExerciseProductsAsync(window, vm);
             await ExerciseStockAsync(window, vm);
             await ExerciseBillingAsync(window, vm);
@@ -130,7 +157,7 @@ public sealed class DesktopWorkflowSpecs
             window.Close();
             // Reopen the actual window and sign in against the same database with a new session.
             vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>(), provider.GetRequiredService<RetailCore.Application.Checkout.BillingService>(), provider.GetRequiredService<RetailCore.Application.Receipts.ReceiptService>(), provider.GetRequiredService<RetailCore.Application.Returns.ReturnService>(), provider.GetRequiredService<RetailCore.Application.Reporting.CashService>(), provider.GetRequiredService<RetailCore.Application.Reporting.ReportService>(), provider.GetRequiredService<RetailCore.Application.Recovery.RecoveryService>());
-            window = new MainWindow(vm);
+            window = new MainWindow(vm, new DesktopAppearance(Path.Combine(path, "theme.txt")));
             window.Show();
             await UntilAsync(() => vm.Screen == "Login" && !vm.Busy);
             var users = Find<ComboBox>(window, "LoginUser");
@@ -152,6 +179,20 @@ public sealed class DesktopWorkflowSpecs
             (await vm.Service.ProfileAsync()).Telephone.ShouldBe("0771234567");
             Click(window, "Products");
             await UntilAsync(() => vm.Section == "Products" && !vm.Busy);
+            var import = Descendants(window).OfType<Expander>().Single(e => Equals(e.Header, Texts.Get("ImportProducts")));
+            import.IsExpanded = true;
+            var importPath = await FindVisibleAsync<TextBox>(window, "ImportFile");
+            var productFile = Path.Combine(path, "products.csv");
+            var template = System.Text.Encoding.UTF8.GetString(RetailCore.Application.Catalogue.ProductImportFile.Template(".csv"));
+            await File.WriteAllTextAsync(productFile, template.Replace("001234567890", "000555", StringComparison.Ordinal));
+            importPath.Text = productFile;
+            Click(window, "PreviewImport"); await UntilAsync(() => !vm.Busy);
+            Find<DataGrid>(window, "ImportPreviewTable").Items.Count.ShouldBe(1);
+            Find<Button>(window, "ImportProducts").IsEnabled.ShouldBeTrue();
+            Capture(window, "product-import-si.png");
+            Click(window, "ImportProducts"); await UntilAsync(() => !vm.Busy);
+            vm.Message.ShouldBe(Texts.Get("ProductsImported"));
+            (await vm.Catalogue.LoadAsync()).Products.Single(p => p.Sku == "TEA-001").Barcode.ShouldBe("000555");
             var restored = (await vm.Catalogue.LoadAsync()).Products.Single(p => p.Sku == "TEA-01");
             restored.SinhalaName.ShouldBe("තේ");
             restored.Barcode.ShouldBe("001234567890");
@@ -298,14 +339,17 @@ public sealed class DesktopWorkflowSpecs
         var receipt = vm.SelectedBill.Receipt;
         var longReceipt = receipt with { Lines = Enumerable.Range(1,100).Select(i => receipt.Lines[0] with
             { Number = i, Name = string.Concat(Enumerable.Repeat("දිගු සිංහල භාණ්ඩ නාමය ",8)) }).ToArray() };
+        Click(window, "ThemeToggle"); await UntilAsync(() => !vm.Busy);
         var rendered = ReceiptRenderer.Render(longReceipt,48,true);
         // WPF canonicalizes XmlLanguage tags to lowercase; compare language values, not casing.
+        rendered.Foreground.ShouldBe(Brushes.Black); rendered.Background.ShouldBe(Brushes.White);
         rendered.Language.ShouldBe(System.Windows.Markup.XmlLanguage.GetLanguage("si-LK"));
         rendered.Blocks.OfType<System.Windows.Documents.Table>().ShouldContain(t => t.Columns.Count == 4);
         receipt.Version.ShouldBe(2);
         var paginated = ((System.Windows.Documents.IDocumentPaginatorSource)rendered).DocumentPaginator;
         paginated.ComputePageCount(); paginated.PageCount.ShouldBeGreaterThan(1);
         paginated.GetPage(0).Size.Width.ShouldBe(48d * 96 / 25.4, .01);
+        Click(window, "ThemeToggle"); await UntilAsync(() => !vm.Busy);
         Click(window, "Billing"); await UntilAsync(() => vm.Section == "Billing" && !vm.Busy);
     }
 

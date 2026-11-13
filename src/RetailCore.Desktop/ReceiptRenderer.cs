@@ -20,6 +20,7 @@ public static class ReceiptRenderer
         if (printableWidthMillimeters is < 40 or > 300) throw new FoundationException("PrinterWidthUnsupported");
         var doc = new FlowDocument
         {
+            Foreground = Brushes.Black, Background = Brushes.White,
             PageWidth = width, PageHeight = 1100, PagePadding = new Thickness(8), ColumnWidth = double.PositiveInfinity,
             FontFamily = new FontFamily("Nirmala UI, Iskoola Pota, Segoe UI"), FontSize = 13,
             Language = System.Windows.Markup.XmlLanguage.GetLanguage("si-LK"), FlowDirection = FlowDirection.LeftToRight,

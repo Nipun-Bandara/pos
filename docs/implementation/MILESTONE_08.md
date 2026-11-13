@@ -169,3 +169,8 @@ printer/scanner/USB disconnection, intended-PC WPF performance or trading week h
 performed from this Linux environment. CI source includes real Windows dispatcher maintenance
 controls and installer smoke checks; their existence is not a passing result. The pilot must
 start only after install, restore, original Sinhala receipts/barcodes, stock and cash checks pass.
+
+The installation folder intentionally contains many files: this is a self-contained .NET
+Windows application with its runtime, WPF assemblies, SQLite native library, translations
+and UI toolkit. Launch it using the Start menu shortcut; do not delete individual program
+files or move just the executable. Shop data and backups live outside this folder as above.

@@ -25,6 +25,7 @@ Compression=lzma2
 SolidCompression=yes
 OutputBaseFilename=RetailCore-{#AppVersion}-win-x64-setup
 OutputDir=..\artifacts\installer
+SetupIconFile=..\src\RetailCore.Desktop\Assets\RetailCore.ico
 UninstallDisplayIcon={app}\RetailCore.Desktop.exe
 SetupLogging=yes
 [Languages]
@@ -34,8 +35,8 @@ Name: "sinhala"; MessagesFile: "compiler:Default.isl,Sinhala.isl"
 Source: "{#PublishDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "Register-DailyBackup.ps1"; DestDir: "{app}"; Flags: ignoreversion
 [Icons]
-Name: "{group}\RetailCore POS"; Filename: "{app}\RetailCore.Desktop.exe"
-Name: "{autodesktop}\RetailCore POS"; Filename: "{app}\RetailCore.Desktop.exe"
+Name: "{group}\RetailCore POS"; Filename: "{app}\RetailCore.Desktop.exe"; IconFilename: "{app}\RetailCore.Desktop.exe"; IconIndex: 0
+Name: "{autodesktop}\RetailCore POS"; Filename: "{app}\RetailCore.Desktop.exe"; IconFilename: "{app}\RetailCore.Desktop.exe"; IconIndex: 0
 [Run]
 Filename: "{app}\RetailCore.Desktop.exe"; Description: "Open RetailCore POS / RetailCore POS විවෘත කරන්න"; Flags: nowait postinstall skipifsilent
 [UninstallRun]
