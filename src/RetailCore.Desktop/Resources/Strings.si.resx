@@ -867,4 +867,6 @@
   <data name="HeaderSignOut" xml:space="preserve"><value>ඉවත් වන්න</value></data>
   <data name="CheckoutAdd" xml:space="preserve"><value>එක් කරන්න</value></data>
   <data name="CheckoutComplete" xml:space="preserve"><value>බිල්පත අවසන් කරන්න</value></data>
+  <data name="UseLightTheme" xml:space="preserve"><value>ආලෝක තේමාවට මාරු වන්න</value></data>
+  <data name="UseDarkTheme" xml:space="preserve"><value>අඳුරු තේමාවට මාරු වන්න</value></data>
 </root>

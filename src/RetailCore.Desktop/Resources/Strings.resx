@@ -867,4 +867,6 @@
   <data name="HeaderSignOut" xml:space="preserve"><value>Sign out</value></data>
   <data name="CheckoutAdd" xml:space="preserve"><value>Add</value></data>
   <data name="CheckoutComplete" xml:space="preserve"><value>Complete sale (F9)</value></data>
+  <data name="UseLightTheme" xml:space="preserve"><value>Switch to light theme</value></data>
+  <data name="UseDarkTheme" xml:space="preserve"><value>Switch to dark theme</value></data>
 </root>

@@ -42,7 +42,7 @@ public sealed class ApprovalDialog : Window
         var owner = new ComboBox { ItemsSource = owners, DisplayMemberPath = nameof(UserSummary.Name), SelectedIndex = 0 };
         panel.Children.Add(owner);
         var pin = MainWindow.Password(panel, "Pin");
-        var error = new TextBlock { TextWrapping = TextWrapping.Wrap, Foreground = System.Windows.Media.Brushes.DarkRed };
+        var error = new TextBlock { TextWrapping = TextWrapping.Wrap, Foreground = (System.Windows.Media.Brush)System.Windows.Application.Current.FindResource("PosError") };
         panel.Children.Add(error);
         var approve = new Button { Content = Texts.Get("Approve"), IsDefault = true };
         System.Windows.Automation.AutomationProperties.SetAutomationId(approve, "Approve");

@@ -62,7 +62,7 @@ public sealed class DesktopWorkflowSpecs
         var services = new ServiceCollection().AddLocalFoundation(Path.Combine(path, "till.db"));
         await using var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
         var vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>(), provider.GetRequiredService<RetailCore.Application.Checkout.BillingService>(), provider.GetRequiredService<RetailCore.Application.Receipts.ReceiptService>(), provider.GetRequiredService<RetailCore.Application.Returns.ReturnService>(), provider.GetRequiredService<RetailCore.Application.Reporting.CashService>(), provider.GetRequiredService<RetailCore.Application.Reporting.ReportService>(), provider.GetRequiredService<RetailCore.Application.Recovery.RecoveryService>());
-        var window = new MainWindow(vm);
+        var window = new MainWindow(vm, new DesktopAppearance(Path.Combine(path, "theme.txt")));
         try
         {
             window.Show();
@@ -80,6 +80,25 @@ public sealed class DesktopWorkflowSpecs
             Find<PasswordBox>(window, "Pin").Password = "638194";
             Click(window, "SignIn");
             await UntilAsync(() => vm.Screen == "Shell" && !vm.Busy);
+            window.WindowStyle.ShouldBe(WindowStyle.SingleBorderWindow);
+            window.ResizeMode.ShouldBe(ResizeMode.CanResize);
+            AssertInClient(window, Find<ComboBox>(window, "UiLanguage"));
+            var billingView = Find<BillingWorkspace>(window, "BillingWorkspace");
+            // Re-loading an already authenticated window must not restart the login workflow.
+            window.RaiseEvent(new RoutedEventArgs(FrameworkElement.LoadedEvent));
+            await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+            vm.Screen.ShouldBe("Shell");
+            Find<BillingWorkspace>(window, "BillingWorkspace").ShouldBeSameAs(billingView);
+            Descendants(window).OfType<ComboBox>().Any(c => AutomationProperties.GetAutomationId(c) == "LoginUser").ShouldBeFalse();
+            var lightColor = ((SolidColorBrush)window.FindResource("PosBackground")).Color;
+            Click(window, "ThemeToggle"); await UntilAsync(() => !vm.Busy);
+            new DesktopAppearance(Path.Combine(path, "theme.txt")).IsDark.ShouldBeTrue();
+            ((SolidColorBrush)window.FindResource("PosBackground")).Color.ShouldNotBe(lightColor);
+            vm.Screen.ShouldBe("Shell");
+            Find<BillingWorkspace>(window, "BillingWorkspace").ShouldBeSameAs(billingView);
+            Capture(window, "billing-dark.png");
+            Click(window, "ThemeToggle"); await UntilAsync(() => !vm.Busy);
+            ((SolidColorBrush)window.FindResource("PosBackground")).Color.ShouldBe(lightColor);
             await ExerciseProductsAsync(window, vm);
             await ExerciseStockAsync(window, vm);
             await ExerciseBillingAsync(window, vm);
@@ -130,7 +149,7 @@ public sealed class DesktopWorkflowSpecs
             window.Close();
             // Reopen the actual window and sign in against the same database with a new session.
             vm = new MainViewModel(provider.GetRequiredService<FoundationService>(), provider.GetRequiredService<LocalSession>(), provider.GetRequiredService<RetailCore.Application.Catalogue.CatalogueService>(), provider.GetRequiredService<RetailCore.Application.Inventory.StockService>(), provider.GetRequiredService<RetailCore.Application.Checkout.BillingService>(), provider.GetRequiredService<RetailCore.Application.Receipts.ReceiptService>(), provider.GetRequiredService<RetailCore.Application.Returns.ReturnService>(), provider.GetRequiredService<RetailCore.Application.Reporting.CashService>(), provider.GetRequiredService<RetailCore.Application.Reporting.ReportService>(), provider.GetRequiredService<RetailCore.Application.Recovery.RecoveryService>());
-            window = new MainWindow(vm);
+            window = new MainWindow(vm, new DesktopAppearance(Path.Combine(path, "theme.txt")));
             window.Show();
             await UntilAsync(() => vm.Screen == "Login" && !vm.Busy);
             var users = Find<ComboBox>(window, "LoginUser");

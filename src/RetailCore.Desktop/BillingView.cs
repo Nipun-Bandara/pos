@@ -268,7 +268,7 @@ public sealed partial class MainWindow
         }
         if (q.NeedsStockApproval) actions.Children.Add(new TextBlock { Text = Texts.Get("InsufficientStock") + "\n"
             + string.Join('\n', q.Stock.Where(s => s.Insufficient).Select(StockDescription)),
-            Foreground = System.Windows.Media.Brushes.DarkRed, TextWrapping = TextWrapping.Wrap });
+            Foreground = (System.Windows.Media.Brush)FindResource("PosError"), TextWrapping = TextWrapping.Wrap });
         void TenderPreview()
         {
             var cash = method.SelectedIndex == 0;
